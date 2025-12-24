@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حقيبة المؤمن</title>
+    <title>حقيبة المؤمن - القرآن والأذكار</title>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -69,20 +69,26 @@
         <div id="azkar-content" style="display:none;">
             <div class="top-controls">
                 <button class="back-btn" onclick="backToAzkarCats()">← العودة</button>
-                <button class="reset-btn" onclick="resetAzkarProgress()">تصفير</button>
+                <button class="reset-btn" onclick="resetAzkarProgress()">تصفير التقدم</button>
             </div>
-            <h2 id="azkar-title"></h2>
+            <h2 id="azkar-title" style="text-align:center;"></h2>
             <div id="azkarList"></div>
         </div>
     </div>
 
     <div id="sebha-section" style="display:none;">
         <div class="sebha-container">
+            <div class="timer-wrapper">
+                <span class="timer-label">التصفير التلقائي خلال:</span>
+                <div id="countdown-timer" class="modern-timer">00:00:00</div>
+            </div>
             <div class="sebha-circle" onclick="incrementSebha()">
                 <span id="sebhaCounter">0</span>
                 <small>اضغط للتسبيح</small>
             </div>
-            <button class="reset-btn" onclick="resetSebha()">تصفير العداد</button>
+            <button class="modern-reset-btn" onclick="resetSebha()">
+                <span class="icon">🔄</span> تصفير العداد يدويًا
+            </button>
         </div>
     </div>
 </div>
