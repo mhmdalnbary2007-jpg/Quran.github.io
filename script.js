@@ -1,15 +1,15 @@
 let allSurahs = [];
+let currentSurahId = 1;
 const audio = document.getElementById('audioPlayer');
 const playBtn = document.getElementById('playBtn');
 
-// 1. جلب السور
+// جلب قائمة السور عند التشغيل
 fetch('https://api.alquran.cloud/v1/surah')
     .then(res => res.json())
     .then(data => {
         allSurahs = data.data;
         displaySurahs(allSurahs);
-    })
-    .catch(err => console.error("خطأ في جلب السور:", err));
+    });
 
 function displaySurahs(surahs) {
     const list = document.getElementById('surahList');
@@ -20,24 +20,19 @@ function displaySurahs(surahs) {
     `).join('');
 }
 
-// 2. البحث
 function filterSurahs() {
     const term = document.getElementById('searchInput').value;
-    const filtered = allSurahs.filter(s => s.name.includes(term));
-    displaySurahs(filtered);
+    displaySurahs(allSurahs.filter(s => s.name.includes(term)));
 }
 
-// 3. فتح السورة وتشغيل صوت العفاسي
 function openSurah(id, name) {
+    currentSurahId = id;
     document.getElementById('main-view').style.display = 'none';
     document.getElementById('quran-view').style.display = 'block';
     document.getElementById('current-surah-title').innerText = name;
     
-    // رابط صوت العفاسي (سيرفر 8)
-    const formattedId = id.toString().padStart(3, '0');
-    audio.src = `https://server8.mp3quran.net/afs/${formattedId}.mp3`;
+    updateAudioSource();
     
-    // جلب النص
     document.getElementById('ayahsContainer').innerText = "جاري تحميل الآيات...";
     fetch(`https://api.alquran.cloud/v1/surah/${id}`)
         .then(res => res.json())
@@ -45,6 +40,27 @@ function openSurah(id, name) {
             const text = data.data.ayahs.map(a => `${a.text} <span class="ayah-num">(${a.numberInSurah})</span>`).join(' ');
             document.getElementById('ayahsContainer').innerHTML = text;
         });
+}
+
+function updateAudioSource() {
+    const reciter = document.getElementById('reciterSelect').value;
+    const formattedId = currentSurahId.toString().padStart(3, '0');
+    
+    // روابط السيرفرات المباشرة لكل قارئ
+    const servers = {
+        'afs': `https://server8.mp3quran.net/afs/${formattedId}.mp3`,
+        'minsh': `https://server10.mp3quran.net/minsh/${formattedId}.mp3`,
+        'basit': `https://server7.mp3quran.net/basit/${formattedId}.mp3`,
+        'husr': `https://server13.mp3quran.net/husr/${formattedId}.mp3`
+    };
+    
+    audio.src = servers[reciter];
+    playBtn.innerText = "تشغيل السورة ▷";
+}
+
+function changeReciter() {
+    audio.pause();
+    updateAudioSource();
 }
 
 function toggleAudio() {
@@ -59,7 +75,6 @@ function toggleAudio() {
 
 function showMain() {
     audio.pause();
-    playBtn.innerText = "تشغيل السورة ▷";
     document.getElementById('main-view').style.display = 'block';
     document.getElementById('quran-view').style.display = 'none';
 }
