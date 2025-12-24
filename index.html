@@ -3,47 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>موقع القرآن الكريم</title>
+    <title>حقيبة المؤمن - قرآن وأذكار</title>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header>
-    <h1>موقع القرآن الكريم</h1>
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="ابحث عن سورة..." onkeyup="filterSurahs()">
+    <h1>حقيبة المؤمن</h1>
+    <div class="main-nav">
+        <button id="quranTab" class="active" onclick="switchMainTab('quran')">القرآن الكريم</button>
+        <button id="azkarTab" onclick="switchMainTab('azkar')">قسم الأذكار</button>
     </div>
 </header>
 
 <div class="container">
-    <div id="main-view">
-        <div class="surah-grid" id="surahList">
-            <p>جاري تحميل السور...</p>
+    <div id="quran-section">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="ابحث عن سورة..." onkeyup="filterSurahs()">
+        </div>
+        <div id="main-view">
+            <div class="surah-grid" id="surahList">
+                <p>جاري تحميل السور...</p>
+            </div>
+        </div>
+        <div id="quran-view" style="display:none;">
+            <button class="back-btn" onclick="showMain()">← العودة للقائمة</button>
+            <div class="player-container">
+                <h2 id="current-surah-title"></h2>
+                <div class="reciter-section">
+                    <select id="reciterSelect" onchange="changeReciter()">
+                        <option value="afs">مشاري العفاسي</option>
+                        <option value="minsh">محمد صديق المنشاوي</option>
+                        <option value="basit">عبد الباسط عبد الصمد</option>
+                        <option value="husr">محمود خليل الحصري</option>
+                    </select>
+                </div>
+                <div class="audio-wrapper">
+                    <button id="playBtn" onclick="toggleAudio()">تشغيل السورة ▷</button>
+                </div>
+                <audio id="audioPlayer"></audio>
+            </div>
+            <div class="ayah-text" id="ayahsContainer"></div>
         </div>
     </div>
 
-    <div id="quran-view" style="display:none;">
-        <button class="back-btn" onclick="showMain()">← العودة للقائمة</button>
-        <div class="player-container">
-            <h2 id="current-surah-title"></h2>
-            
-            <div class="reciter-section">
-                <label for="reciterSelect">اختر القارئ المفضل:</label>
-                <select id="reciterSelect" onchange="changeReciter()">
-                    <option value="afs">مشاري العفاسي</option>
-                    <option value="minsh">محمد صديق المنشاوي</option>
-                    <option value="basit">عبد الباسط عبد الصمد</option>
-                    <option value="husr">محمود خليل الحصري</option>
-                </select>
-            </div>
-
-            <div class="audio-wrapper">
-                <button id="playBtn" onclick="toggleAudio()">تشغيل السورة ▷</button>
-            </div>
-            <audio id="audioPlayer"></audio>
+    <div id="azkar-section" style="display:none;">
+        <div class="azkar-categories" id="azkarCats">
+            <div class="surah-card" onclick="loadAzkar('morning')">أذكار الصباح</div>
+            <div class="surah-card" onclick="loadAzkar('evening')">أذكار المساء</div>
+            <div class="surah-card" onclick="loadAzkar('sleep')">أذكار النوم</div>
         </div>
-        <div class="ayah-text" id="ayahsContainer"></div>
+        <div id="azkar-content" style="display:none;">
+            <button class="back-btn" onclick="backToAzkarCats()">← العودة للأقسام</button>
+            <h2 id="azkar-title" style="text-align:center;"></h2>
+            <div id="azkarList"></div>
+        </div>
     </div>
 </div>
 
