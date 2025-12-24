@@ -1,0 +1,29 @@
+<header>
+    <h1>القرآن الكريم</h1>
+    <p>بصوت الشيخ منصور السالمي</p>
+    
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="ابحث عن سورة..." onkeyup="filterSurahs()">
+    </div>
+</header>
+
+<div class="container">
+    <div id="main-view">
+        <div class="surah-grid" id="surahList"></div>
+    </div>
+
+    <div id="quran-display">
+        <button class="back-btn" onclick="goBack()">← العودة للقائمة</button>
+        
+        <div id="surah-header">
+            <h2 id="surah-title"></h2>
+            <div class="audio-controls">
+                <button id="playBtn" onclick="toggleAudio()">تشغيل السورة ▷</button>
+                <audio id="mainAudio"></audio>
+            </div>
+        </div>
+
+        <div class="bismillah" id="bismillah-text">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+        <div class="ayah-text" id="ayahs-container"></div>
+    </div>
+</div>

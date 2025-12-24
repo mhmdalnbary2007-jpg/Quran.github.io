@@ -1,0 +1,56 @@
+/* القسم الثاني: التنسيق (style.css) */
+:root {
+    --dark-teal: #2F5F63;
+    --gold: #C9B07A;
+    --white: #ffffff;
+}
+
+body { font-family: 'Amiri', serif; background-color: #fcfcfc; color: var(--dark-teal); margin: 0; direction: rtl; }
+
+/* شريط البحث */
+.search-container { margin-top: 20px; }
+#searchInput {
+    padding: 12px 25px;
+    width: 300px;
+    border-radius: 25px;
+    border: 2px solid var(--gold);
+    outline: none;
+    font-family: 'Amiri';
+    font-size: 1.1rem;
+}
+
+/* مشغل الصوت المركزي */
+.audio-controls {
+    display: flex;
+    justify-content: center;
+    margin: 25px 0;
+}
+
+#playBtn {
+    background-color: var(--dark-teal);
+    color: var(--gold);
+    border: 2px solid var(--gold);
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+#playBtn:hover {
+    background-color: var(--gold);
+    color: var(--dark-teal);
+}
+
+.surah-card {
+    background: white;
+    border-right: 5px solid var(--gold);
+    padding: 15px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: 0.3s;
+}
+
+.surah-card:hover { transform: scale(1.05); background: var(--dark-teal); color: white; }
