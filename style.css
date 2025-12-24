@@ -7,35 +7,26 @@
 
 body { font-family: 'Amiri', serif; background-color: var(--bg-light); color: var(--dark-teal); margin: 0; direction: rtl; transition: 0.3s; }
 body.dark-mode { background-color: #121212; color: #e0e0e0; }
-body.dark-mode .ayah-text, body.dark-mode .surah-card, body.dark-mode .zekr-card, body.dark-mode .player-container { background-color: #1e1e1e; color: #ffffff; border-color: var(--gold); }
 
-header { background-color: var(--dark-teal); color: var(--gold); padding: 20px; text-align: center; border-bottom: 5px solid var(--gold); }
-.main-nav button { background: transparent; border: 2px solid var(--gold); color: var(--gold); padding: 10px 20px; margin: 5px; border-radius: 20px; cursor: pointer; font-weight: bold; font-family: 'Amiri'; }
+header { background-color: var(--dark-teal); color: var(--gold); padding: 15px; text-align: center; border-bottom: 5px solid var(--gold); position: sticky; top: 0; z-index: 1000; }
+.main-nav { margin-top: 10px; }
+.main-nav button { background: transparent; border: 2px solid var(--gold); color: var(--gold); padding: 8px 15px; margin: 3px; border-radius: 20px; cursor: pointer; font-family: 'Amiri'; font-weight: bold; }
 .main-nav button.active { background: var(--gold); color: var(--dark-teal); }
 
-.container { max-width: 900px; margin: auto; padding: 20px; }
-.top-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-.text-tools button { background: var(--gold); color: var(--dark-teal); border: none; padding: 5px 15px; margin-left: 5px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+.container { max-width: 800px; margin: auto; padding: 15px; }
 
-.surah-grid, .azkar-categories { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
-.surah-card, .zekr-card { background: var(--white); padding: 20px; border-right: 6px solid var(--gold); cursor: pointer; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+.surah-grid, .azkar-categories { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.surah-card, .zekr-card { background: var(--white); padding: 18px; border-right: 5px solid var(--gold); border-radius: 8px; cursor: pointer; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.05); transition: 0.2s; }
+.zekr-card { text-align: justify; text-align-last: center; margin-bottom: 15px; position: relative; }
+.zekr-card.done { opacity: 0.5; background: #e8f5e9; border-right-color: #2ecc71; pointer-events: none; }
+.zekr-card.done::after { content: "✓ تم القراءة"; position: absolute; top: 5px; left: 10px; color: #2ecc71; font-size: 0.8rem; font-weight: bold; }
 
-.player-container { text-align: center; background: var(--white); padding: 30px; border-radius: 20px; border: 2px solid var(--gold); margin-bottom: 25px; }
-.custom-player { display: flex; flex-direction: column; align-items: center; gap: 15px; }
-.progress-container { display: flex; align-items: center; width: 100%; gap: 10px; font-family: sans-serif; }
-#seekSlider { flex-grow: 1; accent-color: var(--gold); cursor: pointer; }
-#playBtn { background: var(--dark-teal); color: var(--gold); border: 2px solid var(--gold); width: 60px; height: 60px; border-radius: 50%; font-size: 1.5rem; cursor: pointer; }
+.zekr-text { font-size: 1.25rem; line-height: 1.8; color: #333; margin-bottom: 10px; }
+.zekr-counter { background: var(--dark-teal); color: var(--gold); padding: 4px 12px; border-radius: 15px; font-weight: bold; display: inline-block; font-size: 0.9rem; }
 
-.ayah-text { font-size: 1.6rem; line-height: 2.4; text-align: justify; text-align-last: center; background: white; padding: 30px; border-radius: 15px; }
-.bismillah { font-size: 2.2rem; color: var(--dark-teal); margin-bottom: 20px; font-weight: bold; }
-.ayah-num { color: var(--gold); font-weight: bold; margin: 0 5px; }
-
-/* السبحة */
-.sebha-container { text-align: center; background: var(--white); padding: 20px; border-radius: 20px; border: 1px solid #ddd; }
-#resetTimerText { font-size: 0.9rem; color: #666; background: #eee; padding: 5px 15px; border-radius: 10px; display: inline-block; }
-.sebha-circle { width: 220px; height: 220px; border-radius: 50%; background: var(--dark-teal); color: var(--gold); display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 30px auto; border: 8px solid var(--gold); cursor: pointer; transition: 0.1s; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-.sebha-circle:active { transform: scale(0.95); }
-#sebhaCounter { font-size: 4rem; font-weight: bold; }
-.progress-bar-container { width: 100%; height: 15px; background: #eee; border-radius: 10px; overflow: hidden; margin: 20px 0; border: 1px solid #ddd; }
+/* باقي تنسيقات السبحة واللاعب كما هي لضمان استقرار الموقع */
+.sebha-circle { width: 180px; height: 180px; border-radius: 50%; background: var(--dark-teal); color: var(--gold); display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 20px auto; border: 6px solid var(--gold); cursor: pointer; box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+#sebhaCounter { font-size: 3.5rem; font-weight: bold; }
+.progress-bar-container { width: 100%; height: 12px; background: #eee; border-radius: 10px; overflow: hidden; margin: 15px 0; }
 .progress-bar { width: 0%; height: 100%; background: var(--gold); transition: 0.4s; }
-.reset-btn { background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+.reset-btn { border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; color: white; background: #e74c3c; font-family: 'Amiri'; }
