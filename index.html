@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حقيبة المؤمن - قرآن وأذكار</title>
+    <title>حقيبة المؤمن - القرآن والأذكار</title>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -64,8 +64,11 @@
             <div class="surah-card" onclick="loadAzkar('sleep')">🛌 أذكار النوم</div>
         </div>
         <div id="azkar-content" style="display:none;">
-            <button class="back-btn" onclick="backToAzkarCats()">← العودة</button>
-            <h2 id="azkar-title" style="text-align:center;"></h2>
+            <div class="top-controls">
+                <button class="back-btn" onclick="backToAzkarCats()">← العودة</button>
+                <button class="reset-btn" style="background:#f39c12" onclick="resetAzkarProgress()">تصفير الأذكار</button>
+            </div>
+            <h2 id="azkar-title" style="text-align:center; color: var(--dark-teal);"></h2>
             <div id="azkarList"></div>
         </div>
     </div>
@@ -79,6 +82,7 @@
                     <option value="100">100</option>
                     <option value="500">500</option>
                     <option value="1000" selected>1000</option>
+                    <option value="5000">5000</option>
                 </select>
             </div>
             <div class="sebha-circle" onclick="incrementSebha()">
