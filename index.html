@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>القرآن الكريم - العفاسي</title>
+    <title>موقع القرآن الكريم</title>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -11,7 +11,6 @@
 
 <header>
     <h1>موقع القرآن الكريم</h1>
-    <p>بصوت الشيخ مشاري العفاسي</p>
     <div class="search-box">
         <input type="text" id="searchInput" placeholder="ابحث عن سورة..." onkeyup="filterSurahs()">
     </div>
@@ -20,7 +19,7 @@
 <div class="container">
     <div id="main-view">
         <div class="surah-grid" id="surahList">
-            <p style="color: var(--dark-teal)">جاري تحميل السور...</p>
+            <p>جاري تحميل السور...</p>
         </div>
     </div>
 
@@ -28,12 +27,22 @@
         <button class="back-btn" onclick="showMain()">← العودة للقائمة</button>
         <div class="player-container">
             <h2 id="current-surah-title"></h2>
+            
+            <div class="reciter-section">
+                <label for="reciterSelect">اختر القارئ المفضل:</label>
+                <select id="reciterSelect" onchange="changeReciter()">
+                    <option value="afs">مشاري العفاسي</option>
+                    <option value="minsh">محمد صديق المنشاوي</option>
+                    <option value="basit">عبد الباسط عبد الصمد</option>
+                    <option value="husr">محمود خليل الحصري</option>
+                </select>
+            </div>
+
             <div class="audio-wrapper">
                 <button id="playBtn" onclick="toggleAudio()">تشغيل السورة ▷</button>
             </div>
             <audio id="audioPlayer"></audio>
         </div>
-        <hr border="0" style="border-top:1px solid var(--gold); margin:20px 0;">
         <div class="ayah-text" id="ayahsContainer"></div>
     </div>
 </div>
