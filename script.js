@@ -137,16 +137,19 @@ function loadAzkar(cat) {
     const list = document.getElementById('azkarList');
     const titles = { morning: '☀️ أذكار الصباح', evening: '🌙 أذكار المساء', sleep: '🛌 أذكار النوم', afterPrayer: '📿 بعد الصلاة' };
     document.getElementById('azkar-title').innerText = titles[cat];
-
     list.innerHTML = azkarData[cat].map(z => {
         let saved = localStorage.getItem(`zekr_${z.id}`);
         let cur = saved !== null ? parseInt(saved) : z.count;
+        // نتحقق إذا كان مخلص (صفر) عشان نعطيه الكلاس الأخضر من البداية
+        let completedClass = cur === 0 ? 'completed done' : '';
+        
         return `
-            <div class="zekr-card ${cur === 0 ? 'done' : ''}" onclick="countZekr('${z.id}')">
+            <div class="zekr-card ${completedClass}" onclick="countZekr('${z.id}')">
                 <div class="zekr-text">${z.text}</div>
-                <div class="zekr-counter">بقي: <span id="num-${z.id}">${cur}</span></div>
+                <div class="zekr-counter">المتبقي: <span id="num-${z.id}">${cur}</span></div>
             </div>`;
     }).join('');
+
 }
 
 function countZekr(id) {
