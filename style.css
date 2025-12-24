@@ -16,24 +16,42 @@ body {
 header {
     background-color: var(--dark-teal);
     color: var(--gold);
-    padding: 30px;
+    padding: 20px;
     text-align: center;
     border-bottom: 5px solid var(--gold);
 }
 
-.search-box input {
-    margin-top: 15px;
-    padding: 10px 20px;
-    width: 280px;
-    border-radius: 25px;
+.main-nav { margin-top: 15px; }
+.main-nav button {
+    background: transparent;
     border: 2px solid var(--gold);
-    outline: none;
+    color: var(--gold);
+    padding: 10px 25px;
+    margin: 0 5px;
+    border-radius: 20px;
+    cursor: pointer;
     font-family: 'Amiri';
+    font-weight: bold;
+    transition: 0.3s;
+}
+.main-nav button.active {
+    background: var(--gold);
+    color: var(--dark-teal);
 }
 
 .container { max-width: 1000px; margin: auto; padding: 20px; }
 
-.surah-grid {
+.search-box { text-align: center; margin-bottom: 20px; }
+.search-box input {
+    padding: 10px 20px;
+    width: 280px;
+    border-radius: 25px;
+    border: 2px solid var(--gold);
+    font-family: 'Amiri';
+    outline: none;
+}
+
+.surah-grid, .azkar-categories {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 15px;
@@ -44,15 +62,34 @@ header {
     padding: 20px;
     border-right: 5px solid var(--gold);
     cursor: pointer;
-    transition: 0.3s;
+    text-align: center;
     font-weight: bold;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
-.surah-card:hover {
+.surah-card:hover { background: var(--dark-teal); color: var(--gold); }
+
+/* تنسيق كرت الذكر */
+.zekr-card {
+    background: white;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    border: 1px solid #eee;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.zekr-text { font-size: 1.4rem; line-height: 1.8; margin-bottom: 15px; }
+.zekr-counter {
     background: var(--dark-teal);
     color: var(--gold);
+    display: inline-block;
+    padding: 5px 20px;
+    border-radius: 20px;
+    font-weight: bold;
 }
+.zekr-card.done { opacity: 0.5; background: #f0f0f0; }
 
 .player-container {
     text-align: center;
@@ -63,51 +100,17 @@ header {
     margin-bottom: 20px;
 }
 
-.reciter-section { margin-bottom: 20px; }
-
-#reciterSelect {
-    padding: 8px;
-    border-radius: 10px;
-    border: 2px solid var(--gold);
-    font-family: 'Amiri';
-    background: white;
-    color: var(--dark-teal);
-    font-weight: bold;
-}
-
-#playBtn {
-    background: var(--dark-teal);
-    color: var(--gold);
-    border: 2px solid var(--gold);
-    padding: 12px 40px;
-    border-radius: 50px;
-    font-size: 1.3rem;
-    cursor: pointer;
-    font-family: 'Amiri';
-    font-weight: bold;
-}
-
-/* التعديل الجديد للآيات والبسملة */
 .ayah-text {
-    font-size: 1.5rem; /* تم تصغير الخط لراحة العين */
+    font-size: 1.5rem;
     line-height: 2.2;
-    text-align: justify; /* توزيع النص ليكون مرتباً */
+    text-align: justify;
     text-align-last: center;
     background: white;
     padding: 30px;
     border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
-.bismillah {
-    font-size: 2rem;
-    color: var(--dark-teal);
-    margin-bottom: 25px;
-    display: block;
-    font-weight: bold;
-    text-align: center;
-}
-
+.bismillah { font-size: 2rem; color: var(--dark-teal); margin-bottom: 25px; font-weight: bold; text-align: center; }
 .ayah-num { color: var(--gold); font-weight: bold; margin: 0 5px; }
 
 .back-btn {
