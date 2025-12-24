@@ -69,7 +69,7 @@ header {
 
 .surah-card:hover { background: var(--dark-teal); color: var(--gold); }
 
-/* تنسيق كرت الذكر */
+/* تنسيق كرت الذكر المطور */
 .zekr-card {
     background: white;
     padding: 20px;
@@ -78,18 +78,23 @@ header {
     border: 1px solid #eee;
     text-align: center;
     cursor: pointer;
-    transition: 0.3s;
+    transition: 0.2s;
+    user-select: none; /* منع تظليل النص */
 }
-.zekr-text { font-size: 1.4rem; line-height: 1.8; margin-bottom: 15px; }
+.zekr-card:active { transform: scale(0.98); }
+
+.zekr-text { font-size: 1.3rem; line-height: 1.8; margin-bottom: 15px; color: #333; }
+
 .zekr-counter {
     background: var(--dark-teal);
     color: var(--gold);
     display: inline-block;
-    padding: 5px 20px;
-    border-radius: 20px;
+    padding: 8px 25px;
+    border-radius: 25px;
     font-weight: bold;
+    font-size: 1.1rem;
 }
-.zekr-card.done { opacity: 0.5; background: #f0f0f0; }
+.zekr-card.done { opacity: 0.4; background: #e0e0e0; pointer-events: none; }
 
 .player-container {
     text-align: center;
