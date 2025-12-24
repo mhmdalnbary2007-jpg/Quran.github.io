@@ -3,7 +3,6 @@ let currentSurahId = 1;
 const audio = document.getElementById('audioPlayer');
 const playBtn = document.getElementById('playBtn');
 
-// جلب قائمة السور عند التشغيل
 fetch('https://api.alquran.cloud/v1/surah')
     .then(res => res.json())
     .then(data => {
@@ -37,23 +36,29 @@ function openSurah(id, name) {
     fetch(`https://api.alquran.cloud/v1/surah/${id}`)
         .then(res => res.json())
         .then(data => {
-            const text = data.data.ayahs.map(a => `${a.text} <span class="ayah-num">(${a.numberInSurah})</span>`).join(' ');
-            document.getElementById('ayahsContainer').innerHTML = text;
+            let ayahs = data.data.ayahs;
+            let bismillahHtml = "";
+
+            // فصل البسملة عن أول آية (باستثناء سورة الفاتحة والتوبة)
+            if (id !== 1 && id !== 9 && ayahs[0].text.includes("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ")) {
+                bismillahHtml = `<div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
+                ayahs[0].text = ayahs[0].text.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "");
+            }
+
+            const textHtml = ayahs.map(a => `${a.text} <span class="ayah-num">(${a.numberInSurah})</span>`).join(' ');
+            document.getElementById('ayahsContainer').innerHTML = bismillahHtml + textHtml;
         });
 }
 
 function updateAudioSource() {
     const reciter = document.getElementById('reciterSelect').value;
     const formattedId = currentSurahId.toString().padStart(3, '0');
-    
-    // روابط السيرفرات المباشرة لكل قارئ
     const servers = {
         'afs': `https://server8.mp3quran.net/afs/${formattedId}.mp3`,
         'minsh': `https://server10.mp3quran.net/minsh/${formattedId}.mp3`,
         'basit': `https://server7.mp3quran.net/basit/${formattedId}.mp3`,
         'husr': `https://server13.mp3quran.net/husr/${formattedId}.mp3`
     };
-    
     audio.src = servers[reciter];
     playBtn.innerText = "تشغيل السورة ▷";
 }
@@ -64,13 +69,8 @@ function changeReciter() {
 }
 
 function toggleAudio() {
-    if (audio.paused) {
-        audio.play();
-        playBtn.innerText = "إيقاف مؤقت ||";
-    } else {
-        audio.pause();
-        playBtn.innerText = "تشغيل السورة ▷";
-    }
+    if (audio.paused) { audio.play(); playBtn.innerText = "إيقاف مؤقت ||"; }
+    else { audio.pause(); playBtn.innerText = "تشغيل السورة ▷"; }
 }
 
 function showMain() {
