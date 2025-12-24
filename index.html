@@ -3,13 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حقيبة المؤمن - الإصدار العصري</title>
+    <title>حقيبة المؤمن - الإصدار الختامي</title>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<div id="sideMenu" class="side-menu">
+    <button class="close-btn" onclick="toggleMenu()">×</button>
+    <h3 style="text-align: center; color: var(--gold);">الإعدادات</h3>
+    <hr style="border: 0.5px solid rgba(201,176,122,0.3);">
+    
+    <div class="menu-item">
+        <span>الوضع المظلم</span>
+        <button id="darkModeBtn" class="menu-tool-btn" onclick="toggleDarkMode()">🌙</button>
+    </div>
+
+    <div class="menu-item">
+        <span>حجم الخط</span>
+        <div class="font-controls">
+            <button class="menu-tool-btn" onclick="changeFontSize(2)">A+</button>
+            <button class="menu-tool-btn" onclick="changeFontSize(-2)">A-</button>
+        </div>
+    </div>
+    <p style="font-size: 12px; text-align: center; margin-top: 50px; opacity: 0.6;">إصدار حقيبة المؤمن 2025</p>
+</div>
+
 <header>
+    <div class="menu-icon" onclick="toggleMenu()">☰</div>
     <h1>حقيبة المؤمن</h1>
     <div class="main-nav">
         <button id="quranTab" class="active" onclick="switchMainTab('quran')">القرآن الكريم</button>
@@ -28,18 +49,12 @@
         </div>
 
         <div id="quran-view" style="display:none;">
-            <div class="modern-header-tools">
-                <button class="icon-back-btn" onclick="showMain()" title="عودة">🔙</button>
-                <div class="center-tools">
-                    <button class="tool-btn" onclick="changeFontSize(2)">A+</button>
-                    <button class="tool-btn" onclick="changeFontSize(-2)">A-</button>
-                    <button id="darkModeBtn" class="tool-btn dark-toggle" onclick="toggleDarkMode()">🌙</button>
-                </div>
+            <div class="back-nav">
+                <button class="icon-back-btn" onclick="showMain()">🔙 العودة للسور</button>
             </div>
 
             <div class="player-container modern-style">
                 <h2 id="current-surah-title"></h2>
-                
                 <div class="reciter-section">
                     <select id="reciterSelect" onchange="updateAudioSource()">
                         <option value="afs">🎙️ مشاري العفاسي</option>
@@ -51,7 +66,6 @@
 
                 <div class="modern-player-layout">
                     <button id="playBtn" class="play-btn-small" onclick="toggleAudio()">▷</button>
-                    
                     <div class="progress-wrapper">
                         <span id="currentTime" class="time-label">0:00</span>
                         <div class="slider-container">
@@ -62,7 +76,6 @@
                 </div>
                 <audio id="audioPlayer"></audio>
             </div>
-            
             <div class="ayah-text" id="ayahsContainer"></div>
         </div>
     </div>
@@ -72,31 +85,28 @@
             <div class="category-card" onclick="loadAzkar('morning')">☀️ أذكار الصباح</div>
             <div class="category-card" onclick="loadAzkar('evening')">🌙 أذكار المساء</div>
             <div class="category-card" onclick="loadAzkar('sleep')">🛌 أذكار النوم</div>
+            <div class="category-card" onclick="loadAzkar('afterPrayer')">📿 بعد الصلاة</div>
         </div>
         <div id="azkar-content" style="display:none;">
             <div class="top-controls">
                 <button class="back-btn" onclick="backToAzkarCats()">← العودة</button>
-                <button class="reset-btn" onclick="resetAzkarProgress()">تصفير التقدم</button>
+                <button class="reset-btn" onclick="resetAzkarProgress()">تصفير</button>
             </div>
-            <h2 id="azkar-title" style="text-align:center;"></h2>
+            <h2 id="azkar-title" style="text-align:center; margin-bottom: 20px;"></h2>
             <div id="azkarList"></div>
         </div>
     </div>
 
     <div id="sebha-section" style="display:none;">
-        <div class="sebha-container">
-            <div class="timer-wrapper">
-                <span class="timer-label">التصفير التلقائي خلال:</span>
-                <div id="countdown-timer" class="modern-timer">00:00:00</div>
-            </div>
-            <div class="sebha-circle" onclick="incrementSebha()">
-                <span id="sebhaCounter">0</span>
-                <small>اضغط للتسبيح</small>
-            </div>
-            <button class="modern-reset-btn" onclick="resetSebha()">
-                <span class="icon">🔄</span> تصفير العداد يدويًا
-            </button>
+        <div class="timer-wrapper">
+            <span class="timer-label">التصفير التلقائي:</span>
+            <div id="countdown-timer" class="modern-timer">00:00:00</div>
         </div>
+        <div class="sebha-circle" onclick="incrementSebha()">
+            <span id="sebhaCounter">0</span>
+            <small>اضغط للتسبيح</small>
+        </div>
+        <button class="modern-reset-btn" onclick="resetSebha()">🔄 تصفير يدوي</button>
     </div>
 </div>
 
