@@ -349,5 +349,44 @@ function switchMainTab(t) {
 
 // تشغيل جلب المواقيت عند فتح التطبيق
 fetchPrayers();
+function getQibla() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            // معادلة حساب اتجاه القبلة
+            const phiK = 21.4225 * Math.PI / 180;
+            const lambdaK = 39.8262 * Math.PI / 180;
+            const phi = lat * Math.PI / 180;
+            const lambda = lng * Math.PI / 180;
+
+            let qiblaDeg = Math.atan2(Math.sin(lambdaK - lambda), Math.cos(phi) * Math.tan(phiK) - Math.sin(phi) * Math.cos(lambdaK - lambda));
+            qiblaDeg = qiblaDeg * 180 / Math.PI;
+            
+            const finalDeg = (qiblaDeg + 360) % 360;
+            
+            document.getElementById('qibla-deg').innerText = Math.round(finalDeg);
+            document.getElementById('compass-pointer').style.transform = `translate(-50%, -100%) rotate(${finalDeg}deg)`;
+            document.getElementById('qibla-status').innerText = "تم تحديد الاتجاه بنجاح";
+        }, () => {
+            document.getElementById('qibla-status').innerText = "يرجى تفعيل خدمة الموقع";
+        });
+    }
+}
+
+// تحديث دالة التبديل لتشمل القبلة
+function switchMainTab(t) {
+    document.querySelectorAll('.main-nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(t + 'Tab')?.classList.add('active');
+
+    const sections = ['quran-section', 'azkar-section', 'sebha-section', 'prayer-section', 'qibla-section'];
+    sections.forEach(s => {
+        const el = document.getElementById(s);
+        if (el) el.style.display = s.startsWith(t) ? 'block' : 'none';
+    });
+    
+    if(t === 'qibla') getQibla(); // تشغيل الحساب عند فتح القسم
+}
 
 
