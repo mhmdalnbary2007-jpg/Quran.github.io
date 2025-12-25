@@ -102,3 +102,9 @@ body.dark-mode .modern-reset-soft {
     color: var(--gold);
     border-color: var(--gold);
 }
+.modern-back-btn {
+    direction: ltr;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
