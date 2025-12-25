@@ -63,6 +63,22 @@
 <!-- ================= القرآن ================= -->
 <div id="quran-section">
     <div id="main-view">
+        <div id="main-view">
+    
+    <div id="daily-ayah-card" class="daily-card">
+        <div class="card-header">
+            <span>✨ آية اليوم</span>
+            <button onclick="generateDailyAyah()" class="refresh-btn">🔄</button>
+        </div>
+        <div id="daily-ayah-text" class="ayah-content">جاري جلب آية كريمة...</div>
+        <div id="daily-ayah-info" class="ayah-info"></div>
+    </div>
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="ابحث عن سورة..." onkeyup="filterSurahs()">
+    </div>
+    <div class="surah-grid" id="surahList"></div>
+</div>
+
         <div class="search-box">
             <input type="text" id="searchInput" placeholder="ابحث عن سورة..." onkeyup="filterSurahs()">
         </div>
