@@ -1,87 +1,122 @@
-:root { 
-    --dark-teal: #2F5F63; 
-    --gold: #C9B07A; 
-    --bg: #fdfcf9; 
-    --black: #121212; 
-    --success: #28a745; 
-}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حقيبة المؤمن - الإصدار الملكي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-body { 
-    font-family: 'Amiri', serif; 
-    background: var(--bg); 
-    color: var(--dark-teal); 
-    margin: 0; 
-    direction: rtl; 
-    transition: 0.4s; 
-}
+<div id="sideMenu" class="side-menu">
+    <button class="close-btn" onclick="toggleMenu()">×</button>
+    <h3 class="menu-title">الإعدادات الملكية</h3>
+    <div class="menu-item">
+        <span>الوضع المظلم</span>
+        <button id="darkModeBtn" class="menu-tool-btn" onclick="toggleDarkMode()">🌙</button>
+    </div>
+    <div class="menu-item">
+        <span>أصوات التنبيه</span>
+        <button id="muteBtn" class="menu-tool-btn" onclick="toggleMute()">🔊</button>
+    </div>
+    <div class="menu-item">
+        <span>حجم الخط</span>
+        <div class="font-controls">
+            <button class="menu-tool-btn" onclick="changeFontSize(2)">A+</button>
+            <button class="menu-tool-btn" onclick="changeFontSize(-2)">A-</button>
+        </div>
+    </div>
+</div>
 
-/* القائمة الجانبية */
-.side-menu { 
-    position: fixed; top: 0; left: -320px; width: 260px; height: 100%; 
-    background: var(--dark-teal); color: var(--gold); z-index: 2000; 
-    transition: 0.4s ease-in-out; padding: 25px; visibility: hidden; 
-}
-.side-menu.open { left: 0; visibility: visible; box-shadow: 5px 0 15px rgba(0,0,0,0.5); }
-.menu-icon { position: absolute; right: 20px; top: 22px; font-size: 28px; cursor: pointer; color: var(--gold); }
-.close-btn { background: none; border: none; color: white; font-size: 35px; cursor: pointer; }
+<header>
+    <div class="menu-icon" onclick="toggleMenu()">☰</div>
+    <h1 class="logo-text">حقيبة المؤمن</h1>
+    <div class="main-nav">
+        <button id="quranTab" class="active" onclick="switchMainTab('quran')">القرآن الكريم</button>
+        <button id="azkarTab" onclick="switchMainTab('azkar')">قسم الأذكار</button>
+        <button id="sebhaTab" onclick="switchMainTab('sebha')">السبحة</button>
+    </div>
+</header>
 
-/* الهيدر والتنقل */
-header { background: var(--dark-teal); color: var(--gold); padding: 20px 10px; text-align: center; border-bottom: 5px solid var(--gold); }
-.main-nav { display: flex; justify-content: center; gap: 8px; margin-top: 15px; }
-.main-nav button { 
-    background: transparent; border: 1.5px solid var(--gold); color: var(--gold); 
-    padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: bold; 
-}
-.main-nav button.active { background: var(--gold); color: var(--dark-teal); }
+<div class="container">
+    <div id="quran-section">
+        <div id="main-view">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 ابحث عن سورة..." onkeyup="filterSurahs()">
+            </div>
+            <div class="surah-grid" id="surahList"></div>
+        </div>
+        <div id="quran-view" style="display:none;">
+            <div class="back-nav">
+                <button class="modern-back-btn" onclick="showMain()">🔙 رجوع</button>
+            </div>
+            <div class="player-container modern-style">
+                <h2 id="current-surah-title"></h2>
+                <select id="reciterSelect" onchange="updateAudioSource()">
+                    <option value="afs">🎙️ مشاري العفاسي</option>
+                    <option value="minsh">🎙️ محمد صديق المنشاوي</option>
+                    <option value="basit">🎙️ عبد الباسط عبد الصمد</option>
+                    <option value="husr">🎙️ محمود خليل الحصري</option>
+                    <option value="maher">🎙️ ماهر المعيقلي</option>
+                </select>
+                <div class="modern-player-layout">
+                    <button id="playBtn" class="play-btn-main" onclick="toggleAudio()">▷</button>
+                    <div class="progress-wrapper">
+                        <span id="currentTime" class="time-label">0:00</span>
+                        <input type="range" id="seekSlider" value="0" max="100" oninput="seekAudio()">
+                        <span id="durationTime" class="time-label">0:00</span>
+                    </div>
+                </div>
+                <audio id="audioPlayer"></audio>
+            </div>
+            <div class="ayah-text" id="ayahsContainer"></div>
+        </div>
+    </div>
 
-/* أزرار الرجوع والأكشن الجديدة */
-.modern-back-btn, .modern-action-btn {
-    background: var(--dark-teal);
-    color: var(--gold);
-    border: 1.5px solid var(--gold);
-    padding: 8px 25px;
-    border-radius: 20px;
-    font-family: 'Amiri', serif;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-    margin: 10px 0;
-}
-.modern-back-btn:hover, .modern-action-btn:hover { background: var(--gold); color: var(--dark-teal); }
-.modern-action-btn.reset { background: #e74c3c; color: white; border: none; }
+    <div id="azkar-section" style="display:none;">
+        <div class="azkar-categories" id="azkarCats">
+            <div class="category-card" onclick="loadAzkar('morning')">☀️ أذكار الصباح</div>
+            <div class="category-card" onclick="loadAzkar('evening')">🌙 أذكار المساء</div>
+            <div class="category-card" onclick="loadAzkar('sleep')">🛌 أذكار النوم</div>
+            <div class="category-card" onclick="loadAzkar('afterPrayer')">📿 بعد الصلاة</div>
+            <div class="category-card" onclick="loadAzkar('generalDuas')">🤲 أدعية نبوية</div>
+        </div>
+        <div id="azkar-content" style="display:none;">
+            <div class="top-controls">
+                <button class="modern-action-btn back" onclick="backToAzkarCats()">🔙 رجوع</button>
+                <button class="modern-action-btn reset" onclick="resetAzkarProgress()">🔄 تصفير</button>
+            </div>
+            <h2 id="azkar-title" class="section-title"></h2>
+            <div id="azkarList"></div>
+        </div>
+    </div>
 
-/* الشبكات والبطاقات */
-.surah-grid, .azkar-categories { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 15px; }
-.surah-card, .category-card { 
-    background: white; padding: 15px; border-right: 4px solid var(--gold); 
-    border-radius: 8px; text-align: center; cursor: pointer; font-weight: bold;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-}
+    <div id="sebha-section" style="display:none;">
+        <div class="countdown-card">
+            <p>وقت تصفير العداد التلقائي</p>
+            <div id="countdown-timer">00:00:00</div>
+        </div>
+        <div class="goal-setting-card">
+            <span>تحديد الهدف اليومي:</span>
+            <input type="number" id="sebhaGoal" value="100" min="1" onchange="updateGoal()">
+            <div id="goalStatus">✅ تم الحفظ بنجاح</div>
+        </div>
+        <div class="progress-outer">
+            <div id="sebhaBar" class="progress-inner"></div>
+        </div>
+        <div class="sebha-main-container">
+            <div class="sebha-circle" onclick="incrementSebha()">
+                <div class="ripple"></div>
+                <span id="sebhaCounter">0</span>
+                <small>سبح باسم ربك</small>
+            </div>
+        </div>
+        <button class="glass-reset-btn" onclick="resetSebha()">🔄 تصفير السبحة</button>
+    </div>
+</div>
 
-/* الأذكار */
-.zekr-card { background: white; padding: 20px; border-right: 6px solid var(--gold); border-radius: 10px; margin: 10px; cursor: pointer; }
-.zekr-card.completed { border-right-color: var(--success); background-color: #f0fff4; }
-.top-controls { display: flex; justify-content: space-around; align-items: center; background: rgba(201,176,122,0.1); border-radius: 15px; margin: 10px; }
-
-/* السبحة */
-.countdown-wrapper { text-align: center; margin: 10px; color: #e74c3c; font-weight: bold; }
-.goal-setting { text-align: center; margin: 15px 0; }
-#sebhaGoal { width: 70px; padding: 5px; border: 1px solid var(--gold); border-radius: 8px; text-align: center; font-size: 1.1rem; }
-#goalStatus { font-size: 14px; color: var(--success); margin-top: 5px; opacity: 0; transition: 0.3s; font-weight: bold; }
-.sebha-circle { 
-    width: 200px; height: 200px; border-radius: 50%; background: var(--dark-teal); 
-    color: var(--gold); display: flex; flex-direction: column; justify-content: center; 
-    align-items: center; margin: 30px auto; border: 8px solid var(--gold); cursor: pointer; transition: 0.2s;
-}
-.sebha-circle:active { transform: scale(0.95); }
-#sebhaCounter { font-size: 3rem; font-weight: bold; }
-
-/* المشغل والقرآن */
-.player-container { background: white; padding: 20px; border-radius: 15px; margin: 15px; border: 1px solid var(--gold); }
-.ayah-text { background: white; padding: 30px; border-radius: 15px; font-size: 1.8rem; line-height: 2.5; text-align: center; margin: 15px; }
-
-/* الوضع المظلم */
-body.dark-mode { background: var(--black); color: white; }
-body.dark-mode .surah-card, body.dark-mode .category-card, body.dark-mode .zekr-card, body.dark-mode .player-container, body.dark-mode .ayah-text {
-    background: #1e1e1e; border-color: var(--gold); color: white;
-}
+<audio id="notificationSound" src="https://www.soundjay.com/buttons/sounds/button-37a.mp3"></audio>
+<script src="script.js"></script>
+</body>
+</html>
