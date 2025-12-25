@@ -340,5 +340,37 @@ body.dark-mode .daily-card {
 body.dark-mode .ayah-content {
     color: #f0f0f0;
 }
+/* تنسيق شريط التاريخ الهجري والميلادي */
+.date-header-card {
+    background: linear-gradient(135deg, var(--dark-teal) 0%, #0d2e2b 100%);
+    margin: 15px;
+    padding: 20px;
+    border-radius: 20px;
+    color: white;
+    border-bottom: 4px solid var(--gold);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.hijri-date {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--gold);
+    margin-bottom: 5px;
+    font-family: 'Amiri', serif;
+}
+
+.gregorian-date {
+    font-size: 1rem;
+    opacity: 0.7;
+    letter-spacing: 1px;
+}
+
+.day-name {
+    font-size: 1.2rem;
+    margin-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    padding-top: 8px;
+    font-weight: 500;
+}
 
 
