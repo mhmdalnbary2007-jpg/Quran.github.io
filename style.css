@@ -108,41 +108,4 @@ body.dark-mode .modern-reset-soft {
     align-items: center;
     gap: 6px;
 }
-.prayer-bar {
-    display: flex;
-    justify-content: space-around;
-    background: white;
-    padding: 15px 5px;
-    margin: 15px 10px;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    border-bottom: 3px solid var(--gold);
-}
 
-.prayer-item {
-    text-align: center;
-}
-
-.prayer-item span {
-    font-size: 0.75rem;
-    color: var(--dark-teal);
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.prayer-item b {
-    color: var(--dark-teal);
-    font-size: 1rem;
-    font-family: sans-serif; /* عشان الأرقام تكون أوضح */
-}
-
-/* دعم الوضع المظلم */
-body.dark-mode .prayer-bar {
-    background: #111 !important;
-    border-bottom-color: var(--gold);
-}
-body.dark-mode .prayer-item span, 
-body.dark-mode .prayer-item b {
-    color: var(--gold) !important;
-}
