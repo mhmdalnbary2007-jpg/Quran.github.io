@@ -54,11 +54,12 @@ function showMain() {
     if(playBtn) playBtn.innerText = "▷";
 }
 
-function updateAudioSource() {
-    const r = document.getElementById('reciterSelect').value;
-    const srv = { 'afs': '8', 'minsh': '10', 'basit': '7', 'husr': '13', 'maher': '12', 'qtm': '11', 'yasser': '11' };
-    audio.src = `https://server${srv[r]}.mp3quran.net/${r}/${currentSurahId.toString().padStart(3, '0')}.mp3`;
-    if (!audio.paused) audio.play();
+function showMain() { 
+    playNotify(); // 🔔 صوت خفيف
+    document.getElementById('main-view').style.display = 'block'; 
+    document.getElementById('quran-view').style.display = 'none'; 
+    audio.pause(); 
+    if(playBtn) playBtn.innerText = "▷";
 }
 
 function toggleAudio() { 
@@ -173,6 +174,7 @@ function countZekr(id) {
 }
 
 function backToAzkarCats() { 
+    playNotify(); // 🔔 صوت خفيف
     document.getElementById('azkarCats').style.display = 'grid'; 
     document.getElementById('azkar-content').style.display = 'none'; 
 }
