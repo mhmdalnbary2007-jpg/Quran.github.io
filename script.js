@@ -335,11 +335,12 @@ function startPrayerCountdown() {
 }
 // --- 7. وظائف القبلة (نسخة السرعة القصوى) ---
 
-let finalQiblaAngle = 0; // متغير لحفظ زاوية مكة
+// --- 7. وظائف القبلة (نسخة السرعة والحركة الحية) ---
+let finalQiblaAngle = 0;
 
 function getQibla() {
     if (navigator.geolocation) {
-        document.getElementById('qibla-status').innerText = "جاري التحديد...";
+        document.getElementById('qibla-status').innerText = "جاري تحديد موقعك...";
 
         navigator.geolocation.getCurrentPosition(position => {
             const lat = position.coords.latitude;
@@ -354,79 +355,70 @@ function getQibla() {
             finalQiblaAngle = (qDeg * 180 / Math.PI + 360) % 360;
             
             document.getElementById('qibla-deg').innerText = Math.round(finalQiblaAngle);
-            document.getElementById('qibla-status').innerText = "دوّر الجوال لضبط الاتجاه";
-
-            // تشغيل الحساس الحركي
-            startCompassTracking();
+            
+            // تحديث الرسالة لطلب تفعيل الحساس
+            document.getElementById('qibla-status').innerHTML = `
+                <button onclick="askCompassPermission()" style="background:var(--gold); color:var(--dark-teal); border:none; padding:8px 15px; border-radius:10px; font-weight:bold; cursor:pointer; font-family:inherit;">
+                    تفعيل حركة البوصلة 🧭
+                </button>`;
         }, (err) => {
             document.getElementById('qibla-status').innerText = "يرجى تفعيل الموقع";
         }, { enableHighAccuracy: false, timeout: 5000 });
     }
 }
 
-function startCompassTracking() {
-    const handler = (e) => {
-        // الحصول على اتجاه الشمال من حساس الجوال
-        let compassHeading = e.webkitCompassHeading || (360 - e.alpha);
-        
-        if (compassHeading !== undefined) {
-            // حساب الزاوية المطلوبة للسهم
-            const arrowRotation = finalQiblaAngle - compassHeading;
-            
-            const pointer = document.getElementById('compass-pointer');
-            const statusText = document.getElementById('qibla-status');
-
-            if (pointer) {
-                pointer.style.transform = `translate(-50%, -100%) rotate(${arrowRotation}deg)`;
-
-                // "الإشارة الاحترافية": إذا كان السهم قريباً من القبلة (بفرق أقل من 5 درجات)
-                const isCorrect = Math.abs(arrowRotation % 360) < 5 || Math.abs(arrowRotation % 360) > 355;
-                
-                if (isCorrect) {
-                    pointer.style.backgroundColor = "#27ae60"; // أخضر عند الاتجاه الصحيح
-                    pointer.style.boxShadow = "0 0 15px #27ae60";
-                    statusText.innerText = "أنت باتجاه القبلة الآن ✅";
-                    statusText.style.color = "#27ae60";
-                    if(window.navigator.vibrate) window.navigator.vibrate(50); // اهتزاز خفيف (اختياري)
-                } else {
-                    pointer.style.backgroundColor = "var(--gold)"; // ذهبي في باقي الحالات
-                    pointer.style.boxShadow = "none";
-                    statusText.innerText = "دوّر الجوال لضبط الاتجاه";
-                    statusText.style.color = "var(--gold)";
+// دالة طلب الإذن للحساسات (ضرورية لـ iOS)
+function askCompassPermission() {
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        DeviceOrientationEvent.requestPermission()
+            .then(state => {
+                if (state === 'granted') {
+                    window.addEventListener('deviceorientation', handleCompass, true);
                 }
-            }
-        }
-    };
-
-    // طلب الإذن في آيفون (iOS) لأن له شروط خاصة
-    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-        DeviceOrientationEvent.requestPermission().then(state => {
-            if (state === 'granted') {
-                window.addEventListener("deviceorientation", handler, true);
-            }
-        });
+            }).catch(e => console.error(e));
     } else {
-        window.addEventListener("deviceorientationabsolute", handler, true);
-        window.addEventListener("deviceorientation", handler, true);
+        window.addEventListener('deviceorientationabsolute', handleCompass, true);
+        window.addEventListener('deviceorientation', handleCompass, true);
     }
 }
 
+function handleCompass(e) {
+    let compass = e.webkitCompassHeading || (360 - e.alpha);
+    if (compass === undefined) return;
 
+    const rotateDeg = finalQiblaAngle - compass;
+    const pointer = document.getElementById('compass-pointer');
+    const statusText = document.getElementById('qibla-status');
 
-// دالة التبديل الشاملة (النسخة الوحيدة التي تحتاجها)
+    if (pointer) {
+        pointer.style.transform = `translate(-50%, -100%) rotate(${rotateDeg}deg)`;
+
+        // التحقق من الاتجاه الصحيح (فرق 5 درجات)
+        const isCorrect = Math.abs(rotateDeg % 360) < 5 || Math.abs(rotateDeg % 360) > 355;
+        
+        if (isCorrect) {
+            pointer.style.backgroundColor = "#27ae60"; 
+            pointer.style.boxShadow = "0 0 15px #27ae60";
+            statusText.innerHTML = "<span style='color:#27ae60; font-weight:bold;'>أنت باتجاه القبلة الآن ✅</span>";
+        } else {
+            pointer.style.backgroundColor = "var(--gold)";
+            pointer.style.boxShadow = "none";
+            statusText.innerHTML = "<span style='color:var(--gold);'>دوّر الجوال لضبط الاتجاه</span>";
+        }
+    }
+}
+
+// دالة التبديل الشاملة (تأكد أنها الوحيدة في الملف)
 function switchMainTab(t) {
-    // تحديث أزرار التنقل
     document.querySelectorAll('.main-nav button').forEach(b => b.classList.remove('active'));
     document.getElementById(t + 'Tab')?.classList.add('active');
 
-    // إظهار القسم وإخفاء البقية
     const allSections = ['quran-section', 'azkar-section', 'sebha-section', 'prayer-section', 'qibla-section'];
     allSections.forEach(s => {
         const el = document.getElementById(s);
         if (el) el.style.display = s.startsWith(t) ? 'block' : 'none';
     });
     
-    // تشغيل الوظائف تلقائياً عند فتح القسم
     if(t === 'qibla') getQibla();
     if(t === 'prayer') fetchPrayers();
 }
