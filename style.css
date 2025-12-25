@@ -372,5 +372,18 @@ body.dark-mode .ayah-content {
     padding-top: 8px;
     font-weight: 500;
 }
+.date-header-card {
+    background: linear-gradient(135deg, #0f3d39 0%, #082421 100%);
+    margin: 15px auto;
+    padding: 20px;
+    border-radius: 20px;
+    color: #fff;
+    border-bottom: 4px solid #c9b07a; /* ذهبي */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    max-width: 90%;
+}
+.hijri-date { font-size: 1.6rem; font-weight: bold; color: #c9b07a; font-family: 'Amiri', serif; }
+.gregorian-date { font-size: 0.9rem; opacity: 0.6; margin-top: 5px; }
+.day-name { font-size: 1.2rem; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
 
 
