@@ -1,206 +1,208 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حقيبة المؤمن - الإصدار الهيبة</title>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+‏<!DOCTYPE html>
+‏<html lang="ar" dir="rtl">
+‏<head>
+‏    <meta charset="UTF-8">
+‏    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+‏    <title>حقيبة المؤمن - الإصدار الهيبة</title>
+‏    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+‏    <link rel="stylesheet" href="style.css">
+‏</head>
+‏<body>
 
-<div id="sideMenu" class="side-menu">
-    <button class="close-btn" onclick="toggleMenu()">×</button>
-    <h3 style="text-align:center;color:var(--gold);">الإعدادات</h3>
-    <hr style="border:0.5px solid rgba(201,176,122,0.3);">
+‏<div id="sideMenu" class="side-menu">
+‏    <button class="close-btn" onclick="toggleMenu()">×</button>
+‏    <h3 style="text-align:center;color:var(--gold);">الإعدادات</h3>
+‏    <hr style="border:0.5px solid rgba(201,176,122,0.3);">
 
-    <div class="menu-item">
-        <span>الوضع المظلم</span>
-        <button id="darkModeBtn" class="menu-tool-btn" onclick="toggleDarkMode()">🌙</button>
-    </div>
+‏    <div class="menu-item">
+‏        <span>الوضع المظلم</span>
+‏        <button id="darkModeBtn" class="menu-tool-btn" onclick="toggleDarkMode()">🌙</button>
+‏    </div>
 
-    <div class="menu-item">
-        <span>أصوات التنبيه</span>
-        <button id="muteBtn" class="menu-tool-btn" onclick="toggleMute()">🔊</button>
-    </div>
+‏    <div class="menu-item">
+‏        <span>أصوات التنبيه</span>
+‏        <button id="muteBtn" class="menu-tool-btn" onclick="toggleMute()">🔊</button>
+‏    </div>
 
-    <div class="menu-item">
-        <span>حجم الخط</span>
-        <div class="font-controls">
-            <button class="menu-tool-btn" onclick="changeFontSize(2)">A+</button>
-            <button class="menu-tool-btn" onclick="changeFontSize(-2)">A-</button>
-        </div>
-    <div class="menu-item">
-    <span>تحديث الموقع</span>
-    <button class="menu-tool-btn" onclick="getQibla()">📍</button>
-</div>
+‏    <div class="menu-item">
+‏        <span>حجم الخط</span>
+‏        <div class="font-controls">
+‏            <button class="menu-tool-btn" onclick="changeFontSize(2)">A+</button>
+‏            <button class="menu-tool-btn" onclick="changeFontSize(-2)">A-</button>
+‏        </div>
+‏    <div class="menu-item">
+‏    <span>تحديث الموقع</span>
+‏    <button class="menu-tool-btn" onclick="getQibla()">📍</button>
+‏</div>
 
-</div>
+‏</div>
 
-    </div>
+‏    </div>
 
-    <p style="font-size:12px;text-align:center;margin-top:50px;opacity:0.6;">
-‎        إصدار حقيبة المؤمن 2025
-    </p>
-</div>
+‏    <p style="font-size:12px;text-align:center;margin-top:50px;opacity:0.6;">
+        إصدار حقيبة المؤمن 2025
+‏    </p>
+‏</div>
 
-<header>
-    <div class="menu-icon" onclick="toggleMenu()">☰</div>
-    <h1>حقيبة المؤمن</h1>
+‏<header>
+‏    <div class="menu-icon" onclick="toggleMenu()">☰</div>
+‏    <h1>حقيبة المؤمن</h1>
 
-    <div class="main-nav">
-        <button id="quranTab" class="active" onclick="switchMainTab('quran')">القرآن الكريم</button>
-        <button id="azkarTab" onclick="switchMainTab('azkar')">قسم الأذكار</button>
-        <button id="sebhaTab" onclick="switchMainTab('sebha')">السبحة</button>
-        <button id="prayerTab" onclick="switchMainTab('prayer')">مواقيت الصلاة</button>
-<button id="qiblaTab" onclick="switchMainTab('qibla')">اتجاه القبلة</button>
+‏    <div class="main-nav">
+‏        <button id="quranTab" class="active" onclick="switchMainTab('quran')">القرآن الكريم</button>
+‏        <button id="azkarTab" onclick="switchMainTab('azkar')">قسم الأذكار</button>
+‏        <button id="sebhaTab" onclick="switchMainTab('sebha')">السبحة</button>
+‏        <button id="prayerTab" onclick="switchMainTab('prayer')">مواقيت الصلاة</button>
+‏<button id="qiblaTab" onclick="switchMainTab('qibla')">اتجاه القبلة</button>
 
-    </div>
-</header>
+‏    </div>
+‏</header>
 
-<div class="container">
+‏<div class="container">
 
-‎<!-- ================= القرآن ================= -->
-<div id="quran-section">
- <div id="main-view">
+<!-- ================= القرآن ================= -->
+‏<div id="quran-section">
+‏    <div id="main-view">
+‏        <div id="main-view">
     
-    <div id="daily-ayah-card" class="daily-card">
-        <div class="card-header">
-            <span>✨ آية اليوم</span>
-            <button onclick="generateDailyAyah()" class="refresh-btn">🔄</button>
-        </div>
-        <div id="daily-ayah-text" class="ayah-content">جاري جلب آية كريمة...</div>
-        <div id="daily-ayah-info" class="ayah-info"></div>
-    </div>
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="ابحث عن سورة..." onkeyup="filterSurahs()">
-    </div>
-    <div class="surah-grid" id="surahList"></div>
-</div>
+‏    <div id="daily-ayah-card" class="daily-card">
+‏    <div class="card-header">
+‏        <span>آية اليوم</span>
+‏        <button onclick="generateDailyAyah()" class="refresh-btn" title="تغيير الآية">🔄</button>
+‏    </div>
+‏    <div id="daily-ayah-text" class="ayah-content">جاري جلب آية كريمة...</div>
+‏    <div id="daily-ayah-info" class="ayah-info"></div>
+‏</div>
 
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="ابحث عن سورة..." onkeyup="filterSurahs()">
-        </div>
-        <div class="surah-grid" id="surahList"></div>
-    </div>
+‏    <div class="search-box">
+‏        <input type="text" id="searchInput" placeholder="ابحث عن سورة..." onkeyup="filterSurahs()">
+‏    </div>
+‏    <div class="surah-grid" id="surahList"></div>
+‏</div>
 
-    <div id="quran-view" style="display:none;">
-        <div style="text-align:center;margin:10px;">
-        <button class="modern-back-btn" onclick="showMain()">⟵ Back</button>
-        </div>
+‏        <div class="search-box">
+‏            <input type="text" id="searchInput" placeholder="ابحث عن سورة..." onkeyup="filterSurahs()">
+‏        </div>
+‏        <div class="surah-grid" id="surahList"></div>
+‏    </div>
 
-        <div class="player-container modern-style">
-            <h2 id="current-surah-title"></h2>
+‏    <div id="quran-view" style="display:none;">
+‏        <div style="text-align:center;margin:10px;">
+‏        <button class="modern-back-btn" onclick="showMain()">⟵ Back</button>
+‏        </div>
 
-            <div class="reciter-section">
-                <select id="reciterSelect" onchange="updateAudioSource()">
-                    <option value="afs">🎙️ مشاري العفاسي</option>
-                    <option value="minsh">🎙️ محمد صديق المنشاوي</option>
-                    <option value="basit">🎙️ عبد الباسط عبد الصمد</option>
-                    <option value="husr">🎙️ محمود خليل الحصري</option>
-                    <option value="maher">🎙️ ماهر المعيقلي</option>
-                    <option value="qtm">🎙️ ناصر القطامي</option>
-                    <option value="yasser">🎙️ ياسر الدوسري</option>
-                </select>
-            </div>
+‏        <div class="player-container modern-style">
+‏            <h2 id="current-surah-title"></h2>
 
-            <div class="modern-player-layout">
-                <button id="playBtn" class="play-btn-small" onclick="toggleAudio()">▷</button>
-                <div class="progress-wrapper">
-                    <span id="currentTime">0:00</span>
-                    <input type="range" id="seekSlider" value="0" max="100" oninput="seekAudio()">
-                    <span id="durationTime">0:00</span>
-                </div>
-            </div>
+‏            <div class="reciter-section">
+‏                <select id="reciterSelect" onchange="updateAudioSource()">
+‏                    <option value="afs">🎙️ مشاري العفاسي</option>
+‏                    <option value="minsh">🎙️ محمد صديق المنشاوي</option>
+‏                    <option value="basit">🎙️ عبد الباسط عبد الصمد</option>
+‏                    <option value="husr">🎙️ محمود خليل الحصري</option>
+‏                    <option value="maher">🎙️ ماهر المعيقلي</option>
+‏                    <option value="qtm">🎙️ ناصر القطامي</option>
+‏                    <option value="yasser">🎙️ ياسر الدوسري</option>
+‏                </select>
+‏            </div>
 
-            <audio id="audioPlayer"></audio>
-        </div>
+‏            <div class="modern-player-layout">
+‏                <button id="playBtn" class="play-btn-small" onclick="toggleAudio()">▷</button>
+‏                <div class="progress-wrapper">
+‏                    <span id="currentTime">0:00</span>
+‏                    <input type="range" id="seekSlider" value="0" max="100" oninput="seekAudio()">
+‏                    <span id="durationTime">0:00</span>
+‏                </div>
+‏            </div>
 
-        <div class="ayah-text" id="ayahsContainer"></div>
-    </div>
-</div>
+‏            <audio id="audioPlayer"></audio>
+‏        </div>
 
-‎<!-- ================= الأذكار ================= -->
-<div id="azkar-section" style="display:none;">
-    <div class="azkar-categories" id="azkarCats">
-        <div class="category-card" onclick="loadAzkar('morning')">☀️ أذكار الصباح</div>
-        <div class="category-card" onclick="loadAzkar('evening')">🌙 أذكار المساء</div>
-        <div class="category-card" onclick="loadAzkar('sleep')">🛌 أذكار النوم</div>
-        <div class="category-card" onclick="loadAzkar('afterPrayer')">📿 بعد الصلاة</div>
-        <div class="category-card" onclick="loadAzkar('generalDuas')">🤲 أدعية نبوية</div>
-    </div>
+‏        <div class="ayah-text" id="ayahsContainer"></div>
+‏    </div>
+‏</div>
 
-    <div id="azkar-content" style="display:none;">
-        <div class="top-controls">
-            <button class="modern-back-btn" onclick="backToAzkarCats()">↩ العودة</button>
-            <button class="modern-reset-soft" onclick="resetAzkarProgress()">تصفير</button>
-        </div>
+<!-- ================= الأذكار ================= -->
+‏<div id="azkar-section" style="display:none;">
+‏    <div class="azkar-categories" id="azkarCats">
+‏        <div class="category-card" onclick="loadAzkar('morning')">☀️ أذكار الصباح</div>
+‏        <div class="category-card" onclick="loadAzkar('evening')">🌙 أذكار المساء</div>
+‏        <div class="category-card" onclick="loadAzkar('sleep')">🛌 أذكار النوم</div>
+‏        <div class="category-card" onclick="loadAzkar('afterPrayer')">📿 بعد الصلاة</div>
+‏        <div class="category-card" onclick="loadAzkar('generalDuas')">🤲 أدعية نبوية</div>
+‏    </div>
 
-        <h2 id="azkar-title" style="text-align:center;color:var(--gold);"></h2>
-        <div id="azkarList"></div>
-    </div>
-</div>
+‏    <div id="azkar-content" style="display:none;">
+‏        <div class="top-controls">
+‏            <button class="modern-back-btn" onclick="backToAzkarCats()">↩ العودة</button>
+‏            <button class="modern-reset-soft" onclick="resetAzkarProgress()">تصفير</button>
+‏        </div>
 
-‎<!-- ================= السبحة ================= -->
-<div id="sebha-section" style="display:none;">
-    <div class="goal-setting">
-‎        الهدف اليومي:
-        <input type="number" id="sebhaGoal" value="100" min="1" onchange="updateGoal()">
-    </div>
+‏        <h2 id="azkar-title" style="text-align:center;color:var(--gold);"></h2>
+‏        <div id="azkarList"></div>
+‏    </div>
+‏</div>
 
-    <div class="progress-container">
-        <div id="sebhaBar" class="progress-bar"></div>
-    </div>
+<!-- ================= السبحة ================= -->
+‏<div id="sebha-section" style="display:none;">
+‏    <div class="goal-setting">
+        الهدف اليومي:
+‏        <input type="number" id="sebhaGoal" value="100" min="1" onchange="updateGoal()">
+‏    </div>
 
-    <div class="sebha-circle" onclick="incrementSebha()">
-        <span id="sebhaCounter">0</span>
-        <small id="sebhaStatus">اضغط للتسبيح</small>
-    </div>
+‏    <div class="progress-container">
+‏        <div id="sebhaBar" class="progress-bar"></div>
+‏    </div>
 
-    <button class="modern-reset-soft" onclick="resetSebha()">تصفير العداد</button>
+‏    <div class="sebha-circle" onclick="incrementSebha()">
+‏        <span id="sebhaCounter">0</span>
+‏        <small id="sebhaStatus">اضغط للتسبيح</small>
+‏    </div>
 
-    <div class="timer-wrapper">
-        <span>التصفير التلقائي:</span>
-        <div id="countdown-timer" class="modern-timer">00:00:00</div>
-    </div>
-</div>
-<div id="prayer-section" style="display:none; text-align:center;">
-    <div class="prayer-hero-card">
-        <h3 id="next-prayer-name">جاري تحديد موقعك...</h3>
-        <div id="next-prayer-timer" class="big-timer">00:00:00</div>
-    </div>
+‏    <button class="modern-reset-soft" onclick="resetSebha()">تصفير العداد</button>
 
-    <div class="prayer-detailed-grid">
-        <div class="p-card"><span>الفجر</span><b id="fajr-time">--:--</b></div>
-        <div class="p-card"><span>الظهر</span><b id="dhuhr-time">--:--</b></div>
-        <div class="p-card"><span>العصر</span><b id="asr-time">--:--</b></div>
-        <div class="p-card"><span>المغرب</span><b id="maghrib-time">--:--</b></div>
-        <div class="p-card"><span>العشاء</span><b id="isha-time">--:--</b></div>
-    </div>
-</div>
-<div id="qibla-section" style="display:none; text-align:center;">
-    <div class="qibla-container">
-        <h3>اتجاه القبلة</h3>
+‏    <div class="timer-wrapper">
+‏        <span>التصفير التلقائي:</span>
+‏        <div id="countdown-timer" class="modern-timer">00:00:00</div>
+‏    </div>
+‏</div>
+‏<div id="prayer-section" style="display:none; text-align:center;">
+‏    <div class="prayer-hero-card">
+‏        <h3 id="next-prayer-name">جاري تحديد موقعك...</h3>
+‏        <div id="next-prayer-timer" class="big-timer">00:00:00</div>
+‏    </div>
+
+‏    <div class="prayer-detailed-grid">
+‏        <div class="p-card"><span>الفجر</span><b id="fajr-time">--:--</b></div>
+‏        <div class="p-card"><span>الظهر</span><b id="dhuhr-time">--:--</b></div>
+‏        <div class="p-card"><span>العصر</span><b id="asr-time">--:--</b></div>
+‏        <div class="p-card"><span>المغرب</span><b id="maghrib-time">--:--</b></div>
+‏        <div class="p-card"><span>العشاء</span><b id="isha-time">--:--</b></div>
+‏    </div>
+‏</div>
+‏<div id="qibla-section" style="display:none; text-align:center;">
+‏    <div class="qibla-container">
+‏        <h3>اتجاه القبلة</h3>
         
-        <button id="enable-compass-btn" onclick="askCompassPermission()" style="background:var(--gold); color:var(--dark-teal); border:none; padding:10px 20px; border-radius:12px; font-weight:bold; margin-bottom:15px; cursor:pointer; font-family:'Amiri', serif;">
-‎            تشغيل البوصلة الحية 🧭
-        </button>
+‏        <button id="enable-compass-btn" onclick="askCompassPermission()" style="background:var(--gold); color:var(--dark-teal); border:none; padding:10px 20px; border-radius:12px; font-weight:bold; margin-bottom:15px; cursor:pointer; font-family:'Amiri', serif;">
+            تشغيل البوصلة الحية 🧭
+‏        </button>
 
-     <div class="compass">
-    <div id="qibla-target-arrow" class="target-arrow"></div> <div id="compass-pointer" class="compass-arrow"></div>  <div class="kaaba-icon">🕋</div>
-</div>
+‏     <div class="compass">
+‏    <div id="qibla-target-arrow" class="target-arrow"></div> <div id="compass-pointer" class="compass-arrow"></div>  <div class="kaaba-icon">🕋</div>
+‏</div>
 
 
-        <div class="qibla-degrees"><span id="qibla-deg">--</span>°</div>
-        <p id="qibla-status" style="margin-top:10px; font-size:14px;">اضغط الزر لتفعيل الحركة</p>
-    </div>
-</div>
+‏        <div class="qibla-degrees"><span id="qibla-deg">--</span>°</div>
+‏        <p id="qibla-status" style="margin-top:10px; font-size:14px;">اضغط الزر لتفعيل الحركة</p>
+‏    </div>
+‏</div>
 
-</div>
+‏</div>
 
-</div>
+‏</div>
 
-<audio id="notificationSound" src="https://www.soundjay.com/buttons/sounds/button-37a.mp3"></audio>
-<script src="script.js"></script>
-</body>
-</html> 
+‏<audio id="notificationSound" src="https://www.soundjay.com/buttons/sounds/button-37a.mp3"></audio>
+‏<script src="script.js"></script>
+‏</body>
+‏</html>
