@@ -6,14 +6,14 @@ const seekSlider = document.getElementById('seekSlider');
 const notifySound = document.getElementById('notificationSound');
 
 // --- 1. القائمة الجانبية والإعدادات ---
-function toggleMenu() { document.getElementById('sideMenu').classList.toggle('open'); }
+function toggleMenu() { document.getElementById('sideMenu')?.classList.toggle('open'); }
 function toggleMute() { 
     isMuted = !isMuted; 
     localStorage.setItem('isMuted', isMuted); 
-    document.getElementById('muteBtn').innerText = isMuted ? "🔇" : "🔊"; 
+    if(document.getElementById('muteBtn')) document.getElementById('muteBtn').innerText = isMuted ? "🔇" : "🔊"; 
 }
 function playNotify() { 
-    if (!isMuted) { 
+    if (!isMuted && notifySound) { 
         notifySound.currentTime = 0; 
         notifySound.play().catch(e => console.log("Audio play failed")); 
     } 
@@ -27,54 +27,60 @@ fetch('https://api.alquran.cloud/v1/surah').then(res => res.json()).then(data =>
 
 function displaySurahs(surahs) { 
     const list = document.getElementById('surahList');
+    if(!list) return;
     list.innerHTML = surahs.map(s => `<div class="surah-card" onclick="openSurah(${s.number}, '${s.name}')">${s.number}. ${s.name}</div>`).join(''); 
 }
 
 function filterSurahs() { 
-    const term = document.getElementById('searchInput').value; 
+    const term = document.getElementById('searchInput')?.value || ''; 
     displaySurahs(allSurahs.filter(s => s.name.includes(term))); 
 }
 
 function openSurah(id, name) {
     currentSurahId = id;
-    document.getElementById('sideMenu').classList.remove('open');
-    document.getElementById('main-view').style.display = 'none';
-    document.getElementById('quran-view').style.display = 'block';
-    document.getElementById('current-surah-title').innerText = name;
+    document.getElementById('sideMenu')?.classList.remove('open');
+    document.getElementById('main-view') && (document.getElementById('main-view').style.display = 'none');
+    document.getElementById('quran-view') && (document.getElementById('quran-view').style.display = 'block');
+    document.getElementById('current-surah-title') && (document.getElementById('current-surah-title').innerText = name);
     updateAudioSource();
     fetch(`https://api.alquran.cloud/v1/surah/${id}`).then(res => res.json()).then(data => {
-        document.getElementById('ayahsContainer').innerHTML = data.data.ayahs.map(a => `${a.text} <span style="color:var(--gold); font-size: 1.1rem;">(${a.numberInSurah})</span>`).join(' ');
+        if(document.getElementById('ayahsContainer')) {
+            document.getElementById('ayahsContainer').innerHTML = data.data.ayahs.map(a => `${a.text} <span style="color:var(--gold); font-size: 1.1rem;">(${a.numberInSurah})</span>`).join(' ');
+        }
     });
 }
 
 function showMain() { 
-    document.getElementById('main-view').style.display = 'block'; 
-    document.getElementById('quran-view').style.display = 'none'; 
-    audio.pause(); 
+    document.getElementById('main-view') && (document.getElementById('main-view').style.display = 'block'); 
+    document.getElementById('quran-view') && (document.getElementById('quran-view').style.display = 'none'); 
+    audio?.pause(); 
     if(playBtn) playBtn.innerText = "▷";
 }
 
 function updateAudioSource() {
-    const r = document.getElementById('reciterSelect').value;
+    const r = document.getElementById('reciterSelect')?.value || 'afs';
     const srv = { 'afs': '8', 'minsh': '10', 'basit': '7', 'husr': '13', 'maher': '12', 'qtm': '11', 'yasser': '11' };
-    audio.src = `https://server${srv[r]}.mp3quran.net/${r}/${currentSurahId.toString().padStart(3, '0')}.mp3`;
+    if(audio) audio.src = `https://server${srv[r]}.mp3quran.net/${r}/${currentSurahId.toString().padStart(3, '0')}.mp3`;
     if (!audio.paused) audio.play();
 }
 
 function toggleAudio() { 
-    if (audio.paused) { audio.play(); playBtn.innerText = "||"; } 
-    else { audio.pause(); playBtn.innerText = "▷"; } 
+    if (!audio) return;
+    if (audio.paused) { audio.play(); playBtn && (playBtn.innerText = "||"); } 
+    else { audio.pause(); playBtn && (playBtn.innerText = "▷"); } 
 }
 
-audio.ontimeupdate = () => { 
-    if (audio.duration) { 
-        seekSlider.value = (audio.currentTime / audio.duration) * 100; 
-        document.getElementById('currentTime').innerText = formatTime(audio.currentTime); 
-        document.getElementById('durationTime').innerText = formatTime(audio.duration); 
-    } 
-};
+if(audio) {
+    audio.ontimeupdate = () => { 
+        if (audio.duration) { 
+            if(seekSlider) seekSlider.value = (audio.currentTime / audio.duration) * 100; 
+            document.getElementById('currentTime') && (document.getElementById('currentTime').innerText = formatTime(audio.currentTime)); 
+            document.getElementById('durationTime') && (document.getElementById('durationTime').innerText = formatTime(audio.duration)); 
+        } 
+    };
+}
 
-function seekAudio() { audio.currentTime = (seekSlider.value / 100) * audio.duration; }
+function seekAudio() { if(audio && seekSlider) audio.currentTime = (seekSlider.value / 100) * audio.duration; }
 function formatTime(s) { const m = Math.floor(s/60); const sc = Math.floor(s%60); return `${m}:${sc<10?'0'+sc:sc}`; }
 
 // --- 3. قاعدة بيانات الأذكار والأدعية (موسعة ومفصلة) ---
@@ -83,7 +89,7 @@ const azkarData = {
         { id: "m1", text: "أعوذ بالله من الشيطان الرجيم: {اللَّهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلَا يُحيطُونَ بِشَيْءٍ مِنْ عليمِهِ إِلَّا بِمَا شَاءَ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ وَلَا يَئُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ}", count: 1 },
         { id: "m2", text: "بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ: {قُلْ هُوَ اللَّهُ أَحَدٌ * اللَّهُ الصَّمَدُ * لَمْ يَلِدْ وَلَمْ يُولَدْ * وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ}", count: 3 },
         { id: "m3", text: "بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ: {قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ * مِنْ شَرِّ مَا خَلَقَ * وَمِنْ شَرِّ غَاسِقٍ إِذَا وَقَبَ * وَمِنْ شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ * وَمِنْ شَرِّ حَاسِدٍ إِذَا حَسَدَ}", count: 3 },
-        { id: "m4", text: "بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ: {قُلْ أَعُوذُ بِرَبِّ النَّاسِ * مَلِكِ النَّاسِ * إِلَهِ النَّاسِ * مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِ * الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ * مِنَ الْجِنَّةِ وَالنَّاسِ}", count: 3 },
+        { id: "m4", text: "بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ: {قُلْ أَعُوذُ بِرَبِّ النَّاسِ * مَلِكِ النَّاس * إِلَهِ النَّاس * مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِ * الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ * مِنَ الْجِنَّةِ وَالنَّاسِ}", count: 3 },
         { id: "m5", text: "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ.", count: 1 },
         { id: "m5_2", text: "رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذَا الْيَوْمِ وَخَيْرَ مَا بَعْدَهُ، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذَا الْيَوْمِ وَشَرِّ مَا بَعْدَهُ.", count: 1 },
         { id: "m5_3", text: "رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابِ فِي النَّارِ وَعَذَابِ فِي الْقَبْرِ.", count: 1 },
@@ -127,25 +133,27 @@ const azkarData = {
         { id: "d2", text: "يَا مُقَلِّبَ الْقُلُوبِ ثَبِّتْ قَلْبِي عَلَى دِينِكَ.", count: 1 },
         { id: "d3", text: "اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي.", count: 1 },
         { id: "d4", text: "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْهُدَى وَالتُّقَى وَالْعَفَافَ وَالْغِنَى.", count: 1 },
-        { id: "d5", text: "اللَّهُمَّ اغْفِرْ لِي، وَارْحَمْنِي، وَاهْدِنِي، وَعَافِنِي، وَارْزُقْنِي.", count: 1 },
+        { id: "d5", text: "اللَّهُمَّ اغْفِرْ لِي، وَارْحَمْنِي، وَاهْدِنِي، وَعَافِنِي، وَارزُقْنِي.", count: 1 },
         { id: "d6", text: "لا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ.", count: 1 },
         { id: "d7", text: "اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ.", count: 10 }
     ]
 };
+علمني بس وين مكان هذا في الكود الي بالرساله الي قبل وين احطه
 
 // --- 4. وظائف الأذكار ---
 function loadAzkar(cat) {
-    document.getElementById('azkarCats').style.display = 'none';
-    document.getElementById('azkar-content').style.display = 'block';
+    document.getElementById('azkarCats') && (document.getElementById('azkarCats').style.display = 'none');
+    document.getElementById('azkar-content') && (document.getElementById('azkar-content').style.display = 'block');
     const list = document.getElementById('azkarList');
-    
+    if(!list) return;
+
     const titles = { 
         morning: 'أذكار الصباح', evening: 'أذكار المساء', 
         sleep: 'أذكار النوم', afterPrayer: 'بعد الصلاة',
         generalDuas: 'أدعية عامة' 
     };
     
-    document.getElementById('azkar-title').innerText = titles[cat] || 'الأذكار';
+    document.getElementById('azkar-title') && (document.getElementById('azkar-title').innerText = titles[cat] || 'الأذكار');
 
     list.innerHTML = azkarData[cat].map(z => {
         let saved = localStorage.getItem(`zekr_${z.id}`);
@@ -166,15 +174,15 @@ function countZekr(id) {
         c--; el.innerText = c;
         localStorage.setItem(`zekr_${id}`, c);
         if (c === 0) {
-            el.closest('.zekr-card').classList.add('completed');
+            el.closest('.zekr-card')?.classList.add('completed');
             playNotify(); 
         }
     }
 }
 
 function backToAzkarCats() { 
-    document.getElementById('azkarCats').style.display = 'grid'; 
-    document.getElementById('azkar-content').style.display = 'none'; 
+    document.getElementById('azkarCats') && (document.getElementById('azkarCats').style.display = 'grid'); 
+    document.getElementById('azkar-content') && (document.getElementById('azkar-content').style.display = 'none'); 
 }
 
 function resetAzkarProgress() { 
@@ -189,19 +197,19 @@ let sCount = parseInt(localStorage.getItem('sebhaCount')) || 0;
 let sGoal = parseInt(localStorage.getItem('sebhaGoal')) || 100;
 
 function updateGoal() {
-    sGoal = parseInt(document.getElementById('sebhaGoal').value);
+    sGoal = parseInt(document.getElementById('sebhaGoal')?.value) || 100;
     localStorage.setItem('sebhaGoal', sGoal);
     updateProgress();
 }
 
 function incrementSebha() {
     sCount++;
-    document.getElementById('sebhaCounter').innerText = sCount;
+    document.getElementById('sebhaCounter') && (document.getElementById('sebhaCounter').innerText = sCount);
     localStorage.setItem('sebhaCount', sCount);
     updateProgress();
     
     if (sCount === sGoal) {
-        document.querySelector('.sebha-circle').classList.add('goal-reached');
+        document.querySelector('.sebha-circle')?.classList.add('goal-reached');
         playNotify(); 
     }
 }
@@ -215,8 +223,8 @@ function updateProgress() {
 function resetSebha() {
     if(confirm("تصفير السبحة؟")) {
         sCount = 0;
-        document.getElementById('sebhaCounter').innerText = 0;
-        document.querySelector('.sebha-circle').classList.remove('goal-reached');
+        document.getElementById('sebhaCounter') && (document.getElementById('sebhaCounter').innerText = 0);
+        document.querySelector('.sebha-circle')?.classList.remove('goal-reached');
         localStorage.setItem('sebhaCount', 0);
         updateProgress();
     }
@@ -243,7 +251,7 @@ function updateCountdown() {
 
 function resetSebhaAutomated() {
     sCount = 0;
-    document.getElementById('sebhaCounter').innerText = 0;
+    document.getElementById('sebhaCounter') && (document.getElementById('sebhaCounter').innerText = 0);
     localStorage.setItem('sebhaCount', 0);
     updateProgress();
 }
@@ -251,24 +259,19 @@ function resetSebhaAutomated() {
 setInterval(updateCountdown, 1000);
 
 // --- 6. الوضع الداكن والخط والتبديل ---
-}
-
 function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
 function changeFontSize(d) { 
     const el = document.getElementById('ayahsContainer'); 
+    if(!el) return;
     let s = window.getComputedStyle(el).fontSize; 
     el.style.fontSize = (parseFloat(s) + d) + 'px'; 
 }
 
-// --- تهيئة التشغيل ---
-document.getElementById('sebhaCounter').innerText = sCount;
-document.getElementById('sebhaGoal').value = sGoal;
-document.getElementById('muteBtn').innerText = isMuted ? "🔇" : "🔊";
-updateProgress();
-updateCountdown();
+// --- 7. القبلة والمواقيت ---
 let prayerTimesData = null;
+let qiblaAngle = 0;
 
-// 1. جلب المواقيت بناءً على موقع المستخ// استبدل دالة fetchPrayers بالكامل بهذا الكودfunction fetchPrayers() {
+function fetchPrayers() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(pos => {
             const url = `https://api.aladhan.com/v1/timings?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&method=4`;
@@ -277,25 +280,23 @@ let prayerTimesData = null;
                 prayerTimesData = d.timings;
                 updatePrayerUI();
                 startPrayerCountdown();
-                
-                // إضافة هذه الأسطر لتحديث التاريخ
-                document.getElementById('hijri-date').innerText = `${d.date.hijri.day} ${d.date.hijri.month.ar} ${d.date.hijri.year}`;
-                document.getElementById('gregorian-date').innerText = d.date.gregorian.date;
-                document.getElementById('current-day').innerText = d.date.hijri.weekday.ar;
+                document.getElementById('hijri-date') && (document.getElementById('hijri-date').innerText = `${d.date.hijri.day} ${d.date.hijri.month.ar} ${d.date.hijri.year}`);
+                document.getElementById('gregorian-date') && (document.getElementById('gregorian-date').innerText = d.date.gregorian.date);
+                document.getElementById('current-day') && (document.getElementById('current-day').innerText = d.date.hijri.weekday.ar);
+            });
+        });
+    }
 }
 
-
-// 2. تحديث جدول الأوقات
 function updatePrayerUI() {
     if(!prayerTimesData) return;
-    document.getElementById('fajr-time').innerText = prayerTimesData.Fajr;
-    document.getElementById('dhuhr-time').innerText = prayerTimesData.Dhuhr;
-    document.getElementById('asr-time').innerText = prayerTimesData.Asr;
-    document.getElementById('maghrib-time').innerText = prayerTimesData.Maghrib;
-    document.getElementById('isha-time').innerText = prayerTimesData.Isha;
+    document.getElementById('fajr-time') && (document.getElementById('fajr-time').innerText = prayerTimesData.Fajr);
+    document.getElementById('dhuhr-time') && (document.getElementById('dhuhr-time').innerText = prayerTimesData.Dhuhr);
+    document.getElementById('asr-time') && (document.getElementById('asr-time').innerText = prayerTimesData.Asr);
+    document.getElementById('maghrib-time') && (document.getElementById('maghrib-time').innerText = prayerTimesData.Maghrib);
+    document.getElementById('isha-time') && (document.getElementById('isha-time').innerText = prayerTimesData.Isha);
 }
 
-// 3. العداد التنازلي للصلاة القادمة
 function startPrayerCountdown() {
     setInterval(() => {
         if (!prayerTimesData) return;
@@ -315,7 +316,7 @@ function startPrayerCountdown() {
             if (d > now) { next = {n: p.n, d: d}; break; }
         }
 
-        if (!next) { // لو انتهت صلوات اليوم، الصلاة القادمة فجر الغد
+        if (!next) {
             const [h, m] = prayers[0].t.split(':');
             const d = new Date(); d.setDate(d.getDate() + 1); d.setHours(h, m, 0);
             next = {n: "الفجر", d: d};
@@ -326,17 +327,15 @@ function startPrayerCountdown() {
         const mm = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
         const ss = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
 
-        document.getElementById('next-prayer-name').innerText = `الصلاة القادمة: ${next.n}`;
-        document.getElementById('next-prayer-timer').innerText = `${hh}:${mm}:${ss}`;
+        document.getElementById('next-prayer-name') && (document.getElementById('next-prayer-name').innerText = `الصلاة القادمة: ${next.n}`);
+        document.getElementById('next-prayer-timer') && (document.getElementById('next-prayer-timer').innerText = `${hh}:${mm}:${ss}`);
     }, 1000);
 }
-// --- 7. وظائف القبلة (نظام مطابقة السهمين) ---// --- 7. وظائف القبلة الاحترافية (نظام المطابقة) ---// --- 7. القبلة: نظام مطابقة السهمين (نسخة نهائية) ---
-let qiblaAngle = 0;
 
 function getQibla() {
     if (!navigator.geolocation) return;
-    
-    document.getElementById('qibla-status').innerText = "جاري تحديد موقعك...";
+    const statusEl = document.getElementById('qibla-status');
+    if(statusEl) statusEl.innerText = "جاري تحديد موقعك...";
     
     navigator.geolocation.getCurrentPosition(position => {
         const phiK = 21.4225 * Math.PI / 180;
@@ -347,18 +346,17 @@ function getQibla() {
         let q = Math.atan2(Math.sin(lambdaK - lambda), Math.cos(phi) * Math.tan(phiK) - Math.sin(phi) * Math.cos(lambdaK - lambda));
         qiblaAngle = (q * 180 / Math.PI + 360) % 360;
         
-        document.getElementById('qibla-deg').innerText = Math.round(qiblaAngle);
+        document.getElementById('qibla-deg') && (document.getElementById('qibla-deg').innerText = Math.round(qiblaAngle));
         
-        // تثبيت السهم الأخضر (الهدف) باتجاه مكة
         const greenArrow = document.getElementById('qibla-target-arrow');
-        if (greenArrow) {
-            greenArrow.style.transform = `translate(-50%, -100%) rotate(${qiblaAngle}deg)`;
-        }
+        if (greenArrow) greenArrow.style.transform = `translate(-50%, -100%) rotate(${qiblaAngle}deg)`;
         
-        document.getElementById('qibla-status').innerHTML = `
+        if(statusEl) {
+            statusEl.innerHTML = `
             <button onclick="activateCompass()" style="background:var(--gold); color:var(--dark-teal); border:none; padding:10px 20px; border-radius:10px; font-weight:bold; cursor:pointer;">
                 تفعيل البوصلة 🧭
             </button>`;
+        }
     }, null, { timeout: 5000 });
 }
 
@@ -377,11 +375,10 @@ function moveCompass(e) {
 
     const goldArrow = document.getElementById('compass-pointer');
     const status = document.getElementById('qibla-status');
+    if(!goldArrow || !status) return;
 
-    // السهم الذهبي يلاحق اتجاه الجوال
     goldArrow.style.transform = `translate(-50%, -100%) rotate(${-heading}deg)`;
 
-    // حساب التطابق
     const currentPos = (360 - heading) % 360;
     const diff = Math.abs(currentPos - qiblaAngle);
 
@@ -393,67 +390,17 @@ function moveCompass(e) {
         status.innerText = "ضع السهم الذهبي فوق الأخضر";
     }
 }
-// دالة التبديل (تأكد من وجود ن}
 
-// دالة جلب آية عشوائية
+// --- دوال إضافية ---
 async function generateDailyAyah() {
     const textEl = document.getElementById('daily-ayah-text');
     const infoEl = document.getElementById('daily-ayah-info');
-    
     if (!textEl) return;
-
-    // إضافة تأثير اختفاء بسيط عند التحميل
     textEl.style.opacity = "0.5";
 
     try {
         const random = Math.floor(Math.random() * 6236) + 1;
         const response = await fetch(`https://api.alquran.cloud/v1/ayah/${random}`);
         const data = await response.json();
-        
         textEl.innerText = data.data.text;
-        infoEl.innerText = `سورة ${data.data.surah.name} • آية ${data.data.numberInSurah}`;
-        textEl.style.opacity = "1";
-    } catch (err) {
-        textEl.innerText = "لا إله إلا أنت سبحانك إني كنت من الظالمين";
-        textEl.style.opacity = "1";
-    }
-}
-
-// تشغيل عند التحميل
-document.addEventListener('DOMContentLoaded', () => {
-    generateDailyAyah();
-    updateProgress(); // لتحديث بار السبحة عند الفتح
-});
-
-// تنفيذ احتياطي فوراً
-setTimeout(generateDailyAyah, 500);
-// النسخة الشاملة والوحيدة لتبديل الأقسام
-function switchMainTab(t) {
-    // 1. تغيير حالة الأزرار (إضافة active للزر المختار)
-    document.querySelectorAll('.main-nav button').forEach(b => b.classList.remove('active'));
-    const activeBtn = document.getElementById(t + 'Tab');
-    if (activeBtn) activeBtn.classList.add('active');
-
-    // 2. إخفاء كل الأقسام وإظهار القسم المطلوب فقط
-    const sections = ['quran', 'azkar', 'sebha', 'prayer', 'qibla'];
-    sections.forEach(s => {
-        const sectionElement = document.getElementById(s + '-section');
-        if (sectionElement) {
-            sectionElement.style.display = (s === t) ? 'block' : 'none';
-        }
-    });
-
-    // 3. تشغيل الوظائف الخاصة بكل قسم عند فتحه
-    if (t === 'qibla') {
-        getQibla(); // تشغيل حسابات القبلة
-    }
-    if (t === 'prayer') {
-        fetchPrayers(); // تحديث المواقيت والتاريخ
-    }
-    
-    // إخفاء عرض السورة إذا كنا في قسم القرآن ورجعنا للرئيسية
-    if (t === 'quran') {
-        showMain(); 
-    }
-}
-
+        infoEl && (infoEl.innerText = `سورة ${data.data.surah.name} •
