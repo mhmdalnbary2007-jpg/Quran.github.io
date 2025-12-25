@@ -196,4 +196,28 @@ body.dark-mode .p-card b { color: white; }
     /* هذا السطر هو السر في سلاسة الحركة */
     transition: transform 0.1s linear !important; 
 }
+.settings-btn-small {
+    background: var(--dark-teal);
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    padding: 5px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.settings-btn-small:hover {
+    background: var(--gold);
+    color: var(--dark-teal);
+}
+
+/* تنسيق السطر داخل القائمة */
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
 
