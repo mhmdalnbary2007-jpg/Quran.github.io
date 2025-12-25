@@ -54,8 +54,7 @@ function showMain() {
     if(playBtn) playBtn.innerText = "▷";
 }
 
-function showMain() { 
-    playNotify(); // 🔔 صوت خفيف
+function showMain() {  
     document.getElementById('main-view').style.display = 'block'; 
     document.getElementById('quran-view').style.display = 'none'; 
     audio.pause(); 
@@ -173,8 +172,7 @@ function countZekr(id) {
     }
 }
 
-function backToAzkarCats() { 
-    playNotify(); // 🔔 صوت خفيف
+function backToAzkarCats() {
     document.getElementById('azkarCats').style.display = 'grid'; 
     document.getElementById('azkar-content').style.display = 'none'; 
 }
