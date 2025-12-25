@@ -60,3 +60,25 @@ header { background: var(--dark-teal); color: var(--gold); padding: 20px 10px; t
 /* الوضع الداكن */
 body.dark-mode { background: var(--black) !important; color: white !important; }
 body.dark-mode .surah-card, body.dark-mode .category-card, body.dark-mode .player-container, body.dark-mode .ayah-text, body.dark-mode .zekr-card { background: #111 !important; border-color: var(--gold); color: white !important; }
+.modern-back-btn {
+    background: var(--primary); /* اللون التيل الداكن */
+    color: var(--gold); /* اللون الذهبي */
+    border: 2px solid var(--gold);
+    padding: 8px 20px;
+    border-radius: 12px;
+    font-family: sans-serif; /* ليكون شكل الخط الإنجليزي متناسق */
+    font-weight: bold;
+    cursor: pointer;
+    margin: 15px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px; /* مسافة بين السهم والكلمة */
+    direction: ltr; /* لضمان ظهور السهم على اليسار والكلمة بجانبه بشكل صحيح */
+    transition: 0.3s;
+}
+
+.modern-back-btn:hover {
+    background: var(--gold);
+    color: var(--primary);
+    transform: translateX(-5px); /* حركة خفيفة لجهة اليسار عند التمرير */
+}
