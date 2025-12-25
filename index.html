@@ -1,20 +1,18 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>حقيبة المؤمن - الإصدار الهيبة</title>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حقيبة المؤمن - الإصدار الهيبة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<!-- ========== القائمة الجانبية ========== -->
 <div id="sideMenu" class="side-menu">
     <button class="close-btn" onclick="toggleMenu()">×</button>
     <h3 style="text-align:center;color:var(--gold);">الإعدادات</h3>
-    <hr>
+    <hr style="border:0.5px solid rgba(201,176,122,0.3);">
 
     <div class="menu-item">
         <span>الوضع المظلم</span>
@@ -32,19 +30,20 @@
             <button class="menu-tool-btn" onclick="changeFontSize(2)">A+</button>
             <button class="menu-tool-btn" onclick="changeFontSize(-2)">A-</button>
         </div>
-    </div>
-
     <div class="menu-item">
-        <span>تحديث الموقع</span>
-        <button class="menu-tool-btn" onclick="getQibla()">📍</button>
+    <span>تحديث الموقع</span>
+    <button class="menu-tool-btn" onclick="getQibla()">📍</button>
+</div>
+
+</div>
+
     </div>
 
-    <p style="font-size:12px;text-align:center;margin-top:40px;opacity:0.6;">
+    <p style="font-size:12px;text-align:center;margin-top:50px;opacity:0.6;">
         إصدار حقيبة المؤمن 2025
     </p>
 </div>
 
-<!-- ========== الهيدر ========== -->
 <header>
     <div class="menu-icon" onclick="toggleMenu()">☰</div>
     <h1>حقيبة المؤمن</h1>
@@ -54,7 +53,8 @@
         <button id="azkarTab" onclick="switchMainTab('azkar')">قسم الأذكار</button>
         <button id="sebhaTab" onclick="switchMainTab('sebha')">السبحة</button>
         <button id="prayerTab" onclick="switchMainTab('prayer')">مواقيت الصلاة</button>
-        <button id="qiblaTab" onclick="switchMainTab('qibla')">اتجاه القبلة</button>
+<button id="qiblaTab" onclick="switchMainTab('qibla')">اتجاه القبلة</button>
+
     </div>
 </header>
 
@@ -63,27 +63,32 @@
 <!-- ================= القرآن ================= -->
 <div id="quran-section">
     <div id="main-view">
+        <div id="main-view">
+    
+    <div id="daily-ayah-card" class="daily-card">
+    <div class="card-header">
+        <span>آية اليوم</span>
+        <button onclick="generateDailyAyah()" class="refresh-btn" title="تغيير الآية">🔄</button>
+    </div>
+    <div id="daily-ayah-text" class="ayah-content">جاري جلب آية كريمة...</div>
+    <div id="daily-ayah-info" class="ayah-info"></div>
+</div>
 
-        <div id="daily-ayah-card" class="daily-card">
-            <div class="card-header">
-                <span>آية اليوم</span>
-                <button onclick="generateDailyAyah()" class="refresh-btn">🔄</button>
-            </div>
-            <div id="daily-ayah-text" class="ayah-content">جاري جلب آية كريمة...</div>
-            <div id="daily-ayah-info" class="ayah-info"></div>
-        </div>
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="ابحث عن سورة..." onkeyup="filterSurahs()">
+    </div>
+    <div class="surah-grid" id="surahList"></div>
+</div>
 
         <div class="search-box">
             <input type="text" id="searchInput" placeholder="ابحث عن سورة..." onkeyup="filterSurahs()">
         </div>
-
         <div class="surah-grid" id="surahList"></div>
     </div>
 
-    <!-- ===== مشغل القرآن ===== -->
     <div id="quran-view" style="display:none;">
         <div style="text-align:center;margin:10px;">
-            <button class="modern-back-btn" onclick="showMain()">⟵ رجوع</button>
+        <button class="modern-back-btn" onclick="showMain()">⟵ Back</button>
         </div>
 
         <div class="player-container modern-style">
@@ -133,7 +138,7 @@
             <button class="modern-reset-soft" onclick="resetAzkarProgress()">تصفير</button>
         </div>
 
-        <h2 id="azkar-title"></h2>
+        <h2 id="azkar-title" style="text-align:center;color:var(--gold);"></h2>
         <div id="azkarList"></div>
     </div>
 </div>
@@ -161,20 +166,18 @@
         <div id="countdown-timer" class="modern-timer">00:00:00</div>
     </div>
 </div>
-
-<!-- ================= مواقيت الصلاة ================= -->
 <div id="prayer-section" style="display:none; text-align:center;">
     <div class="date-header-card">
-        <div id="hijri-date">جاري التحميل...</div>
-        <div id="gregorian-date"></div>
-        <div id="current-day"></div>
+        <div class="hijri-date" id="hijri-date">جاري التحميل...</div>
+        <div class="gregorian-date" id="gregorian-date">-- / -- / ----</div>
+        <div class="day-name" id="current-day"></div>
     </div>
 
     <div class="prayer-hero-card">
         <h3 id="next-prayer-name">جاري تحديد الموقع...</h3>
         <div id="next-prayer-timer" class="big-timer">00:00:00</div>
     </div>
-
+    
     <div class="prayer-detailed-grid">
         <div class="p-card"><span>الفجر</span><b id="fajr-time">--:--</b></div>
         <div class="p-card"><span>الظهر</span><b id="dhuhr-time">--:--</b></div>
@@ -184,22 +187,24 @@
     </div>
 </div>
 
-<!-- ================= القبلة ================= -->
 <div id="qibla-section" style="display:none; text-align:center;">
     <div class="qibla-container">
         <h3>اتجاه القبلة</h3>
+        
+        <button id="enable-compass-btn" onclick="askCompassPermission()" style="background:var(--gold); color:var(--dark-teal); border:none; padding:10px 20px; border-radius:12px; font-weight:bold; margin-bottom:15px; cursor:pointer; font-family:'Amiri', serif;">
+            تشغيل البوصلة الحية 🧭
+        </button>
 
-        <button id="enable-compass-btn" onclick="askCompassPermission()">تشغيل البوصلة 🧭</button>
+     <div class="compass">
+    <div id="qibla-target-arrow" class="target-arrow"></div> <div id="compass-pointer" class="compass-arrow"></div>  <div class="kaaba-icon">🕋</div>
+</div>
 
-        <div class="compass">
-            <div id="qibla-target-arrow" class="target-arrow"></div>
-            <div id="compass-pointer" class="compass-arrow"></div>
-            <div class="kaaba-icon">🕋</div>
-        </div>
 
         <div class="qibla-degrees"><span id="qibla-deg">--</span>°</div>
-        <p id="qibla-status">اضغط الزر لتفعيل الحركة</p>
+        <p id="qibla-status" style="margin-top:10px; font-size:14px;">اضغط الزر لتفعيل الحركة</p>
     </div>
+</div>
+
 </div>
 
 </div>
