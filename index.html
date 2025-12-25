@@ -3,23 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حقيبة المؤمن - الإصدار الملكي</title>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
+    <title>حقيبة المؤمن - الإصدار الهيبة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div id="sideMenu" class="side-menu">
     <button class="close-btn" onclick="toggleMenu()">×</button>
-    <h3 class="menu-title">الإعدادات الملكية</h3>
+    <h3 style="text-align: center; color: var(--gold);">الإعدادات</h3>
+    <hr style="border: 0.5px solid rgba(201,176,122,0.3);">
+    
     <div class="menu-item">
         <span>الوضع المظلم</span>
         <button id="darkModeBtn" class="menu-tool-btn" onclick="toggleDarkMode()">🌙</button>
     </div>
+
     <div class="menu-item">
         <span>أصوات التنبيه</span>
         <button id="muteBtn" class="menu-tool-btn" onclick="toggleMute()">🔊</button>
     </div>
+
     <div class="menu-item">
         <span>حجم الخط</span>
         <div class="font-controls">
@@ -27,11 +31,12 @@
             <button class="menu-tool-btn" onclick="changeFontSize(-2)">A-</button>
         </div>
     </div>
+    <p style="font-size: 12px; text-align: center; margin-top: 50px; opacity: 0.6;">إصدار حقيبة المؤمن 2025</p>
 </div>
 
 <header>
     <div class="menu-icon" onclick="toggleMenu()">☰</div>
-    <h1 class="logo-text">حقيبة المؤمن</h1>
+    <h1>حقيبة المؤمن</h1>
     <div class="main-nav">
         <button id="quranTab" class="active" onclick="switchMainTab('quran')">القرآن الكريم</button>
         <button id="azkarTab" onclick="switchMainTab('azkar')">قسم الأذكار</button>
@@ -43,28 +48,37 @@
     <div id="quran-section">
         <div id="main-view">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="🔍 ابحث عن سورة..." onkeyup="filterSurahs()">
+                <input type="text" id="searchInput" placeholder="ابحث عن سورة..." onkeyup="filterSurahs()">
             </div>
             <div class="surah-grid" id="surahList"></div>
         </div>
+
         <div id="quran-view" style="display:none;">
             <div class="back-nav">
-                <button class="modern-back-btn" onclick="showMain()">🔙 رجوع</button>
+                <button class="icon-back-btn" onclick="showMain()">🔙 العودة للسور</button>
             </div>
+
             <div class="player-container modern-style">
                 <h2 id="current-surah-title"></h2>
-                <select id="reciterSelect" onchange="updateAudioSource()">
-                    <option value="afs">🎙️ مشاري العفاسي</option>
-                    <option value="minsh">🎙️ محمد صديق المنشاوي</option>
-                    <option value="basit">🎙️ عبد الباسط عبد الصمد</option>
-                    <option value="husr">🎙️ محمود خليل الحصري</option>
-                    <option value="maher">🎙️ ماهر المعيقلي</option>
-                </select>
+                <div class="reciter-section">
+                    <select id="reciterSelect" onchange="updateAudioSource()">
+                        <option value="afs">🎙️ مشاري العفاسي</option>
+                        <option value="minsh">🎙️ محمد صديق المنشاوي</option>
+                        <option value="basit">🎙️ عبد الباسط عبد الصمد</option>
+                        <option value="husr">🎙️ محمود خليل الحصري</option>
+                        <option value="maher">🎙️ ماهر المعيقلي</option>
+                        <option value="qtm">🎙️ ناصر القطامي</option>
+                        <option value="yasser">🎙️ ياسر الدوسري</option>
+                    </select>
+                </div>
+
                 <div class="modern-player-layout">
-                    <button id="playBtn" class="play-btn-main" onclick="toggleAudio()">▷</button>
+                    <button id="playBtn" class="play-btn-small" onclick="toggleAudio()">▷</button>
                     <div class="progress-wrapper">
                         <span id="currentTime" class="time-label">0:00</span>
-                        <input type="range" id="seekSlider" value="0" max="100" oninput="seekAudio()">
+                        <div class="slider-container">
+                            <input type="range" id="seekSlider" value="0" max="100" oninput="seekAudio()">
+                        </div>
                         <span id="durationTime" class="time-label">0:00</span>
                     </div>
                 </div>
@@ -74,49 +88,54 @@
         </div>
     </div>
 
-    <div id="azkar-section" style="display:none;">
-        <div class="azkar-categories" id="azkarCats">
-            <div class="category-card" onclick="loadAzkar('morning')">☀️ أذكار الصباح</div>
-            <div class="category-card" onclick="loadAzkar('evening')">🌙 أذكار المساء</div>
-            <div class="category-card" onclick="loadAzkar('sleep')">🛌 أذكار النوم</div>
-            <div class="category-card" onclick="loadAzkar('afterPrayer')">📿 بعد الصلاة</div>
-            <div class="category-card" onclick="loadAzkar('generalDuas')">🤲 أدعية نبوية</div>
-        </div>
-        <div id="azkar-content" style="display:none;">
-            <div class="top-controls">
-                <button class="modern-action-btn back" onclick="backToAzkarCats()">🔙 رجوع</button>
-                <button class="modern-action-btn reset" onclick="resetAzkarProgress()">🔄 تصفير</button>
-            </div>
-            <h2 id="azkar-title" class="section-title"></h2>
-            <div id="azkarList"></div>
-        </div>
+  <div id="azkar-section" style="display:none;">
+    <div class="azkar-categories" id="azkarCats">
+        <div class="category-card" onclick="loadAzkar('morning')">☀️ أذكار الصباح</div>
+        <div class="category-card" onclick="loadAzkar('evening')">🌙 أذكار المساء</div>
+        <div class="category-card" onclick="loadAzkar('sleep')">🛌 أذكار النوم</div>
+        <div class="category-card" onclick="loadAzkar('afterPrayer')">📿 بعد الصلاة</div>
+        <div class="category-card" onclick="loadAzkar('generalDuas')">🤲 أدعية نبوية</div>
     </div>
 
+    <div id="azkar-content" style="display:none;">
+        <div class="top-controls">
+            <button class="back-btn" onclick="backToAzkarCats()">← العودة</button>
+            <button class="reset-btn" onclick="resetAzkarProgress()">تصفير</button>
+        </div>
+        <h2 id="azkar-title" style="text-align:center; margin-bottom: 20px; color: var(--gold);"></h2>
+        <div id="azkarList"></div>
+    </div>
+</div>
+
+
     <div id="sebha-section" style="display:none;">
-        <div class="countdown-card">
-            <p>وقت تصفير العداد التلقائي</p>
-            <div id="countdown-timer">00:00:00</div>
-        </div>
-        <div class="goal-setting-card">
-            <span>تحديد الهدف اليومي:</span>
+        <div class="goal-setting">
+            <span>الهدف اليومي:</span>
             <input type="number" id="sebhaGoal" value="100" min="1" onchange="updateGoal()">
-            <div id="goalStatus">✅ تم الحفظ بنجاح</div>
         </div>
-        <div class="progress-outer">
-            <div id="sebhaBar" class="progress-inner"></div>
+        
+        <div class="progress-container">
+            <div id="sebhaBar" class="progress-bar"></div>
         </div>
-        <div class="sebha-main-container">
-            <div class="sebha-circle" onclick="incrementSebha()">
-                <div class="ripple"></div>
-                <span id="sebhaCounter">0</span>
-                <small>سبح باسم ربك</small>
-            </div>
+
+        <div class="sebha-circle" onclick="incrementSebha()">
+            <span id="sebhaCounter">0</span>
+            <small id="sebhaStatus">اضغط للتسبيح</small>
         </div>
-        <button class="glass-reset-btn" onclick="resetSebha()">🔄 تصفير السبحة</button>
+
+        <div class="sebha-controls">
+            <button class="modern-reset-btn" onclick="resetSebha()">🔄 تصفير العداد</button>
+        </div>
+
+        <div class="timer-wrapper" style="margin-top: 20px;">
+            <span class="timer-label">التصفير التلقائي:</span>
+            <div id="countdown-timer" class="modern-timer">00:00:00</div>
+        </div>
     </div>
 </div>
 
 <audio id="notificationSound" src="https://www.soundjay.com/buttons/sounds/button-37a.mp3"></audio>
+
 <script src="script.js"></script>
 </body>
 </html>
