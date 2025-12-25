@@ -272,3 +272,31 @@ document.getElementById('sebhaGoal').value = sGoal;
 document.getElementById('muteBtn').innerText = isMuted ? "🔇" : "🔊";
 updateProgress();
 updateCountdown();
+// وظيفة جلب مواقيت الصلاة
+function getPrayerTimes() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            // استخدام طريقة الحساب (4) وهي المعتمدة في أغلب الدول العربية
+            const url = `https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lng}&method=4`;
+
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    const times = data.data.timings;
+                    document.getElementById('fajr-time').innerText = times.Fajr;
+                    document.getElementById('dhuhr-time').innerText = times.Dhuhr;
+                    document.getElementById('asr-time').innerText = times.Asr;
+                    document.getElementById('maghrib-time').innerText = times.Maghrib;
+                    document.getElementById('isha-time').innerText = times.Isha;
+                })
+                .catch(err => console.log("خطأ في جلب المواقيت"));
+        }, () => {
+            console.log("تم رفض الوصول للموقع");
+        });
+    }
+}
+
+// استدعاء الوظيفة لتعمل فور تحميل الصفحة
+getPrayerTimes();
