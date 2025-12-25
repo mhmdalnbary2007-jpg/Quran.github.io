@@ -1,115 +1,62 @@
-/* الألوان والمتغيرات */
 :root {
-    --primary: #1a4d4f;
-    --primary-light: #2F5F63;
+    --dark-teal: #2F5F63;
     --gold: #C9B07A;
-    --gold-dark: #b09a65;
-    --white: #ffffff;
-    --bg: #f8f5f0;
-    --text: #2c3e50;
-    --shadow: 0 10px 30px rgba(0,0,0,0.1);
-    --glass: rgba(255, 255, 255, 0.8);
-    --success: #27ae60;
+    --bg: #fdfcf9;
+    --black: #000000;
+    --success: #28a745;
 }
 
-/* التنسيق العام */
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { 
-    font-family: 'Amiri', serif; background: var(--bg); color: var(--text); 
-    margin: 0; direction: rtl; overflow-x: hidden; transition: 0.4s;
-}
+body { font-family: 'Amiri', serif; background: var(--bg); color: var(--dark-teal); margin: 0; direction: rtl; transition: 0.4s; }
 
-/* الهيدر اللامع */
-header { 
-    background: linear-gradient(135deg, var(--primary), var(--primary-light)); 
-    color: var(--gold); padding: 25px 15px; text-align: center;
-    border-bottom: 4px solid var(--gold); position: sticky; top: 0; z-index: 1000;
-    box-shadow: var(--shadow);
-}
-.logo-text { font-family: 'Aref Ruqaa', serif; margin: 0; font-size: 1.8rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+/* القائمة الجانبية */
+.side-menu { position: fixed; top: 0; left: -320px; width: 260px; height: 100%; background: var(--dark-teal); color: var(--gold); z-index: 2000; transition: all 0.4s ease-in-out; padding: 25px; visibility: hidden; }
+.side-menu.open { left: 0; visibility: visible; box-shadow: 5px 0 15px rgba(0,0,0,0.5); }
+.menu-icon { position: absolute; right: 20px; top: 22px; font-size: 28px; cursor: pointer; color: var(--gold); z-index: 1001; }
+.close-btn { background: none; border: none; color: white; font-size: 35px; cursor: pointer; }
+.menu-item { display: flex; justify-content: space-between; align-items: center; margin: 30px 0; }
+.menu-tool-btn { background: var(--gold); border: none; padding: 10px 15px; border-radius: 10px; cursor: pointer; font-weight: bold; color: var(--dark-teal); }
 
-/* أزرار التنقل الرئيسية */
-.main-nav { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
-.main-nav button {
-    background: rgba(255,255,255,0.1); border: 1px solid var(--gold); color: var(--gold);
-    padding: 10px 18px; border-radius: 12px; cursor: pointer; font-weight: bold;
-    font-family: 'Amiri'; transition: 0.3s;
-}
-.main-nav button.active { background: var(--gold); color: var(--primary); transform: translateY(-3px); box-shadow: 0 5px 15px rgba(201,176,122,0.4); }
+/* الهيدر */
+header { background: var(--dark-teal); color: var(--gold); padding: 20px 10px; text-align: center; border-bottom: 5px solid var(--gold); }
+.main-nav { display: flex; justify-content: center; gap: 8px; margin-top: 15px; }
+.main-nav button { background: transparent; border: 1.5px solid var(--gold); color: var(--gold); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 0.9rem; }
+.main-nav button.active { background: var(--gold); color: var(--dark-teal); }
 
-/* البطاقات والشبكات */
-.container { padding-bottom: 50px; }
-.surah-grid, .azkar-categories { 
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
-    gap: 15px; padding: 20px; animation: fadeInUp 0.5s ease;
-}
+/* شبكة السور */
+.surah-grid, .azkar-categories { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 12px; margin-top: 15px; padding: 10px; }
+.surah-card, .category-card { background: white; padding: 15px 10px; border-right: 4px solid var(--gold); border-radius: 8px; text-align: center; cursor: pointer; font-weight: bold; font-size: 0.95rem; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; min-height: 55px; }
 
-.surah-card, .category-card {
-    background: var(--white); border-radius: 15px; padding: 20px; text-align: center;
-    font-weight: bold; font-size: 1.1rem; color: var(--primary);
-    box-shadow: var(--shadow); border-right: 5px solid var(--gold);
-    transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-.surah-card:active, .category-card:active { transform: scale(0.95); }
+/* المشغل الصوتي */
+.player-container.modern-style { background: white; padding: 15px 20px; border-radius: 15px; margin: 10px; text-align: center; border: 1px solid rgba(201, 176, 122, 0.2); }
+.play-btn-small { width: 55px; height: 55px; border-radius: 50%; background: var(--dark-teal); color: var(--gold); border: 2px solid var(--gold); font-size: 1.4rem; cursor: pointer; }
+#reciterSelect { padding: 5px; border-radius: 10px; border: 1px solid var(--gold); background: var(--bg); color: var(--dark-teal); font-family: 'Amiri'; margin-bottom: 10px; width: 100%; }
+#seekSlider { width: 100%; accent-color: var(--dark-teal); height: 4px; }
 
-/* أزرار الأكشن */
-.modern-back-btn, .modern-action-btn {
-    background: var(--primary); color: var(--gold); border: 2px solid var(--gold);
-    padding: 10px 25px; border-radius: 25px; font-family: 'Amiri'; font-weight: bold;
-    cursor: pointer; margin: 15px; transition: 0.3s;
-}
-.modern-action-btn.reset { background: #e74c3c; border-color: #c0392b; color: white; }
+/* الآيات */
+.ayah-text { background: white; padding: 25px; border-radius: 12px; font-size: 1.7rem; line-height: 2.3; text-align: center; margin: 10px; border: 1px solid rgba(201, 176, 122, 0.1); }
 
-/* قسم الأذكار */
-.zekr-card {
-    background: var(--white); margin: 15px; padding: 25px; border-radius: 20px;
-    box-shadow: var(--shadow); border-right: 8px solid var(--gold);
-    transition: 0.4s; position: relative; overflow: hidden;
-}
-.zekr-card.completed { border-right-color: var(--success); background: #f0fff4; }
-.zekr-text { font-size: 1.4rem; line-height: 2.2; text-align: center; margin-bottom: 15px; }
-.zekr-counter { 
-    background: var(--primary); color: var(--gold); display: inline-block;
-    padding: 5px 20px; border-radius: 15px; font-weight: bold; 
-}
+/* الأذكار */
+.zekr-card { background: white; padding: 15px; border-right: 6px solid var(--gold); border-radius: 10px; margin: 10px; cursor: pointer; transition: 0.5s; }
+.zekr-card.completed { border-right-color: var(--success) !important; background-color: rgba(40, 167, 69, 0.05) !important; }
+.zekr-card.completed .zekr-counter { background-color: var(--success) !important; color: white !important; }
+.zekr-text { font-size: 1.4rem; line-height: 2; text-align: center; margin-bottom: 10px; }
+.zekr-counter { background: var(--dark-teal); color: var(--gold); padding: 4px 15px; border-radius: 15px; font-size: 0.9rem; }
 
-/* السبحة الفخمة */
-.countdown-card { 
-    background: #111; color: #ff4757; text-align: center; padding: 15px;
-    margin: 15px; border-radius: 15px; border: 1px solid #333;
-}
-#countdown-timer { font-size: 1.5rem; font-family: monospace; }
+/* السبحة المحدثة */
+.goal-setting { text-align: center; margin: 15px 0; font-weight: bold; }
+#sebhaGoal { width: 60px; padding: 5px; border: 1px solid var(--gold); border-radius: 5px; text-align: center; background: white; color: var(--dark-teal); }
 
-.sebha-circle {
-    width: 250px; height: 250px; border-radius: 50%; 
-    background: radial-gradient(circle, var(--primary-light), var(--primary));
-    border: 12px solid var(--gold); margin: 30px auto;
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    color: var(--gold); cursor: pointer; position: relative;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.5);
-}
-#sebhaCounter { font-size: 4.5rem; font-weight: bold; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
+.progress-container { width: 80%; background: #eee; height: 10px; border-radius: 10px; margin: 10px auto; overflow: hidden; }
+.progress-bar { width: 0%; height: 100%; background: var(--gold); transition: 0.3s; }
 
-/* شريط التقدم */
-.progress-outer { width: 85%; height: 12px; background: #ddd; margin: 20px auto; border-radius: 10px; overflow: hidden; }
-.progress-inner { height: 100%; width: 0%; background: linear-gradient(to left, var(--gold), #f1c40f); transition: 0.5s; }
+.sebha-circle { width: 180px; height: 180px; border-radius: 50%; background: var(--dark-teal); color: var(--gold); display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 20px auto; border: 8px solid var(--gold); cursor: pointer; transition: 0.2s; }
+.sebha-circle:active { transform: scale(0.95); }
+.sebha-circle.goal-reached { border-color: var(--success); box-shadow: 0 0 20px var(--success); }
 
-/* الوضع المظلم */
-body.dark-mode { background: #0f1717; color: #e0e0e0; }
-body.dark-mode .surah-card, body.dark-mode .category-card, body.dark-mode .zekr-card {
-    background: #1a2525; color: #fff; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-}
+.modern-reset-btn { display: block; margin: 10px auto; background: #e74c3c; color: white; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
 
-/* الأنيميشن */
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+.modern-timer { font-family: sans-serif; font-weight: bold; color: var(--gold); background: var(--dark-teal); padding: 5px 15px; border-radius: 10px; display: inline-block; }
 
-/* إضافات تجربة المستخدم */
-#goalStatus { color: var(--success); font-weight: bold; margin-top: 10px; opacity: 0; transition: 0.3s; }
-.search-box input {
-    width: 90%; display: block; margin: 20px auto; padding: 15px;
-    border-radius: 15px; border: 2px solid var(--gold); font-family: 'Amiri';
-    font-size: 1.1rem; outline: none; box-shadow: var(--shadow);
-}
+/* الوضع الداكن */
+body.dark-mode { background: var(--black) !important; color: white !important; }
+body.dark-mode .surah-card, body.dark-mode .category-card, body.dark-mode .player-container, body.dark-mode .ayah-text, body.dark-mode .zekr-card { background: #111 !important; border-color: var(--gold); color: white !important; }
