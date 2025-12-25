@@ -30,7 +30,11 @@
             <button class="menu-tool-btn" onclick="changeFontSize(2)">A+</button>
             <button class="menu-tool-btn" onclick="changeFontSize(-2)">A-</button>
         </div>
-    
+    <div class="menu-item">
+    <span>تحديث الموقع</span>
+    <button class="menu-tool-btn" onclick="getQibla()">📍</button>
+</div>
+
 </div>
 
     </div>
@@ -162,13 +166,20 @@
 <div id="qibla-section" style="display:none; text-align:center;">
     <div class="qibla-container">
         <h3>اتجاه القبلة</h3>
-        <p id="qibla-status">جاري تحديد الموقع...</p>
-        <div class="compass">
+        
+        <button id="enable-compass-btn" onclick="askCompassPermission()" style="background:var(--gold); color:var(--dark-teal); border:none; padding:10px 20px; border-radius:12px; font-weight:bold; margin-bottom:15px; cursor:pointer; font-family:'Amiri', serif;">
+            تشغيل البوصلة الحية 🧭
+        </button>
+
+        <div class="compass" style="position: relative;">
             <div class="compass-arrow" id="compass-pointer"></div>
             <div class="kaaba-icon">🕋</div>
         </div>
         <div class="qibla-degrees"><span id="qibla-deg">--</span>°</div>
+        <p id="qibla-status" style="margin-top:10px; font-size:14px;">اضغط الزر لتفعيل الحركة</p>
     </div>
+</div>
+
 </div>
 
 </div>
