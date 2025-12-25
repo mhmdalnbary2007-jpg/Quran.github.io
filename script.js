@@ -346,73 +346,43 @@ function switchMainTab(t) {
         if (el) el.style.display = s.startsWith(t) ? 'block' : 'none';
     });
 }
-
-let qiblaAngle = 0;
-// 1. دالة طلب الإذن وتحديث الموقع فوراً
-function requestLocationPermission() {
+function getQibla() {
     if (navigator.geolocation) {
-        // إعدادات السرعة القصوى
-        const options = { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 };
-
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                // حفظ الإحداثيات وتحديث كل الأقسام فوراً
-                const lat = pos.coords.latitude;
-                const lng = pos.coords.longitude;
-                
-                // تحديث المواقيت والقبلة باستخدام الإحداثيات الجديدة
-                fetchPrayers(lat, lng); 
-                calculateQiblaAngle(lat, lng);
-                
-                alert("تم تحديد موقعك بنجاح ✅");
-            },
-            (err) => {
-                alert("يرجى السماح بالوصول للموقع من إعدادات المتصفح.");
-            },
-            options
-        );
-    }
-}
-
-// 2. حساب زاوية القبلة (بدون حساس التدوير حالياً)
-let qiblaAngle = 0;
-function calculateQiblaAngle(lat, lng) {
-    const phiK = 21.4225 * Math.PI / 180;
-    const lambdaK = 39.8262 * Math.PI / 180;
-    const phi = lat * Math.PI / 180;
-    const lambda = lng * Math.PI / 180;
-
-    let qDeg = Math.atan2(Math.sin(lambdaK - lambda), Math.cos(phi) * Math.tan(phiK) - Math.sin(phi) * Math.cos(lambdaK - lambda));
-    qiblaAngle = (qDeg * 180 / Math.PI + 360) % 360;
-    
-    document.getElementById('qibla-deg').innerText = Math.round(qiblaAngle);
-    startLiveCompass(); // تشغيل حركة السهم
-}
-
-// 3. دالة حركة السهم التفاعلية مع بوصلة الجوال
-function startLiveCompass() {
-    const handler = (e) => {
-        let compass = e.webkitCompassHeading || (360 - e.alpha);
-        if (compass === undefined) return;
-
-        const rotateDeg = qiblaAngle - compass;
-        const pointer = document.getElementById('compass-pointer');
-
-        if (pointer) {
-            pointer.style.transform = `translate(-50%, -100%) rotate(${rotateDeg}deg)`;
+        navigator.geolocation.getCurrentPosition(position => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
             
-            // تغيير اللون للأخضر عند الاتجاه الصحيح
-            if (Math.abs(rotateDeg % 360) < 5 || Math.abs(rotateDeg % 360) > 355) {
-                pointer.style.backgroundColor = "#27ae60";
-            } else {
-                pointer.style.backgroundColor = "var(--gold)";
-            }
-        }
-    };
+            // معادلة حساب اتجاه القبلة
+            const phiK = 21.4225 * Math.PI / 180;
+            const lambdaK = 39.8262 * Math.PI / 180;
+            const phi = lat * Math.PI / 180;
+            const lambda = lng * Math.PI / 180;
 
-    if (window.DeviceOrientationEvent) {
-        window.addEventListener("deviceorientationabsolute", handler, true);
-        window.addEventListener("deviceorientation", handler, true);
+            let qiblaDeg = Math.atan2(Math.sin(lambdaK - lambda), Math.cos(phi) * Math.tan(phiK) - Math.sin(phi) * Math.cos(lambdaK - lambda));
+            qiblaDeg = qiblaDeg * 180 / Math.PI;
+            
+            const finalDeg = (qiblaDeg + 360) % 360;
+            
+            document.getElementById('qibla-deg').innerText = Math.round(finalDeg);
+            document.getElementById('compass-pointer').style.transform = `translate(-50%, -100%) rotate(${finalDeg}deg)`;
+            document.getElementById('qibla-status').innerText = "تم تحديد الاتجاه بنجاح";
+        }, () => {
+            document.getElementById('qibla-status').innerText = "يرجى تفعيل خدمة الموقع";
+        });
     }
+}
+
+// تحديث دالة التبديل لتشمل القبلة
+function switchMainTab(t) {
+    document.querySelectorAll('.main-nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(t + 'Tab')?.classList.add('active');
+
+    const sections = ['quran-section', 'azkar-section', 'sebha-section', 'prayer-section', 'qibla-section'];
+    sections.forEach(s => {
+        const el = document.getElementById(s);
+        if (el) el.style.display = s.startsWith(t) ? 'block' : 'none';
+    });
+    
+    if(t === 'qibla') getQibla(); // تشغيل الحساب عند فتح القسم
 }
 
