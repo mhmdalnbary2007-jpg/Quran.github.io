@@ -135,4 +135,61 @@ body.dark-mode .modern-reset-soft {
 /* دعم الوضع المظلم */
 body.dark-mode .p-card { background: #1a1a1a; }
 body.dark-mode .p-card b { color: white; }
+.qibla-container {
+    background: radial-gradient(circle, var(--dark-teal), #052e2e);
+    color: var(--gold);
+    padding: 40px 20px;
+    border-radius: 50% 50% 20px 20px;
+    border: 3px solid var(--gold);
+    margin: 20px auto;
+    max-width: 350px;
+}
+
+.compass {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    border: 8px solid var(--gold);
+    border-radius: 50%;
+    margin: 30px auto;
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+}
+
+.compass-arrow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 90px;
+    background: var(--gold);
+    transform-origin: bottom center;
+    transform: translate(-50%, -100%) rotate(0deg);
+    transition: transform 0.5s ease-out;
+    border-radius: 2px;
+}
+
+.compass-arrow::after {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: -8px;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 20px solid var(--gold);
+}
+
+.kaaba-icon {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+}
+
+.qibla-degrees {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-top: 15px;
+}
 
