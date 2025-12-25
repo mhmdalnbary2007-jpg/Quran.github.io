@@ -249,3 +249,53 @@ body.dark-mode .p-card b { color: white; }
     border-right: 10px solid transparent;
     border-bottom: 20px solid #27ae60;
 }
+.daily-card {
+    background: white;
+    margin: 15px;
+    padding: 20px;
+    border-radius: 15px;
+    border-right: 5px solid var(--gold);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--gold);
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
+
+.ayah-content {
+    font-size: 1.3rem;
+    line-height: 1.8;
+    color: var(--dark-teal);
+    margin: 10px 0;
+    font-weight: 500;
+}
+
+.ayah-info {
+    font-size: 0.85rem;
+    color: #888;
+    margin-top: 10px;
+}
+
+.refresh-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+}
+
+/* الوضع الداكن */
+body.dark-mode .daily-card {
+    background: #1a1a1a;
+    color: white;
+}
+body.dark-mode .ayah-content {
+    color: #eee;
+}
+
