@@ -409,4 +409,31 @@ function switchMainTab(t) {
     if (t === 'prayer') fetchPrayers();
 }
 
+// دالة جلب آية عشوائية
+async function generateDailyAyah() {
+    const ayahText = document.getElementById('daily-ayah-text');
+    const ayahInfo = document.getElementById('daily-ayah-info');
+    
+    // اختيار رقم آية عشوائي (القرآن فيه 6236 آية)
+    const randomAyah = Math.floor(Math.random() * 6236) + 1;
+    
+    try {
+        const response = await fetch(`https://api.alquran.cloud/v1/ayah/${randomAyah}/ar.alafasy`);
+        const data = await response.json();
+        
+        if (data.code === 200) {
+            const ayah = data.data;
+            ayahText.innerText = ayah.text;
+            ayahInfo.innerText = `[ سورة ${ayah.surah.name} - آية ${ayah.numberInSurah} ]`;
+        }
+    } catch (error) {
+        ayahText.innerText = "لا يوجد اتصال بالإنترنت لجلب الآية";
+    }
+}
+
+// تشغيل الدالة تلقائياً عند فتح التطبيق
+window.onload = () => {
+    generateDailyAyah();
+    // إذا كان عندك وظائف ثانية تشتغل عند التحميل أضفها هنا
+};
 
