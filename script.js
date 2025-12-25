@@ -333,9 +333,7 @@ function startPrayerCountdown() {
         document.getElementById('next-prayer-timer').innerText = `${hh}:${mm}:${ss}`;
     }, 1000);
 }
-// --- 7. وظائف القبلة (نسخة السرعة القصوى) ---
-
-// --- 7. وظائف القبلة (نسخة السرعة والحركة الحية) ---
+// --- 7. وظائف القبلة (نظام مطابقة السهمين) ---
 let finalQiblaAngle = 0;
 
 function getQibla() {
@@ -346,7 +344,7 @@ function getQibla() {
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
             
-            // حساب زاوية مكة
+            // حساب زاوية مكة المكرمة
             const phiK = 21.4225 * Math.PI / 180;
             const lambdaK = 39.8262 * Math.PI / 180;
             const phi = lat * Math.PI / 180;
@@ -355,8 +353,14 @@ function getQibla() {
             finalQiblaAngle = (qDeg * 180 / Math.PI + 360) % 360;
             
             document.getElementById('qibla-deg').innerText = Math.round(finalQiblaAngle);
+
+            // 1. تثبيت السهم الأخضر (الهدف) على زاوية القبلة فوراً
+            const targetArrow = document.getElementById('qibla-target-arrow');
+            if (targetArrow) {
+                targetArrow.style.transform = `translate(-50%, -100%) rotate(${finalQiblaAngle}deg)`;
+            }
             
-            // تحديث الرسالة لطلب تفعيل الحساس
+            // 2. إظهار زر التفعيل لمستخدمي الآيفون
             document.getElementById('qibla-status').innerHTML = `
                 <button onclick="askCompassPermission()" style="background:var(--gold); color:var(--dark-teal); border:none; padding:8px 15px; border-radius:10px; font-weight:bold; cursor:pointer; font-family:inherit;">
                     تفعيل حركة البوصلة 🧭
@@ -383,32 +387,32 @@ function askCompassPermission() {
 }
 
 function handleCompass(e) {
-    let compass = e.webkitCompassHeading || (360 - e.alpha);
-    if (compass === undefined) return;
+    // الحصول على اتجاه الجهاز (heading)
+    let heading = e.webkitCompassHeading || (360 - e.alpha);
+    if (heading === undefined) return;
 
-    const rotateDeg = finalQiblaAngle - compass;
     const pointer = document.getElementById('compass-pointer');
     const statusText = document.getElementById('qibla-status');
 
-    if (pointer) {
-        pointer.style.transform = `translate(-50%, -100%) rotate(${rotateDeg}deg)`;
+    // 3. تحريك السهم الذهبي ليدل على اتجاه الجوال الحالي
+    pointer.style.transform = `translate(-50%, -100%) rotate(${-heading}deg)`;
 
-        // التحقق من الاتجاه الصحيح (فرق 5 درجات)
-        const isCorrect = Math.abs(rotateDeg % 360) < 5 || Math.abs(rotateDeg % 360) > 355;
-        
-        if (isCorrect) {
-            pointer.style.backgroundColor = "#27ae60"; 
-            pointer.style.boxShadow = "0 0 15px #27ae60";
-            statusText.innerHTML = "<span style='color:#27ae60; font-weight:bold;'>أنت باتجاه القبلة الآن ✅</span>";
-        } else {
-            pointer.style.backgroundColor = "var(--gold)";
-            pointer.style.boxShadow = "none";
-            statusText.innerHTML = "<span style='color:var(--gold);'>دوّر الجوال لضبط الاتجاه</span>";
-        }
+    // 4. حساب الفرق بين اتجاه الجوال والقبلة للمطابقة
+    const diff = Math.abs((360 - heading) % 360 - finalQiblaAngle);
+    
+    // إذا تطابق السهم الذهبي مع الأخضر (فرق أقل من 7 درجات)
+    if (diff < 7 || diff > 353) {
+        pointer.style.backgroundColor = "#27ae60"; // يتغير للأخضر عند المطابقة
+        pointer.style.boxShadow = "0 0 20px #27ae60";
+        statusText.innerHTML = "<span style='color:#27ae60; font-weight:bold;'>تمت المطابقة! أنت باتجاه القبلة ✅</span>";
+    } else {
+        pointer.style.backgroundColor = "var(--gold)";
+        pointer.style.boxShadow = "none";
+        statusText.innerHTML = "<span style='color:var(--gold);'>طابق السهم الذهبي فوق الأخضر</span>";
     }
 }
 
-// دالة التبديل الشاملة (تأكد أنها الوحيدة في الملف)
+// دالة التبديل الشاملة بين الأقسام
 function switchMainTab(t) {
     document.querySelectorAll('.main-nav button').forEach(b => b.classList.remove('active'));
     document.getElementById(t + 'Tab')?.classList.add('active');
