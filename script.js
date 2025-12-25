@@ -428,3 +428,28 @@ function switchMainTab(t) {
         getQibla();
     }
 }
+// دالة طلب إذن الموقع يدوياً من الإعدادات
+function requestLocationPermission() {
+    if (navigator.geolocation) {
+        // إظهار رسالة تنبيه للمستخدم قبل طلب الإذن الرسمي
+        alert("سيتم الآن طلب إذن الوصول لموقعك لتحديد مواقيت الصلاة واتجاه القبلة بدقة.");
+        
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                alert("تم تفعيل الموقع بنجاح! سيتم تحديث البيانات الآن.");
+                // تشغيل جلب المواقيت والقبلة فوراً بعد الموافقة
+                if(typeof fetchPrayers === 'function') fetchPrayers();
+                if(typeof getQibla === 'function') getQibla();
+            },
+            (err) => {
+                if (err.code === 1) { // 1 تعني أن المستخدم رفض الإذن
+                    alert("لقد قمت برفض الإذن سابقاً. يرجى تفعيله من إعدادات المتصفح/الجوال ثم تحديث الصفحة.");
+                } else {
+                    alert("حدث خطأ في تحديد الموقع، تأكد من تشغيل الـ GPS.");
+                }
+            }
+        );
+    } else {
+        alert("متصفحك لا يدعم خاصية تحديد الموقع.");
+    }
+}
