@@ -272,4 +272,82 @@ document.getElementById('sebhaGoal').value = sGoal;
 document.getElementById('muteBtn').innerText = isMuted ? "🔇" : "🔊";
 updateProgress();
 updateCountdown();
-// وظيفة جلب مواقيت الصلاة
+let prayerTimesData = null;
+
+// 1. جلب المواقيت بناءً على موقع المستخدم
+function fetchPrayers() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            const url = `https://api.aladhan.com/v1/timings?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&method=4`;
+            fetch(url).then(res => res.json()).then(data => {
+                prayerTimesData = data.data.timings;
+                updatePrayerUI();
+                startPrayerCountdown();
+            });
+        });
+    }
+}
+
+// 2. تحديث جدول الأوقات
+function updatePrayerUI() {
+    if(!prayerTimesData) return;
+    document.getElementById('fajr-time').innerText = prayerTimesData.Fajr;
+    document.getElementById('dhuhr-time').innerText = prayerTimesData.Dhuhr;
+    document.getElementById('asr-time').innerText = prayerTimesData.Asr;
+    document.getElementById('maghrib-time').innerText = prayerTimesData.Maghrib;
+    document.getElementById('isha-time').innerText = prayerTimesData.Isha;
+}
+
+// 3. العداد التنازلي للصلاة القادمة
+function startPrayerCountdown() {
+    setInterval(() => {
+        if (!prayerTimesData) return;
+        const now = new Date();
+        const prayers = [
+            {n: "الفجر", t: prayerTimesData.Fajr},
+            {n: "الظهر", t: prayerTimesData.Dhuhr},
+            {n: "العصر", t: prayerTimesData.Asr},
+            {n: "المغرب", t: prayerTimesData.Maghrib},
+            {n: "العشاء", t: prayerTimesData.Isha}
+        ];
+
+        let next = null;
+        for (let p of prayers) {
+            const [h, m] = p.t.split(':');
+            const d = new Date(); d.setHours(h, m, 0);
+            if (d > now) { next = {n: p.n, d: d}; break; }
+        }
+
+        if (!next) { // لو انتهت صلوات اليوم، الصلاة القادمة فجر الغد
+            const [h, m] = prayers[0].t.split(':');
+            const d = new Date(); d.setDate(d.getDate() + 1); d.setHours(h, m, 0);
+            next = {n: "الفجر", d: d};
+        }
+
+        const diff = next.d - now;
+        const hh = Math.floor(diff / 3600000).toString().padStart(2, '0');
+        const mm = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+        const ss = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+
+        document.getElementById('next-prayer-name').innerText = `الصلاة القادمة: ${next.n}`;
+        document.getElementById('next-prayer-timer').innerText = `${hh}:${mm}:${ss}`;
+    }, 1000);
+}
+
+// 4. تحديث وظيفة التنقل (Tabs) لتشمل القسم الجديد
+// ابحث عن دالة switchMainTab القديمة واستبدلها بهذا:
+function switchMainTab(t) {
+    document.querySelectorAll('.main-nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(t + 'Tab')?.classList.add('active');
+
+    const sections = ['quran-section', 'azkar-section', 'sebha-section', 'prayer-section'];
+    sections.forEach(s => {
+        const el = document.getElementById(s);
+        if (el) el.style.display = s.startsWith(t) ? 'block' : 'none';
+    });
+}
+
+// تشغيل جلب المواقيت عند فتح التطبيق
+fetchPrayers();
+
+
