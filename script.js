@@ -189,22 +189,9 @@ let sCount = parseInt(localStorage.getItem('sebhaCount')) || 0;
 let sGoal = parseInt(localStorage.getItem('sebhaGoal')) || 100;
 
 function updateGoal() {
-    const goalInput = document.getElementById('sebhaGoal');
-    const statusMsg = document.getElementById('goalStatus');
-    
-    sGoal = parseInt(goalInput.value);
-    if (isNaN(sGoal) || sGoal < 1) sGoal = 100; // قيمة افتراضية لو أدخل خطأ
-    
+    sGoal = parseInt(document.getElementById('sebhaGoal').value);
     localStorage.setItem('sebhaGoal', sGoal);
     updateProgress();
-
-    // إظهار رسالة "تم" واختفاؤها
-    statusMsg.style.opacity = "1";
-    setTimeout(() => {
-        statusMsg.style.opacity = "0";
-    }, 2000);
-}
-
 }
 
 function incrementSebha() {
