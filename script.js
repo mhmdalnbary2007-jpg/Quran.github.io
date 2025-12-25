@@ -333,96 +333,80 @@ function startPrayerCountdown() {
         document.getElementById('next-prayer-timer').innerText = `${hh}:${mm}:${ss}`;
     }, 1000);
 }
-// --- 7. وظائف القبلة (نظام مطابقة السهمين) ---// --- 7. وظائف القبلة الاحترافية (نظام المطابقة) ---
-let finalQiblaAngle = 0;
+// --- 7. وظائف القبلة (نظام مطابقة السهمين) ---// --- 7. وظائف القبلة الاحترافية (نظام المطابقة) ---// --- 7. القبلة: نظام مطابقة السهمين (نسخة نهائية) ---
+let qiblaAngle = 0;
 
 function getQibla() {
-    if (!navigator.geolocation) {
-        document.getElementById('qibla-status').innerText = "المتصفح لا يدعم تحديد الموقع";
-        return;
-    }
+    if (!navigator.geolocation) return;
     
     document.getElementById('qibla-status').innerText = "جاري تحديد موقعك...";
     
     navigator.geolocation.getCurrentPosition(position => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        
-        // حساب زاوية مكة
         const phiK = 21.4225 * Math.PI / 180;
         const lambdaK = 39.8262 * Math.PI / 180;
-        const phi = lat * Math.PI / 180;
-        const lambda = lng * Math.PI / 180;
-        let qDeg = Math.atan2(Math.sin(lambdaK - lambda), Math.cos(phi) * Math.tan(phiK) - Math.sin(phi) * Math.cos(lambdaK - lambda));
-        finalQiblaAngle = (qDeg * 180 / Math.PI + 360) % 360;
+        const phi = position.coords.latitude * Math.PI / 180;
+        const lambda = position.coords.longitude * Math.PI / 180;
         
-        document.getElementById('qibla-deg').innerText = Math.round(finalQiblaAngle);
+        let q = Math.atan2(Math.sin(lambdaK - lambda), Math.cos(phi) * Math.tan(phiK) - Math.sin(phi) * Math.cos(lambdaK - lambda));
+        qiblaAngle = (q * 180 / Math.PI + 360) % 360;
         
-        // تثبيت السهم الأخضر (الهدف) فوراً
-        const targetArrow = document.getElementById('qibla-target-arrow');
-        if (targetArrow) {
-            targetArrow.style.transform = `translate(-50%, -100%) rotate(${finalQiblaAngle}deg)`;
+        document.getElementById('qibla-deg').innerText = Math.round(qiblaAngle);
+        
+        // تثبيت السهم الأخضر (الهدف) باتجاه مكة
+        const greenArrow = document.getElementById('qibla-target-arrow');
+        if (greenArrow) {
+            greenArrow.style.transform = `translate(-50%, -100%) rotate(${qiblaAngle}deg)`;
         }
         
         document.getElementById('qibla-status').innerHTML = `
-            <button id="enable-compass-btn" onclick="askCompassPermission()" style="background:var(--gold); color:var(--dark-teal); border:none; padding:10px 20px; border-radius:10px; font-weight:bold; cursor:pointer; font-family:inherit;">
-                تشغيل البوصلة الحية 🧭
+            <button onclick="activateCompass()" style="background:var(--gold); color:var(--dark-teal); border:none; padding:10px 20px; border-radius:10px; font-weight:bold; cursor:pointer;">
+                تفعيل البوصلة 🧭
             </button>`;
-    }, (err) => {
-        document.getElementById('qibla-status').innerText = "يرجى تفعيل الموقع من إعدادات المتصفح";
-    }, { enableHighAccuracy: false, timeout: 5000 });
+    }, null, { timeout: 5000 });
 }
 
-function askCompassPermission() {
+function activateCompass() {
     if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        DeviceOrientationEvent.requestPermission().then(state => {
-            if (state === 'granted') {
-                window.removeEventListener('deviceorientation', handleCompass); // تنظيف قبل البدء
-                window.addEventListener('deviceorientation', handleCompass, true);
-            }
-        }).catch(console.error);
+        DeviceOrientationEvent.requestPermission().then(s => { if(s==='granted') window.addEventListener('deviceorientation', moveCompass); });
     } else {
-        window.removeEventListener('deviceorientation', handleCompass);
-        window.addEventListener('deviceorientation', handleCompass, true);
+        window.addEventListener('deviceorientationabsolute', moveCompass);
+        window.addEventListener('deviceorientation', moveCompass);
     }
 }
 
-function handleCompass(e) {
+function moveCompass(e) {
     let heading = e.webkitCompassHeading || (360 - e.alpha);
-    if (heading === undefined) return;
+    if (!heading) return;
 
-    const pointer = document.getElementById('compass-pointer');
-    const statusText = document.getElementById('qibla-status');
+    const goldArrow = document.getElementById('compass-pointer');
+    const status = document.getElementById('qibla-status');
 
-    // تحريك السهم الذهبي
-    pointer.style.transform = `translate(-50%, -100%) rotate(${-heading}deg)`;
+    // السهم الذهبي يلاحق اتجاه الجوال
+    goldArrow.style.transform = `translate(-50%, -100%) rotate(${-heading}deg)`;
 
-    // حساب المطابقة
-    const currentHeading = (360 - heading) % 360;
-    const diff = Math.abs(currentHeading - finalQiblaAngle);
+    // حساب التطابق
+    const currentPos = (360 - heading) % 360;
+    const diff = Math.abs(currentPos - qiblaAngle);
 
-    if (diff < 7 || diff > 353) {
-        pointer.style.backgroundColor = "#28a745";
-        pointer.style.boxShadow = "0 0 15px #28a745";
-        statusText.innerHTML = "<span style='color:#28a745; font-weight:bold;'>تمت المطابقة! اتجاه القبلة صحيح ✅</span>";
+    if (diff < 6 || diff > 354) {
+        goldArrow.style.backgroundColor = "#28a745";
+        status.innerHTML = "<b style='color:#28a745'>تطابق! أنت باتجاه القبلة ✅</b>";
     } else {
-        pointer.style.backgroundColor = "var(--gold)";
-        pointer.style.boxShadow = "none";
-        statusText.innerHTML = "طابق السهم الذهبي فوق السهم الأخضر";
+        goldArrow.style.backgroundColor = "var(--gold)";
+        status.innerText = "ضع السهم الذهبي فوق الأخضر";
     }
 }
 
-// دالة التبديل الشاملة (الوحيدة المطلوبة)
+// دالة التبديل (تأكد من وجود نسخة واحدة منها فقط)
 function switchMainTab(t) {
-    const tabs = ['quran', 'azkar', 'sebha', 'prayer', 'qibla'];
-    tabs.forEach(tab => {
-        const btn = document.getElementById(tab + 'Tab');
+    ['quran', 'azkar', 'sebha', 'prayer', 'qibla'].forEach(tab => {
         const sec = document.getElementById(tab + '-section');
-        if (btn) btn.classList.toggle('active', tab === t);
+        const btn = document.getElementById(tab + 'Tab');
         if (sec) sec.style.display = (tab === t) ? 'block' : 'none';
+        if (btn) btn.classList.toggle('active', tab === t);
     });
-    
     if (t === 'qibla') getQibla();
     if (t === 'prayer') fetchPrayers();
 }
+
 
