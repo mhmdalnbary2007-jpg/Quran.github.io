@@ -44,10 +44,7 @@ fetch('https://api.alquran.cloud/v1/surah').then(res => res.json()).then(data =>
 function displaySurahs(surahs) { 
     const list = document.getElementById('surahList');
     list.innerHTML = surahs.map(s => `<div class="surah-card" onclick="openSurah(${s.number}, '${s.name}')">${s.number}. ${s.name}</div>`).join(''); 
-// زيادة مجموع الآيات
-let total = parseInt(localStorage.getItem('totalAyat') || 0);
-localStorage.setItem('totalAyat', total + data.data.ayahs.length);
-renderAchievements();
+// زيادة مجموع الآيا
 }
 
 function filterSurahs() { 
@@ -64,7 +61,10 @@ function openSurah(id, name) {
     updateAudioSource();
     fetch(`https://api.alquran.cloud/v1/surah/${id}`).then(res => res.json()).then(data => {
         document.getElementById('ayahsContainer').innerHTML = data.data.ayahs.map(a => `${a.text} <span style="color:var(--gold); font-size: 1.1rem;">(${a.numberInSurah})</span>`).join(' ');
-    });
+    // يوضع داخل fetch الخاص بـ openSurah بعد الحصول على الـ data
+let total = parseInt(localStorage.getItem('totalAyat') || 0);
+localStorage.setItem('totalAyat', total + data.data.ayahs.length);
+});
 }
 
 function showMain() { 
@@ -470,9 +470,10 @@ setTimeout(generateDailyAyah, 500);
 initAchievements();
 renderAchievements();
 function showAchievements() {
-    // إخفاء باقي الأقسام
-    document.querySelectorAll('.main-section').forEach(sec => sec.style.display = 'none');
-
-    // عرض قسم الإنجازات
+    ['quran-section', 'azkar-section', 'sebha-section', 'prayer-section', 'qibla-section'].forEach(id => {
+        document.getElementById(id).style.display = 'none';
+    });
     document.getElementById('achievements-section').style.display = 'block';
+    renderAchievements();
+    toggleMenu();
 }
