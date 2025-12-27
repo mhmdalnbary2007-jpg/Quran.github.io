@@ -340,3 +340,14 @@
 ‏body.dark-mode .ayah-content {
 ‏    color: #f0f0f0;
 }
+.achievements-box {
+    background: #f8f8f8;
+    padding: 10px;
+    margin-top: 15px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.achievements-box h3 {
+    margin-bottom: 8px;
+}
