@@ -469,3 +469,10 @@ setTimeout(generateDailyAyah, 500);
 
 initAchievements();
 renderAchievements();
+function showAchievements() {
+    // إخفاء باقي الأقسام
+    document.querySelectorAll('.main-section').forEach(sec => sec.style.display = 'none');
+
+    // عرض قسم الإنجازات
+    document.getElementById('achievements-section').style.display = 'block';
+}
