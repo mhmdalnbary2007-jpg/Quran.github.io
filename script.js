@@ -1088,72 +1088,126 @@ function jumpToPage() {
 
 
 // حفظ موضع القراءة (للمستخدمين المسجلين)
+// حفظ وضع العلامة والذهاب إليها
 function saveBookmark() {
     const user = window.firebaseAuth?.currentUser;
     
-    if (!user) {
-        // حفظ محلي للضيوف
-        localStorage.setItem('mushafBookmark', currentPage);
-        document.getElementById('bookmark-status').innerText = '✅ تم الحفظ محلياً';
-        setTimeout(() => {
-            document.getElementById('bookmark-status').innerText = '';
-        }, 2000);
-        return;
-    }
+    // إذا كانت هناك علامة محفوظة، اذهب إليها
+    const savedLocal = localStorage.getItem('mushafBookmark');
     
-    // حفظ في السحابة للمسجلين
-    if (typeof window.saveToCloud === 'function') {
-        window.saveToCloud('mushafBookmark', { page: currentPage });
-        document.getElementById('bookmark-status').innerText = '✅ تم الحفظ في حسابك';
-        setTimeout(() => {
-            document.getElementById('bookmark-status').innerText = '';
-        }, 2000);
+    if (user && window.firebaseDb) {
+        // للمستخدمين المسجلين - جلب من السحابة
+        import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js")
+            .then(({ getDoc, doc, setDoc }) => {
+                getDoc(doc(window.firebaseDb, "users", user.uid))
+                    .then(userDoc => {
+                        if (userDoc.exists() && userDoc.data().mushafBookmark) {
+                            // يوجد علامة محفوظة - الذهاب إليها
+                            const savedPage = userDoc.data().mushafBookmark.page;
+                            if (confirm(`لديك علامة محفوظة في صفحة ${savedPage}. هل تريد الذهاب إليها؟\n\n(اضغط "إلغاء" لحفظ الصفحة الحالية ${currentPage})`)) {
+                                currentPage = savedPage;
+                                updatePageDisplay();
+                            } else {
+                                // حفظ الصفحة الحالية
+                                setDoc(doc(window.firebaseDb, "users", user.uid), 
+                                    { mushafBookmark: { page: currentPage } }, 
+                                    { merge: true }
+                                );
+                                showBookmarkIndicator();
+                                alert(`✅ تم حفظ صفحة ${currentPage} في حسابك`);
+                            }
+                        } else {
+                            // لا توجد علامة - احفظ الحالية
+                            setDoc(doc(window.firebaseDb, "users", user.uid), 
+                                { mushafBookmark: { page: currentPage } }, 
+                                { merge: true }
+                            );
+                            showBookmarkIndicator();
+                            alert(`✅ تم حفظ صفحة ${currentPage} في حسابك`);
+                        }
+                    });
+            });
+    } else {
+        // للضيوف - استخدام التخزين المحلي
+        if (savedLocal) {
+            const savedPage = parseInt(savedLocal);
+            if (confirm(`لديك علامة محفوظة في صفحة ${savedPage}. هل تريد الذهاب إليها؟\n\n(اضغط "إلغاء" لحفظ الصفحة الحالية ${currentPage})`)) {
+                currentPage = savedPage;
+                updatePageDisplay();
+            } else {
+                localStorage.setItem('mushafBookmark', currentPage);
+                showBookmarkIndicator();
+                alert(`✅ تم حفظ صفحة ${currentPage} محلياً`);
+            }
+        } else {
+            localStorage.setItem('mushafBookmark', currentPage);
+            showBookmarkIndicator();
+            alert(`✅ تم حفظ صفحة ${currentPage} محلياً`);
+        }
     }
 }
 
-// تحميل آخر موضع محفوظ
-async function loadSavedBookmark() {
+// إظهار مؤشر العلامة المحفوظة
+function showBookmarkIndicator() {
+    const indicator = document.getElementById('bookmark-indicator');
+    if (indicator) {
+        indicator.style.display = 'block';
+    }
+}
+
+// الذهاب للعلامة المحفوظة مباشرة
+function goToBookmark() {
     const user = window.firebaseAuth?.currentUser;
     
     if (user && window.firebaseDb) {
-        // تحميل من السحابة
+        import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js")
+            .then(({ getDoc, doc }) => {
+                getDoc(doc(window.firebaseDb, "users", user.uid))
+                    .then(userDoc => {
+                        if (userDoc.exists() && userDoc.data().mushafBookmark) {
+                            currentPage = userDoc.data().mushafBookmark.page;
+                            updatePageDisplay();
+                        }
+                    });
+            });
+    } else {
+        const saved = localStorage.getItem('mushafBookmark');
+        if (saved) {
+            currentPage = parseInt(saved);
+            updatePageDisplay();
+        }
+    }
+}
+
+
+// تحميل آخر موضع محفوظ
+// تحميل آخر موضع محفوظ وإظهار المؤشر
+async function loadSavedBookmark() {
+    const user = window.firebaseAuth?.currentUser;
+    let hasBookmark = false;
+    
+    if (user && window.firebaseDb) {
         try {
             const { getDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
             const userDoc = await getDoc(doc(window.firebaseDb, "users", user.uid));
             
             if (userDoc.exists() && userDoc.data().mushafBookmark) {
-                currentPage = userDoc.data().mushafBookmark.page;
-                updatePageDisplay();
-                return;
+                hasBookmark = true;
+                showBookmarkIndicator();
             }
         } catch (e) {
-            console.log("تحميل من المحلي");
+            console.log("فحص محلي");
         }
     }
     
-    // تحميل من المحلي
-    const saved = localStorage.getItem('mushafBookmark');
-    if (saved) {
-        currentPage = parseInt(saved);
-        updatePageDisplay();
+    if (!hasBookmark) {
+        const saved = localStorage.getItem('mushafBookmark');
+        if (saved) {
+            showBookmarkIndicator();
+        }
     }
 }
 
-// دعم السحب (Swipe) للتقليب
-let touchStartX = 0;
-let touchEndX = 0;
-
-const viewer = document.getElementById('mushaf-viewer');
-if (viewer) {
-    viewer.addEventListener('touchstart', (e) => {
-        touchStartX = e.changedTouches[0].screenX;
-    });
-
-    viewer.addEventListener('touchend', (e) => {
-        touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
-    });
-}
 
 function handleSwipe() {
     const swipeThreshold = 50;
