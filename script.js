@@ -1060,6 +1060,8 @@ function updatePageDisplay() {
 
 // الصفحة التالية
 // دعم السحب (Swipe) للتقليب - نسخة محسّنة
+
+function initSwipeForMushaf() {
 let touchStartX = 0;
 let touchEndX = 0;
 let touchStartY = 0;
