@@ -690,22 +690,33 @@ function selectQuranOption(option) {
     const fullView = document.getElementById('full-quran-view');
     const topicsView = document.getElementById('topics-view');
     const quranView = document.getElementById('quran-view');
-    const searchBox = document.querySelector('.search-box'); // تحديد مربع البحث
+    const mushafView = document.getElementById('mushaf-view');
+    const searchBox = document.querySelector('.search-box');
 
     if (option === 'quran') {
         fullView.style.display = 'block';
         topicsView.style.display = 'none';
         quranView.style.display = 'none';
-        if (searchBox) searchBox.style.display = 'block'; // إظهار البحث في المصحف الكامل
+        if(mushafView) mushafView.style.display = 'none';
+        if (searchBox) searchBox.style.display = 'block';
         displaySurahs(allSurahs); 
         document.getElementById('searchInput').value = '';
     } else if (option === 'topics') {
         fullView.style.display = 'none';
         topicsView.style.display = 'block';
         quranView.style.display = 'none';
-        if (searchBox) searchBox.style.display = 'none'; // إخفاء البحث في الفهرس
+        if(mushafView) mushafView.style.display = 'none';
+        if (searchBox) searchBox.style.display = 'none';
+    } else if (option === 'mushaf') {
+        fullView.style.display = 'none';
+        topicsView.style.display = 'none';
+        quranView.style.display = 'none';
+        if(mushafView) mushafView.style.display = 'block';
+        if (searchBox) searchBox.style.display = 'none';
+        loadSavedBookmark();
     }
 }
+
 
 
 // 2. إضافة دالة عرض سور القسم المختار
@@ -1031,3 +1042,138 @@ function updateAchievementsUI() {
         document.getElementById('days-count').innerText = '0';
     }
 }
+// ================= المصحف الورقي =================
+let currentPage = 275; // أول صفحة
+const firstPage = 275;
+const lastPage = 843;
+
+// تحديث عرض الصفحة
+function updatePageDisplay() {
+    const pageNum = currentPage.toString().padStart(4, '0');
+    document.getElementById('mushaf-page-img').src = `mushaf-pages/IMG_${pageNum}.jpg`;
+    document.getElementById('current-page-num').innerText = currentPage;
+    document.getElementById('page-jump-input').value = currentPage;
+}
+
+// الصفحة التالية
+function nextPage() {
+    if (currentPage < lastPage) {
+        currentPage++;
+        updatePageDisplay();
+    }
+}
+
+// الصفحة السابقة
+function previousPage() {
+    if (currentPage > firstPage) {
+        currentPage--;
+        updatePageDisplay();
+    }
+}
+
+// القفز لصفحة معينة
+function jumpToPage() {
+    const input = document.getElementById('page-jump-input');
+    const pageNum = parseInt(input.value);
+    
+    if (pageNum >= firstPage && pageNum <= lastPage) {
+        currentPage = pageNum;
+        updatePageDisplay();
+    } else {
+        alert(`الرجاء إدخال رقم بين ${firstPage} و ${lastPage}`);
+    }
+}
+
+// حفظ موضع القراءة (للمستخدمين المسجلين)
+function saveBookmark() {
+    const user = window.firebaseAuth?.currentUser;
+    
+    if (!user) {
+        // حفظ محلي للضيوف
+        localStorage.setItem('mushafBookmark', currentPage);
+        document.getElementById('bookmark-status').innerText = '✅ تم الحفظ محلياً';
+        setTimeout(() => {
+            document.getElementById('bookmark-status').innerText = '';
+        }, 2000);
+        return;
+    }
+    
+    // حفظ في السحابة للمسجلين
+    if (typeof window.saveToCloud === 'function') {
+        window.saveToCloud('mushafBookmark', { page: currentPage });
+        document.getElementById('bookmark-status').innerText = '✅ تم الحفظ في حسابك';
+        setTimeout(() => {
+            document.getElementById('bookmark-status').innerText = '';
+        }, 2000);
+    }
+}
+
+// تحميل آخر موضع محفوظ
+async function loadSavedBookmark() {
+    const user = window.firebaseAuth?.currentUser;
+    
+    if (user && window.firebaseDb) {
+        // تحميل من السحابة
+        try {
+            const { getDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+            const userDoc = await getDoc(doc(window.firebaseDb, "users", user.uid));
+            
+            if (userDoc.exists() && userDoc.data().mushafBookmark) {
+                currentPage = userDoc.data().mushafBookmark.page;
+                updatePageDisplay();
+                return;
+            }
+        } catch (e) {
+            console.log("تحميل من المحلي");
+        }
+    }
+    
+    // تحميل من المحلي
+    const saved = localStorage.getItem('mushafBookmark');
+    if (saved) {
+        currentPage = parseInt(saved);
+        updatePageDisplay();
+    }
+}
+
+// دعم السحب (Swipe) للتقليب
+let touchStartX = 0;
+let touchEndX = 0;
+
+const viewer = document.getElementById('mushaf-viewer');
+if (viewer) {
+    viewer.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    });
+
+    viewer.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    });
+}
+
+function handleSwipe() {
+    const swipeThreshold = 50;
+    
+    if (touchEndX < touchStartX - swipeThreshold) {
+        // سحب لليسار = الصفحة التالية
+        nextPage();
+    }
+    
+    if (touchEndX > touchStartX + swipeThreshold) {
+        // سحب لليمين = الصفحة السابقة
+        previousPage();
+    }
+}
+
+// دعم أزرار لوحة المفاتيح
+document.addEventListener('keydown', (e) => {
+    const mushafView = document.getElementById('mushaf-view');
+    if (mushafView && mushafView.style.display === 'block') {
+        if (e.key === 'ArrowRight') {
+            previousPage();
+        } else if (e.key === 'ArrowLeft') {
+            nextPage();
+        }
+    }
+});
