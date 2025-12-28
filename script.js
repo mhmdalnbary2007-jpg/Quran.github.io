@@ -714,7 +714,11 @@ function selectQuranOption(option) {
         if(mushafView) mushafView.style.display = 'block';
         if (searchBox) searchBox.style.display = 'none';
         loadSavedBookmark();
-    }
+      
+    // تفعيل السحب بعد ثانية من فتح الصفحة
+    setTimeout(() => {
+        initSwipeForMushaf();
+    }, 500);
 }
 
 
