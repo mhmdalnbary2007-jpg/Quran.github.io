@@ -1043,46 +1043,49 @@ function updateAchievementsUI() {
     }
 }
 // ================= المصحف الورقي =================
-let currentPage = 275; // أول صفحة
-const firstPage = 275;
-const lastPage = 843;
+let currentPage = 1; // الصفحة من وجهة نظر المستخدم
+const totalPages = 569; // إجمالي الصفحات
+const imageOffset = 274; // الفرق بين رقم الصفحة ورقم الصورة (275 - 1 = 274)
 
 // تحديث عرض الصفحة
 function updatePageDisplay() {
-    const pageNum = currentPage.toString().padStart(4, '0');
+    const actualImageNumber = currentPage + imageOffset; // حساب رقم الصورة الحقيقي
+    const pageNum = actualImageNumber.toString().padStart(4, '0');
     document.getElementById('mushaf-page-img').src = `mushaf-pages/IMG_${pageNum}.jpg`;
     document.getElementById('current-page-num').innerText = currentPage;
+    document.getElementById('total-pages').innerText = totalPages;
     document.getElementById('page-jump-input').value = currentPage;
+    document.getElementById('page-jump-input').max = totalPages;
 }
 
 // الصفحة التالية
 function nextPage() {
-    if (currentPage < lastPage) {
+    if (currentPage < totalPages) {
         currentPage++;
         updatePageDisplay();
     }
 }
-
-// الصفحة السابقة
 function previousPage() {
-    if (currentPage > firstPage) {
+    if (currentPage > 1) {
         currentPage--;
         updatePageDisplay();
     }
 }
+
 
 // القفز لصفحة معينة
 function jumpToPage() {
     const input = document.getElementById('page-jump-input');
     const pageNum = parseInt(input.value);
     
-    if (pageNum >= firstPage && pageNum <= lastPage) {
+    if (pageNum >= 1 && pageNum <= totalPages) {
         currentPage = pageNum;
         updatePageDisplay();
     } else {
-        alert(`الرجاء إدخال رقم بين ${firstPage} و ${lastPage}`);
+        alert(`الرجاء إدخال رقم بين 1 و ${totalPages}`);
     }
 }
+
 
 // حفظ موضع القراءة (للمستخدمين المسجلين)
 function saveBookmark() {
