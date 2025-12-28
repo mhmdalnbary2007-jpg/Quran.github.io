@@ -1232,4 +1232,21 @@ function animatePageChange(direction) {
         }, 200);
     }
 }
+// === تهيئة عند تحميل الصفحة ===
+document.addEventListener('DOMContentLoaded', function() {
+    // تحميل آية اليوم
+    loadDailyAyah();
+    
+    // تهيئة الختمة
+    if (typeof updateKhatmaUI === 'function') {
+        updateKhatmaUI();
+    }
+    
+    // تحديث زر الصوت
+    const muteBtn = document.getElementById('muteBtn');
+    if (muteBtn) muteBtn.innerText = isMuted ? "🔇" : "🔊";
+    
+    // بدء العد التنازلي
+    updateCountdown();
+});
 
