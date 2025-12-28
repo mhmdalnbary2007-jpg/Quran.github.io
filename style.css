@@ -433,4 +433,91 @@ body.dark-mode .achievement-label {
     color: var(--gold) !important;
     transition: color 0.3s ease;
 }
+/* ================= المصحف الورقي ================= */
+.mushaf-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.mushaf-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.mushaf-nav-btn {
+    background: var(--dark-teal);
+    color: var(--gold);
+    border: 2px solid var(--gold);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: bold;
+}
+
+.mushaf-nav-btn:hover {
+    background: var(--gold);
+    color: var(--dark-teal);
+    transform: scale(1.1);
+}
+
+.mushaf-nav-btn:active {
+    transform: scale(0.95);
+}
+
+.page-info {
+    text-align: center;
+    color: var(--dark-teal);
+    font-weight: bold;
+}
+
+.mushaf-page-viewer {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    border: 3px solid var(--gold);
+    border-radius: 15px;
+    overflow: hidden;
+    background: #f9f9f9;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    touch-action: pan-y;
+}
+
+.mushaf-page-viewer img {
+    width: 100%;
+    height: auto;
+    display: block;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* دعم الوضع المظلم */
+body.dark-mode .mushaf-container {
+    background: #1a1a1a;
+    border: 2px solid var(--gold);
+}
+
+body.dark-mode .page-info {
+    color: var(--gold);
+}
+
+body.dark-mode .mushaf-page-viewer {
+    background: #0a0a0a;
+}
+
+body.dark-mode #page-jump-input {
+    background: #2a2a2a;
+    color: white;
+    border-color: var(--gold);
+}
 
