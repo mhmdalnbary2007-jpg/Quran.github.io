@@ -1047,97 +1047,21 @@ function updateAchievementsUI() {
     }
 }
 // ================= المصحف الورقي =================
-let currentPage = 1; // الصفحة من وجهة نظر المستخدم
-const totalPages = 569; // إجمالي الصفحات
-const imageOffset = 274; // الفرق بين رقم الصفحة ورقم الصورة (275 - 1 = 274)
+// ================= المصحف الورقي - الكود الكامل =================
+let currentPage = 1;
+const totalPages = 569;
+const imageOffset = 274;
 
 // تحديث عرض الصفحة
 function updatePageDisplay() {
-    const actualImageNumber = currentPage + imageOffset; // حساب رقم الصورة الحقيقي
+    const actualImageNumber = currentPage + imageOffset;
     const pageNum = actualImageNumber.toString().padStart(4, '0');
     document.getElementById('mushaf-page-img').src = `mushaf-pages/IMG_${pageNum}.JPG`;
     document.getElementById('current-page-num').innerText = currentPage;
     document.getElementById('total-pages').innerText = totalPages;
-    document.getElementById('page-jump-input').value = currentPage;
-    document.getElementById('page-jump-input').max = totalPages;
+    const input = document.getElementById('page-jump-input');
+    if(input) input.value = currentPage;
 }
-
-// الصفحة التالية
-// دعم السحب (Swipe) للتقليب - نسخة محسّنة
-
-// دعم السحب (Swipe) للتقليب - نسخة محسّنة ومحدّثة
-function initSwipeForMushaf() {
-    let touchStartX = 0;
-    let touchEndX = 0;
-    let touchStartY = 0;
-    let touchEndY = 0;
-
-    const viewer = document.getElementById('mushaf-viewer');
-    
-    if (!viewer) {
-        console.log('Viewer not found, will retry...');
-        return;
-    }
-
-    viewer.addEventListener('touchstart', (e) => {
-        touchStartX = e.changedTouches[0].screenX;
-        touchStartY = e.changedTouches[0].screenY;
-    }, { passive: true });
-
-    viewer.addEventListener('touchend', (e) => {
-        touchEndX = e.changedTouches[0].screenX;
-        touchEndY = e.changedTouches[0].screenY;
-        handleSwipe();
-    }, { passive: true });
-
-    function handleSwipe() {
-        const swipeThreshold = 50;
-        const horizontalSwipe = Math.abs(touchEndX - touchStartX);
-        const verticalSwipe = Math.abs(touchEndY - touchStartY);
-        
-        // التأكد من أن الحركة أفقية وليست عمودية
-        if (horizontalSwipe > verticalSwipe && horizontalSwipe > swipeThreshold) {
-            if (touchEndX < touchStartX) {
-                // سحب لليسار = الصفحة التالية
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    updatePageDisplay();
-                    showPageChangeAnimation('next');
-                }
-            } else if (touchEndX > touchStartX) {
-                // سحب لليمين = الصفحة السابقة
-                if (currentPage > 1) {
-                    currentPage--;
-                    updatePageDisplay();
-                    showPageChangeAnimation('prev');
-                }
-            }
-        }
-    }
-    
-    console.log('Swipe initialized successfully!');
-}
-
-// إضافة تأثير بصري عند تغيير الصفحة
-function showPageChangeAnimation(direction) {
-    const img = document.getElementById('mushaf-page-img');
-    if (img) {
-        img.style.opacity = '0.5';
-        img.style.transform = direction === 'next' ? 'translateX(-20px)' : 'translateX(20px)';
-        
-        setTimeout(() => {
-            img.style.opacity = '1';
-            img.style.transform = 'translateX(0)';
-        }, 200);
-    }
-}
-
-// استدعاء الدالة عند فتح المصحف الورقي
-// (سيتم استدعاؤها في دالة selectQuranOption)
-
-// إضافة تأثير بصري عند تغيير الصف
-
-
 
 // القفز لصفحة معينة
 function jumpToPage() {
@@ -1152,15 +1076,11 @@ function jumpToPage() {
     }
 }
 
-
-// حفظ موضع القراءة (للمستخدمين المسجلين)
-// حفظ وضع العلامة والذهاب إليها
-// دالة منفصلة لحفظ التقدم الحالي
+// حفظ التقدم الحالي
 function saveCurrentProgress() {
     const user = window.firebaseAuth?.currentUser;
     
     if (user && window.firebaseDb) {
-        // حفظ في السحابة للمسجلين
         import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js")
             .then(({ setDoc, doc }) => {
                 setDoc(doc(window.firebaseDb, "users", user.uid), 
@@ -1172,7 +1092,6 @@ function saveCurrentProgress() {
                 });
             });
     } else {
-        // حفظ محلي للضيوف
         localStorage.setItem('mushafBookmark', currentPage);
         showBookmarkIndicator();
         alert(`✅ تم حفظ صفحة ${currentPage} محلياً`);
@@ -1184,7 +1103,6 @@ function goToBookmark() {
     const user = window.firebaseAuth?.currentUser;
     
     if (user && window.firebaseDb) {
-        // جلب من السحابة
         import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js")
             .then(({ getDoc, doc }) => {
                 getDoc(doc(window.firebaseDb, "users", user.uid))
@@ -1200,7 +1118,6 @@ function goToBookmark() {
                     });
             });
     } else {
-        // جلب من المحلي
         const saved = localStorage.getItem('mushafBookmark');
         if (saved) {
             const savedPage = parseInt(saved);
@@ -1213,7 +1130,7 @@ function goToBookmark() {
     }
 }
 
-// إظهار مؤشر العلامة المحفوظة
+// إظهار مؤشر العلامة
 function showBookmarkIndicator() {
     const indicator = document.getElementById('bookmark-indicator');
     if (indicator) {
@@ -1221,33 +1138,7 @@ function showBookmarkIndicator() {
     }
 }
 
-// الذهاب للعلامة المحفوظة مباشرة
-function goToBookmark() {
-    const user = window.firebaseAuth?.currentUser;
-    
-    if (user && window.firebaseDb) {
-        import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js")
-            .then(({ getDoc, doc }) => {
-                getDoc(doc(window.firebaseDb, "users", user.uid))
-                    .then(userDoc => {
-                        if (userDoc.exists() && userDoc.data().mushafBookmark) {
-                            currentPage = userDoc.data().mushafBookmark.page;
-                            updatePageDisplay();
-                        }
-                    });
-            });
-    } else {
-        const saved = localStorage.getItem('mushafBookmark');
-        if (saved) {
-            currentPage = parseInt(saved);
-            updatePageDisplay();
-        }
-    }
-}
-
-
 // تحميل آخر موضع محفوظ
-// تحميل آخر موضع محفوظ وإظهار المؤشر
 async function loadSavedBookmark() {
     const user = window.firebaseAuth?.currentUser;
     let hasBookmark = false;
@@ -1274,29 +1165,89 @@ async function loadSavedBookmark() {
     }
 }
 
+// السحب (Swipe) - النسخة النهائية المحسّنة
+function initSwipeForMushaf() {
+    let touchStartX = 0;
+    let touchEndX = 0;
+    let touchStartY = 0;
+    let touchEndY = 0;
 
-function handleSwipe() {
-    const swipeThreshold = 50;
+    const viewer = document.getElementById('mushaf-viewer');
     
-    if (touchEndX < touchStartX - swipeThreshold) {
-        // سحب لليسار = الصفحة التالية
-        nextPage();
+    if (!viewer) {
+        console.log('⚠️ Viewer not found');
+        return;
+    }
+
+    // إزالة المستمعات القديمة إن وجدت
+    viewer.replaceWith(viewer.cloneNode(true));
+    const newViewer = document.getElementById('mushaf-viewer');
+
+    newViewer.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    newViewer.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipeGesture();
+    }, { passive: true });
+
+    function handleSwipeGesture() {
+        const swipeThreshold = 50;
+        const horizontalDistance = Math.abs(touchEndX - touchStartX);
+        const verticalDistance = Math.abs(touchEndY - touchStartY);
+        
+        // التأكد من أن الحركة أفقية
+        if (horizontalDistance > verticalDistance && horizontalDistance > swipeThreshold) {
+            if (touchEndX < touchStartX) {
+                // سحب لليسار = الصفحة التالية
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updatePageDisplay();
+                    animatePageChange('next');
+                }
+            } else if (touchEndX > touchStartX) {
+                // سحب لليمين = الصفحة السابقة
+                if (currentPage > 1) {
+                    currentPage--;
+                    updatePageDisplay();
+                    animatePageChange('prev');
+                }
+            }
+        }
     }
     
-    if (touchEndX > touchStartX + swipeThreshold) {
-        // سحب لليمين = الصفحة السابقة
-        previousPage();
+    console.log('✅ Swipe initialized!');
+}
+
+// تأثير بصري عند تغيير الصفحة
+function animatePageChange(direction) {
+    const img = document.getElementById('mushaf-page-img');
+    if (img) {
+        img.style.transition = 'all 0.2s ease';
+        img.style.opacity = '0.5';
+        img.style.transform = direction === 'next' ? 'translateX(-20px)' : 'translateX(20px)';
+        
+        setTimeout(() => {
+            img.style.opacity = '1';
+            img.style.transform = 'translateX(0)';
+        }, 200);
     }
 }
 
-// دعم أزرار لوحة المفاتيح
-document.addEventListener('keydown', (e) => {
-    const mushafView = document.getElementById('mushaf-view');
-    if (mushafView && mushafView.style.display === 'block') {
-        if (e.key === 'ArrowRight') {
-            previousPage();
-        } else if (e.key === 'ArrowLeft') {
-            nextPage();
-        }
+// تعديل دالة selectQuranOption لتفعيل السحب
+const originalSelectQuranOption = window.selectQuranOption;
+window.selectQuranOption = function(option) {
+    if (typeof originalSelectQuranOption === 'function') {
+        originalSelectQuranOption(option);
     }
-});
+    
+    if (option === 'mushaf') {
+        setTimeout(() => {
+            initSwipeForMushaf();
+            loadSavedBookmark();
+        }, 300);
+    }
+};
