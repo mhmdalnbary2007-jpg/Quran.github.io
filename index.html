@@ -195,9 +195,11 @@
                 <button class="mushaf-nav-btn" onclick="previousPage()">❮</button>
                 
                 <div class="page-info">
-                    <span>صفحة <span id="current-page-num">275</span> من 843</span>
+                 <span>صفحة <span id="current-page-num">1</span> من <span id="total-pages">569</span></span>
+
                     <div style="margin-top:5px;">
-                        <input type="number" id="page-jump-input" min="275" max="843" placeholder="رقم الصفحة" style="width:80px; padding:5px; border-radius:5px; border:1px solid var(--gold); text-align:center;">
+                      <input type="number" id="page-jump-input" min="1" max="569"
+
                         <button onclick="jumpToPage()" style="padding:5px 10px; background:var(--gold); color:var(--dark-teal); border:none; border-radius:5px; cursor:pointer; font-weight:bold;">انتقل</button>
                     </div>
                 </div>
@@ -207,7 +209,8 @@
 
             <!-- عرض الصفحة -->
             <div class="mushaf-page-viewer" id="mushaf-viewer">
-                <img id="mushaf-page-img" src="mushaf-pages/IMG_0275.jpg" alt="صفحة المصحف">
+               <img id="mushaf-page-img" src="mushaf-pages/IMG_0275.jpg" alt="صفحة المصحف" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22600%22><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23C9B07A%22 font-size=%2220%22>جاري التحميل...</text></svg>'">
+
             </div>
 
             <!-- زر حفظ التقدم -->
