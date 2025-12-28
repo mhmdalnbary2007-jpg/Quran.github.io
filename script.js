@@ -1048,22 +1048,28 @@ function updateAchievementsUI() {
 }
 // ================= المصحف الورقي =================
 // ================= المصحف الورقي - الكود الكامل =================
+// ================= المصحف الورقي =================
 let currentPage = 1;
 const totalPages = 569;
 const imageOffset = 274;
 
-// تحديث عرض الصفحة
 function updatePageDisplay() {
-    const actualImageNumber = currentPage + imageOffset;
-    const pageNum = actualImageNumber.toString().padStart(4, '0');
-    document.getElementById('mushaf-page-img').src = `mushaf-pages/IMG_${pageNum}.JPG`;
-    document.getElementById('current-page-num').innerText = currentPage;
-    document.getElementById('total-pages').innerText = totalPages;
+    const pageImg = document.getElementById('mushaf-page-img');
+    const currentPageNum = document.getElementById('current-page-num');
+    const totalPagesNum = document.getElementById('total-pages');
+    
+    if (pageImg) {
+        const actualImageNumber = currentPage + imageOffset;
+        const pageNum = actualImageNumber.toString().padStart(4, '0');
+        pageImg.src = `mushaf-pages/IMG_${pageNum}.JPG`;
+    }
+    if (currentPageNum) currentPageNum.innerText = currentPage;
+    if (totalPagesNum) totalPagesNum.innerText = totalPages;
+    
     const input = document.getElementById('page-jump-input');
-    if(input) input.value = currentPage;
+    if (input) input.value = currentPage;
 }
 
-// القفز لصفحة معينة
 function jumpToPage() {
     const input = document.getElementById('page-jump-input');
     const pageNum = parseInt(input.value);
@@ -1076,7 +1082,6 @@ function jumpToPage() {
     }
 }
 
-// حفظ التقدم الحالي
 function saveCurrentProgress() {
     const user = window.firebaseAuth?.currentUser;
     
@@ -1098,7 +1103,6 @@ function saveCurrentProgress() {
     }
 }
 
-// الذهاب للعلامة المحفوظة
 function goToBookmark() {
     const user = window.firebaseAuth?.currentUser;
     
@@ -1130,7 +1134,6 @@ function goToBookmark() {
     }
 }
 
-// إظهار مؤشر العلامة
 function showBookmarkIndicator() {
     const indicator = document.getElementById('bookmark-indicator');
     if (indicator) {
@@ -1138,7 +1141,6 @@ function showBookmarkIndicator() {
     }
 }
 
-// تحميل آخر موضع محفوظ
 async function loadSavedBookmark() {
     const user = window.firebaseAuth?.currentUser;
     let hasBookmark = false;
@@ -1165,7 +1167,6 @@ async function loadSavedBookmark() {
     }
 }
 
-// السحب (Swipe) - النسخة النهائية المحسّنة
 function initSwipeForMushaf() {
     let touchStartX = 0;
     let touchEndX = 0;
@@ -1179,7 +1180,6 @@ function initSwipeForMushaf() {
         return;
     }
 
-    // إزالة المستمعات القديمة إن وجدت
     viewer.replaceWith(viewer.cloneNode(true));
     const newViewer = document.getElementById('mushaf-viewer');
 
@@ -1199,17 +1199,14 @@ function initSwipeForMushaf() {
         const horizontalDistance = Math.abs(touchEndX - touchStartX);
         const verticalDistance = Math.abs(touchEndY - touchStartY);
         
-        // التأكد من أن الحركة أفقية
         if (horizontalDistance > verticalDistance && horizontalDistance > swipeThreshold) {
             if (touchEndX < touchStartX) {
-                // سحب لليسار = الصفحة التالية
                 if (currentPage < totalPages) {
                     currentPage++;
                     updatePageDisplay();
                     animatePageChange('next');
                 }
             } else if (touchEndX > touchStartX) {
-                // سحب لليمين = الصفحة السابقة
                 if (currentPage > 1) {
                     currentPage--;
                     updatePageDisplay();
@@ -1222,7 +1219,6 @@ function initSwipeForMushaf() {
     console.log('✅ Swipe initialized!');
 }
 
-// تأثير بصري عند تغيير الصفحة
 function animatePageChange(direction) {
     const img = document.getElementById('mushaf-page-img');
     if (img) {
@@ -1237,17 +1233,3 @@ function animatePageChange(direction) {
     }
 }
 
-// تعديل دالة selectQuranOption لتفعيل السحب
-const originalSelectQuranOption = window.selectQuranOption;
-window.selectQuranOption = function(option) {
-    if (typeof originalSelectQuranOption === 'function') {
-        originalSelectQuranOption(option);
-    }
-    
-    if (option === 'mushaf') {
-        setTimeout(() => {
-            initSwipeForMushaf();
-            loadSavedBookmark();
-        }, 300);
-    }
-};
