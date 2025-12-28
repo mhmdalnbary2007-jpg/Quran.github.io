@@ -520,4 +520,15 @@ body.dark-mode #page-jump-input {
     color: white;
     border-color: var(--gold);
 }
+/* تأثيرات انتقال سلسة للصفحات */
+#mushaf-page-img {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* منع السحب العمودي غير المقصود */
+.mushaf-page-viewer {
+    touch-action: pan-y pinch-zoom;
+    -webkit-user-select: none;
+    user-select: none;
+}
 
