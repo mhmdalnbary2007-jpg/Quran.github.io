@@ -1065,14 +1065,20 @@ function updatePageDisplay() {
 // الصفحة التالية
 // دعم السحب (Swipe) للتقليب - نسخة محسّنة
 
+// دعم السحب (Swipe) للتقليب - نسخة محسّنة ومحدّثة
 function initSwipeForMushaf() {
-let touchStartX = 0;
-let touchEndX = 0;
-let touchStartY = 0;
-let touchEndY = 0;
+    let touchStartX = 0;
+    let touchEndX = 0;
+    let touchStartY = 0;
+    let touchEndY = 0;
 
-const viewer = document.getElementById('mushaf-viewer');
-if (viewer) {
+    const viewer = document.getElementById('mushaf-viewer');
+    
+    if (!viewer) {
+        console.log('Viewer not found, will retry...');
+        return;
+    }
+
     viewer.addEventListener('touchstart', (e) => {
         touchStartX = e.changedTouches[0].screenX;
         touchStartY = e.changedTouches[0].screenY;
@@ -1083,32 +1089,51 @@ if (viewer) {
         touchEndY = e.changedTouches[0].screenY;
         handleSwipe();
     }, { passive: true });
-}
 
-function handleSwipe() {
-    const swipeThreshold = 50;
-    const horizontalSwipe = Math.abs(touchEndX - touchStartX);
-    const verticalSwipe = Math.abs(touchEndY - touchStartY);
-    
-    // التأكد من أن الحركة أفقية وليست عمودية
-    if (horizontalSwipe > verticalSwipe && horizontalSwipe > swipeThreshold) {
-        if (touchEndX < touchStartX) {
-            // سحب لليسار = الصفحة التالية
-            if (currentPage < totalPages) {
-                currentPage++;
-                updatePageDisplay();
-                showPageChangeAnimation('next');
-            }
-        } else if (touchEndX > touchStartX) {
-            // سحب لليمين = الصفحة السابقة
-            if (currentPage > 1) {
-                currentPage--;
-                updatePageDisplay();
-                showPageChangeAnimation('prev');
+    function handleSwipe() {
+        const swipeThreshold = 50;
+        const horizontalSwipe = Math.abs(touchEndX - touchStartX);
+        const verticalSwipe = Math.abs(touchEndY - touchStartY);
+        
+        // التأكد من أن الحركة أفقية وليست عمودية
+        if (horizontalSwipe > verticalSwipe && horizontalSwipe > swipeThreshold) {
+            if (touchEndX < touchStartX) {
+                // سحب لليسار = الصفحة التالية
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updatePageDisplay();
+                    showPageChangeAnimation('next');
+                }
+            } else if (touchEndX > touchStartX) {
+                // سحب لليمين = الصفحة السابقة
+                if (currentPage > 1) {
+                    currentPage--;
+                    updatePageDisplay();
+                    showPageChangeAnimation('prev');
+                }
             }
         }
     }
+    
+    console.log('Swipe initialized successfully!');
 }
+
+// إضافة تأثير بصري عند تغيير الصفحة
+function showPageChangeAnimation(direction) {
+    const img = document.getElementById('mushaf-page-img');
+    if (img) {
+        img.style.opacity = '0.5';
+        img.style.transform = direction === 'next' ? 'translateX(-20px)' : 'translateX(20px)';
+        
+        setTimeout(() => {
+            img.style.opacity = '1';
+            img.style.transform = 'translateX(0)';
+        }, 200);
+    }
+}
+
+// استدعاء الدالة عند فتح المصحف الورقي
+// (سيتم استدعاؤها في دالة selectQuranOption)
 
 // إضافة تأثير بصري عند تغيير الصفحة
 function showPageChangeAnimation(direction) {
