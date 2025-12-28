@@ -1135,19 +1135,7 @@ function showPageChangeAnimation(direction) {
 // استدعاء الدالة عند فتح المصحف الورقي
 // (سيتم استدعاؤها في دالة selectQuranOption)
 
-// إضافة تأثير بصري عند تغيير الصفحة
-function showPageChangeAnimation(direction) {
-    const img = document.getElementById('mushaf-page-img');
-    if (img) {
-        img.style.opacity = '0.5';
-        img.style.transform = direction === 'next' ? 'translateX(-20px)' : 'translateX(20px)';
-        
-        setTimeout(() => {
-            img.style.opacity = '1';
-            img.style.transform = 'translateX(0)';
-        }, 200);
-    }
-}
+// إضافة تأثير بصري عند تغيير الصف
 
 
 
