@@ -1089,60 +1089,60 @@ function jumpToPage() {
 
 // حفظ موضع القراءة (للمستخدمين المسجلين)
 // حفظ وضع العلامة والذهاب إليها
-function saveBookmark() {
+// دالة منفصلة لحفظ التقدم الحالي
+function saveCurrentProgress() {
     const user = window.firebaseAuth?.currentUser;
     
-    // إذا كانت هناك علامة محفوظة، اذهب إليها
-    const savedLocal = localStorage.getItem('mushafBookmark');
+    if (user && window.firebaseDb) {
+        // حفظ في السحابة للمسجلين
+        import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js")
+            .then(({ setDoc, doc }) => {
+                setDoc(doc(window.firebaseDb, "users", user.uid), 
+                    { mushafBookmark: { page: currentPage } }, 
+                    { merge: true }
+                ).then(() => {
+                    showBookmarkIndicator();
+                    alert(`✅ تم حفظ صفحة ${currentPage} في حسابك`);
+                });
+            });
+    } else {
+        // حفظ محلي للضيوف
+        localStorage.setItem('mushafBookmark', currentPage);
+        showBookmarkIndicator();
+        alert(`✅ تم حفظ صفحة ${currentPage} محلياً`);
+    }
+}
+
+// الذهاب للعلامة المحفوظة
+function goToBookmark() {
+    const user = window.firebaseAuth?.currentUser;
     
     if (user && window.firebaseDb) {
-        // للمستخدمين المسجلين - جلب من السحابة
+        // جلب من السحابة
         import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js")
-            .then(({ getDoc, doc, setDoc }) => {
+            .then(({ getDoc, doc }) => {
                 getDoc(doc(window.firebaseDb, "users", user.uid))
                     .then(userDoc => {
                         if (userDoc.exists() && userDoc.data().mushafBookmark) {
-                            // يوجد علامة محفوظة - الذهاب إليها
                             const savedPage = userDoc.data().mushafBookmark.page;
-                            if (confirm(`لديك علامة محفوظة في صفحة ${savedPage}. هل تريد الذهاب إليها؟\n\n(اضغط "إلغاء" لحفظ الصفحة الحالية ${currentPage})`)) {
-                                currentPage = savedPage;
-                                updatePageDisplay();
-                            } else {
-                                // حفظ الصفحة الحالية
-                                setDoc(doc(window.firebaseDb, "users", user.uid), 
-                                    { mushafBookmark: { page: currentPage } }, 
-                                    { merge: true }
-                                );
-                                showBookmarkIndicator();
-                                alert(`✅ تم حفظ صفحة ${currentPage} في حسابك`);
-                            }
+                            currentPage = savedPage;
+                            updatePageDisplay();
+                            alert(`✅ تم الانتقال للصفحة المحفوظة: ${savedPage}`);
                         } else {
-                            // لا توجد علامة - احفظ الحالية
-                            setDoc(doc(window.firebaseDb, "users", user.uid), 
-                                { mushafBookmark: { page: currentPage } }, 
-                                { merge: true }
-                            );
-                            showBookmarkIndicator();
-                            alert(`✅ تم حفظ صفحة ${currentPage} في حسابك`);
+                            alert('❌ لا توجد علامة محفوظة');
                         }
                     });
             });
     } else {
-        // للضيوف - استخدام التخزين المحلي
-        if (savedLocal) {
-            const savedPage = parseInt(savedLocal);
-            if (confirm(`لديك علامة محفوظة في صفحة ${savedPage}. هل تريد الذهاب إليها؟\n\n(اضغط "إلغاء" لحفظ الصفحة الحالية ${currentPage})`)) {
-                currentPage = savedPage;
-                updatePageDisplay();
-            } else {
-                localStorage.setItem('mushafBookmark', currentPage);
-                showBookmarkIndicator();
-                alert(`✅ تم حفظ صفحة ${currentPage} محلياً`);
-            }
+        // جلب من المحلي
+        const saved = localStorage.getItem('mushafBookmark');
+        if (saved) {
+            const savedPage = parseInt(saved);
+            currentPage = savedPage;
+            updatePageDisplay();
+            alert(`✅ تم الانتقال للصفحة المحفوظة: ${savedPage}`);
         } else {
-            localStorage.setItem('mushafBookmark', currentPage);
-            showBookmarkIndicator();
-            alert(`✅ تم حفظ صفحة ${currentPage} محلياً`);
+            alert('❌ لا توجد علامة محفوظة');
         }
     }
 }
