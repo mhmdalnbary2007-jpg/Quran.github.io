@@ -1051,7 +1051,7 @@ const imageOffset = 274; // الفرق بين رقم الصفحة ورقم ال�
 function updatePageDisplay() {
     const actualImageNumber = currentPage + imageOffset; // حساب رقم الصورة الحقيقي
     const pageNum = actualImageNumber.toString().padStart(4, '0');
-    document.getElementById('mushaf-page-img').src = `mushaf-pages/IMG_${pageNum}.jpg`;
+    document.getElementById('mushaf-page-img').src = `mushaf-pages/IMG_${pageNum}.JPG`;
     document.getElementById('current-page-num').innerText = currentPage;
     document.getElementById('total-pages').innerText = totalPages;
     document.getElementById('page-jump-input').value = currentPage;
