@@ -563,6 +563,53 @@ function resetAllSebhaAutomated() {
 }
 
 setInterval(updateCountdown, 1000);
+function switchMainTab(t) {
+    // 1. تحديث الأزرار
+    document.querySelectorAll('.main-nav button').forEach(b => b.classList.remove('active'));
+    const activeTab = document.getElementById(t + 'Tab');
+    if (activeTab) activeTab.classList.add('active');
+
+    // 2. قائمة كل الأقسام (مع قسم الإنجازات)
+    const allSections = [
+        'quran-section', 
+        'azkar-section', 
+        'sebha-section', 
+        'prayer-section', 
+        'qibla-section', 
+        'khatma-section',
+        'achievements-section'  // ✨ مهم جداً
+    ];
+
+    // 3. إخفاء كل الأقسام وإظهار المطلوب فقط
+    allSections.forEach(s => {
+        const el = document.getElementById(s);
+        if (el) {
+            el.style.display = s.startsWith(t) ? 'block' : 'none';
+        }
+    });
+
+    // 4. دوال خاصة لبعض الأقسام
+    if (t === 'qibla' && typeof getQibla === 'function') getQibla();
+    if (t === 'prayer' && typeof fetchPrayers === 'function') fetchPrayers();
+    if (t === 'khatma' && typeof updateKhatmaUI === 'function') updateKhatmaUI();
+    
+    // 5. إعدادات خاصة بالقرآن
+    if (t === 'quran') {
+        const fullView = document.getElementById('full-quran-view');
+        const topicsView = document.getElementById('topics-view');
+        const quranView = document.getElementById('quran-view');
+
+        if (fullView) fullView.style.display = 'block';
+        if (topicsView) topicsView.style.display = 'none';
+        if (quranView) quranView.style.display = 'none';
+    }
+    
+    // 6. إعدادات خاصة بالسبحة
+    if (t === 'sebha') {
+        document.getElementById('sebha-categories').style.display = 'grid';
+        document.getElementById('sebha-main-view').style.display = 'none';
+    }
+}
 
 // --- 6. الوضع الداكن والخط والتبديل ---
 function switchMainTab(t) {
