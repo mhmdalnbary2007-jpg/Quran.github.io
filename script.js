@@ -387,10 +387,16 @@ function countZekr(id) {
     if (c > 0) {
         c--; el.innerText = c;
         
-        // إضافة للإنجازات (كل ضغطة = +1)
+        // إضافة للإنجازات
         achievements.azkar++;
-        saveAchievements();
         
+        // ✨ جديد: إضافة XP
+        addXP(2); // كل ذكر من الأذكار = 2 XP
+        
+        // ✨ جديد: تحديث السلسلة اليومية
+        updateDailyStreak();
+        
+        saveAchievements();
         localStorage.setItem(`zekr_${id}`, c);
         localStorage.setItem('lastAzkarUpdate', new Date().toISOString());
         if (c === 0) {
@@ -474,16 +480,15 @@ function incrementSebha() {
     
     // إضافة للإنجازات
     achievements[currentSebhaType]++;
+    
+    // ✨ جديد: إضافة XP
+    addXP(1); // كل ذكر = 1 XP
+    
+    // ✨ جديد: تحديث السلسلة اليومية
+    updateDailyStreak();
+    
     saveAchievements();
-    
-    saveSebhaData();
-    updateSebhaProgress();
-    
-    if (sebhaCounters[currentSebhaType].count === sebhaCounters[currentSebhaType].goal) {
-        document.querySelector('.sebha-circle').classList.add('goal-reached');
-        playNotify(); 
-    }
-}
+
 // تحديث البار
 function updateSebhaProgress() {
     const data = sebhaCounters[currentSebhaType];
