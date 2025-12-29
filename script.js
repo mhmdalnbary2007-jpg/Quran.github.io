@@ -1138,9 +1138,15 @@ function saveAchievements() {
 
 // ✨ دالة فحص الشارات الجديدة
 function checkForNewBadges() {
+    // ✨ تأكد إن المصفوفة موجودة أول
+    if (!achievements.badges) {
+        achievements.badges = [];
+    }
+    
     Object.values(BADGES).forEach(badge => {
         // تأكد إن الشارة ما حصل عليها قبل
         if (!achievements.badges.includes(badge.id)) {
+
             let earned = false;
             
             // فحص حسب النوع
