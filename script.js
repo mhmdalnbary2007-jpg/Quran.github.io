@@ -482,13 +482,22 @@ function incrementSebha() {
     achievements[currentSebhaType]++;
     
     // ✨ جديد: إضافة XP
-    addXP(1); // كل ذكر = 1 XP
+    addXP(1);
     
     // ✨ جديد: تحديث السلسلة اليومية
     updateDailyStreak();
     
     saveAchievements();
+    saveSebhaData();
+    updateSebhaProgress();
+    
+    // فحص الوصول للهدف
+    if (sebhaCounters[currentSebhaType].count === sebhaCounters[currentSebhaType].goal) {
+        document.querySelector('.sebha-circle').classList.add('goal-reached');
+        playNotify();
+    }
 }
+
 // تحديث البار
 function updateSebhaProgress() {
     const data = sebhaCounters[currentSebhaType];
