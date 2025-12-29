@@ -636,21 +636,16 @@
 <script src="script.js"></script>
 
 
+<!-- Service Worker Registration -->
 <script>
-// تسجيل Service Worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(registration => {
-        console.log('✅ Service Worker مسجل بنجاح:', registration.scope);
-      })
-      .catch(error => {
-        console.log('❌ فشل تسجيل Service Worker:', error);
-      });
+    navigator.serviceWorker.register('/Quran.github.io/sw.js')
+      .then(reg => console.log('✅ Service Worker registered'))
+      .catch(err => console.log('❌ SW error:', err));
   });
 }
 </script>
-
 </body>
 </html>
 
