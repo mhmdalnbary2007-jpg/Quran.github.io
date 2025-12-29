@@ -406,7 +406,8 @@ function resetAllSebhaAutomated() {
     saveSebhaData();
 }
 
-setInterval(updateCountdown, 1000);
+// setInterval(updateCountdown, 1000);
+
 
 // --- 6. الوضع الداكن والخط والتبديل ---
 function switchMainTab(t) {
