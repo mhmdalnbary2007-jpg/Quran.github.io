@@ -88,8 +88,8 @@ function openSurah(id, name) {
         document.getElementById('ayahsContainer').innerHTML = ayahsHTML;
         
         // جلب توقيت الآيات للقارئ الحالي
-        fetchAyahTimings(id);
-    });
+  
+    
 
     if (typeof checkKhatmaProgress === "function") {
         checkKhatmaProgress(id);
@@ -142,11 +142,20 @@ function setupAyahHighlighting(totalAyahs) {
 
 
 function showMain() { 
-    document.getElementById('main-view').style.display = 'block'; 
+    document.getElementById('full-quran-view').style.display = 'block'; 
     document.getElementById('quran-view').style.display = 'none'; 
-    audio.pause(); 
+    document.getElementById('topics-view').style.display = 'none';
+    
+    if(audio) {
+        audio.pause();
+        audio.currentTime = 0;
+    }
+    
     if(playBtn) playBtn.innerText = "▷";
+    
+    document.querySelectorAll('.ayah-active').forEach(el => el.classList.remove('ayah-active'));
 }
+
 
 function updateAudioSource() {
     const r = document.getElementById('reciterSelect').value;
