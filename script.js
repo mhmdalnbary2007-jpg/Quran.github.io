@@ -1284,3 +1284,62 @@ function updateAchievementsUI() {
         document.getElementById('days-count').innerText = '0';
     }
 }
+// ✨ تحديث السلسلة اليومية
+function updateDailyStreak() {
+    const today = new Date().toDateString();
+    const lastDate = achievements.lastActiveDate;
+    
+    // أول مرة
+    if (!lastDate) {
+        achievements.currentStreak = 1;
+        achievements.longestStreak = 1;
+        achievements.lastActiveDate = today;
+        
+        // تسجيل في الإحصائيات اليومية
+        if (!achievements.dailyStats[today]) {
+            achievements.dailyStats[today] = {
+                tasbih: 0,
+                istighfar: 0,
+                azkar: 0,
+                awrad: 0
+            };
+        }
+        return;
+    }
+    
+    // إذا آخر نشاط كان اليوم، ما نزيد الـ streak
+    if (lastDate === today) {
+        return;
+    }
+    
+    // حساب الفرق بالأيام
+    const lastDateObj = new Date(lastDate);
+    const todayObj = new Date(today);
+    const diffDays = Math.floor((todayObj - lastDateObj) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) {
+        // يوم متواصل
+        achievements.currentStreak++;
+        
+        // تحديث أطول سلسلة
+        if (achievements.currentStreak > achievements.longestStreak) {
+            achievements.longestStreak = achievements.currentStreak;
+        }
+    } else {
+        // انقطعت السلسلة
+        achievements.currentStreak = 1;
+    }
+    
+    // تحديث آخر يوم نشط
+    achievements.lastActiveDate = today;
+    
+    // تسجيل في الإحصائيات اليومية
+    if (!achievements.dailyStats[today]) {
+        achievements.dailyStats[today] = {
+            tasbih: 0,
+            istighfar: 0,
+            azkar: 0,
+            awrad: 0
+        };
+    }
+}
