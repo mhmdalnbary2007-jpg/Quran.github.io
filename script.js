@@ -275,13 +275,27 @@ function backToAzkarCats() {
     document.getElementById('azkarCats').style.display = 'grid'; 
     document.getElementById('azkar-content').style.display = 'none'; 
 }
-
 function resetAzkarProgress() { 
     if (confirm("تصفير عدادات الأذكار؟")) { 
-        Object.keys(localStorage).forEach(k => { if (k.startsWith('zekr_')) localStorage.removeItem(k); }); 
-        location.reload(); 
+        // مسح عدادات الأذكار فقط
+        Object.keys(localStorage).forEach(k => { 
+            if (k.startsWith('zekr_')) {
+                localStorage.removeItem(k); 
+            }
+        }); 
+        
+        // إعادة تحميل بدون reload
+        const list = document.getElementById('azkarList');
+        if(list) {
+            list.innerHTML = '';
+            backToAzkarCats();
+        }
+        
+        playNotify();
+        alert("✅ تم التصفير بنجاح");
     } 
 }
+
 
 // --- 5. السبحة والعداد التلقائي ---
 // --- 5. السبحة المتعددة ---
