@@ -30,8 +30,136 @@ let achievements = JSON.parse(localStorage.getItem('achievements')) || {
     salah: 0,
     awrad: 0,
     azkar: 0,
-    memberSince: null
+    memberSince: null,
+    
+    // ✨ جديد: نظام الشارات
+    badges: [],
+    
+    // ✨ جديد: نظام المستويات
+    level: 1,
+    xp: 0,
+    
+    // ✨ جديد: السلسلة اليومية
+    currentStreak: 0,
+    longestStreak: 0,
+    lastActiveDate: null,
+    
+    // ✨ جديد: إحصائيات يومية
+    dailyStats: {}
 };
+// 🏆 قاعدة بيانات الشارات
+const BADGES = {
+    // شارات التسبيح
+    tasbih_100: { 
+        id: 'tasbih_100', 
+        name: 'مسبّح مبتدئ', 
+        emoji: '🥉', 
+        desc: 'أكملت 100 تسبيحة', 
+        requirement: 100, 
+        type: 'tasbih' 
+    },
+    tasbih_1000: { 
+        id: 'tasbih_1000', 
+        name: 'مسبّح ملتزم', 
+        emoji: '🥈', 
+        desc: 'أكملت 1000 تسبيحة', 
+        requirement: 1000, 
+        type: 'tasbih' 
+    },
+    tasbih_10000: { 
+        id: 'tasbih_10000', 
+        name: 'مسبّح محترف', 
+        emoji: '🥇', 
+        desc: 'أكملت 10000 تسبيحة', 
+        requirement: 10000, 
+        type: 'tasbih' 
+    },
+    
+    // شارات الاستغفار
+    istighfar_100: { 
+        id: 'istighfar_100', 
+        name: 'مستغفر مبتدئ', 
+        emoji: '🤲', 
+        desc: 'أكملت 100 استغفار', 
+        requirement: 100, 
+        type: 'istighfar' 
+    },
+    istighfar_1000: { 
+        id: 'istighfar_1000', 
+        name: 'مستغفر ملتزم', 
+        emoji: '💚', 
+        desc: 'أكملت 1000 استغفار', 
+        requirement: 1000, 
+        type: 'istighfar' 
+    },
+    
+    // شارات الختمة
+    khatma_1: { 
+        id: 'khatma_1', 
+        name: 'ختمة أولى', 
+        emoji: '📗', 
+        desc: 'أكملت ختمة واحدة', 
+        requirement: 30, 
+        type: 'awrad' 
+    },
+    khatma_3: { 
+        id: 'khatma_3', 
+        name: 'قارئ متقن', 
+        emoji: '📘', 
+        desc: 'أكملت 3 ختمات', 
+        requirement: 90, 
+        type: 'awrad' 
+    },
+    khatma_10: { 
+        id: 'khatma_10', 
+        name: 'حافظ للقرآن', 
+        emoji: '📙', 
+        desc: 'أكملت 10 ختمات', 
+        requirement: 300, 
+        type: 'awrad' 
+    },
+    
+    // شارات السلسلة اليومية
+    streak_7: { 
+        id: 'streak_7', 
+        name: 'أسبوع ملتزم', 
+        emoji: '🔥', 
+        desc: '7 أيام متواصلة', 
+        requirement: 7, 
+        type: 'streak' 
+    },
+    streak_30: { 
+        id: 'streak_30', 
+        name: 'شهر كامل', 
+        emoji: '⭐', 
+        desc: '30 يوم متواصل', 
+        requirement: 30, 
+        type: 'streak' 
+    },
+    streak_100: { 
+        id: 'streak_100', 
+        name: 'أسطورة الالتزام', 
+        emoji: '👑', 
+        desc: '100 يوم متواصل', 
+        requirement: 100, 
+        type: 'streak' 
+    }
+};
+
+// 📊 نظام المستويات والخبرة
+const LEVELS = [
+    { level: 1, xpNeeded: 0, title: 'مبتدئ' },
+    { level: 2, xpNeeded: 100, title: 'طالب علم' },
+    { level: 3, xpNeeded: 300, title: 'عابد' },
+    { level: 4, xpNeeded: 600, title: 'ملتزم' },
+    { level: 5, xpNeeded: 1000, title: 'متقن' },
+    { level: 6, xpNeeded: 1500, title: 'محسن' },
+    { level: 7, xpNeeded: 2500, title: 'متفوق' },
+    { level: 8, xpNeeded: 4000, title: 'قدوة' },
+    { level: 9, xpNeeded: 6000, title: 'مميز' },
+    { level: 10, xpNeeded: 10000, title: 'أسطورة' }
+];
+
 
 // --- 1. القائمة الجانبية والإعدادات ---
 function toggleMenu() { document.getElementById('sideMenu').classList.toggle('open'); }
@@ -986,11 +1114,109 @@ checkDailyAzkarReset(); // عند التحميل
 function saveAchievements() {
     localStorage.setItem('achievements', JSON.stringify(achievements));
     
-    // حفظ في السحابة
+    // فحص الشارات والمستويات
+    checkForNewBadges();
+    checkLevelUp();
+    
     if (typeof window.saveToCloud === 'function') {
         window.saveToCloud('achievements', achievements);
     }
 }
+
+// ✨ دالة فحص الشارات الجديدة
+function checkForNewBadges() {
+    Object.values(BADGES).forEach(badge => {
+        // تأكد إن الشارة ما حصل عليها قبل
+        if (!achievements.badges.includes(badge.id)) {
+            let earned = false;
+            
+            // فحص حسب النوع
+            if (badge.type === 'tasbih' && achievements.tasbih >= badge.requirement) {
+                earned = true;
+            } else if (badge.type === 'istighfar' && achievements.istighfar >= badge.requirement) {
+                earned = true;
+            } else if (badge.type === 'tahmid' && achievements.tahmid >= badge.requirement) {
+                earned = true;
+            } else if (badge.type === 'takbir' && achievements.takbir >= badge.requirement) {
+                earned = true;
+            } else if (badge.type === 'salah' && achievements.salah >= badge.requirement) {
+                earned = true;
+            } else if (badge.type === 'awrad' && achievements.awrad >= badge.requirement) {
+                earned = true;
+            } else if (badge.type === 'streak' && achievements.currentStreak >= badge.requirement) {
+                earned = true;
+            }
+            
+            // إذا حصل على الشارة
+            if (earned) {
+                achievements.badges.push(badge.id);
+                showBadgeNotification(badge);
+                playNotify();
+            }
+        }
+    });
+}
+
+// ✨ دالة فحص الترقية في المستوى
+function checkLevelUp() {
+    const currentLevel = achievements.level;
+    
+    // حساب المستوى الجديد بناءً على الخبرة
+    for (let i = LEVELS.length - 1; i >= 0; i--) {
+        if (achievements.xp >= LEVELS[i].xpNeeded) {
+            const newLevel = LEVELS[i].level;
+            
+            // إذا ارتفع المستوى
+            if (newLevel > currentLevel) {
+                achievements.level = newLevel;
+                showLevelUpNotification(newLevel, LEVELS[i].title);
+                playNotify();
+            }
+            break;
+        }
+    }
+}
+
+// 🎉 إشعار الشارة الجديدة
+function showBadgeNotification(badge) {
+    const notification = document.createElement('div');
+    notification.className = 'badge-notification';
+    notification.innerHTML = `
+        <div class="badge-popup">
+            <div class="badge-emoji">${badge.emoji}</div>
+            <div class="badge-title">شارة جديدة!</div>
+            <div class="badge-name">${badge.name}</div>
+            <div class="badge-desc">${badge.desc}</div>
+        </div>
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => notification.remove(), 4000);
+}
+
+// 🎉 إشعار الترقية
+function showLevelUpNotification(level, title) {
+    const notification = document.createElement('div');
+    notification.className = 'badge-notification';
+    notification.innerHTML = `
+        <div class="badge-popup level-up">
+            <div class="badge-emoji">⬆️</div>
+            <div class="badge-title">ترقية!</div>
+            <div class="badge-name">المستوى ${level}</div>
+            <div class="badge-desc">${title}</div>
+        </div>
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => notification.remove(), 4000);
+}
+
+// ✨ إضافة خبرة (XP)
+function addXP(amount) {
+    achievements.xp += amount;
+    saveAchievements();
+}
+
 
 
 
