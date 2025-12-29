@@ -858,13 +858,14 @@ function saveCheckpoint(index) {
             m.style.background = "transparent";
             m.style.color = "var(--gold)";
         }
-        // حفظ في السحابة
-if (typeof window.saveToCloud === 'function') {
-    window.saveToCloud('khatma', khatmaData);
+    });
+    
+    // حفظ في السحابة
+    if (typeof window.saveToCloud === 'function') {
+        window.saveToCloud('khatma', khatmaData);
+    }
 }
 
-    });
-}
 
 // 4. إنهاء الجزء كاملاً
 function markFullJuzDone() {
