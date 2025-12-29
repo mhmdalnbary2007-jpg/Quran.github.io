@@ -88,8 +88,8 @@ function openSurah(id, name) {
         document.getElementById('ayahsContainer').innerHTML = ayahsHTML;
         
         // جلب توقيت الآيات للقارئ الحالي
-  
-    
+        fetchAyahTimings(id);
+    });
 
     if (typeof checkKhatmaProgress === "function") {
         checkKhatmaProgress(id);
@@ -142,20 +142,11 @@ function setupAyahHighlighting(totalAyahs) {
 
 
 function showMain() { 
-    document.getElementById('full-quran-view').style.display = 'block'; 
+    document.getElementById('main-view').style.display = 'block'; 
     document.getElementById('quran-view').style.display = 'none'; 
-    document.getElementById('topics-view').style.display = 'none';
-    
-    if(audio) {
-        audio.pause();
-        audio.currentTime = 0;
-    }
-    
+    audio.pause(); 
     if(playBtn) playBtn.innerText = "▷";
-    
-    document.querySelectorAll('.ayah-active').forEach(el => el.classList.remove('ayah-active'));
 }
-
 
 function updateAudioSource() {
     const r = document.getElementById('reciterSelect').value;
@@ -415,11 +406,16 @@ function resetAllSebhaAutomated() {
     saveSebhaData();
 }
 
-// setInterval(updateCountdown, 1000);
-
+setInterval(updateCountdown, 1000);
 
 // --- 6. الوضع الداكن والخط والتبديل ---
-
+function switchMainTab(t) {
+    document.querySelectorAll('.main-nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(t + 'Tab').classList.add('active');
+    ['quran-section', 'azkar-section', 'sebha-section'].forEach(s => { 
+        document.getElementById(s).style.display = s.startsWith(t) ? 'block' : 'none'; 
+    });
+}
 
 function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
 function changeFontSize(d) { 
@@ -569,7 +565,19 @@ function handleCompass(e) {
 }
 
 // دالة التبديل الشاملة (تأكد أنها الوحيدة في الملف)
+function switchMainTab(t) {
+    document.querySelectorAll('.main-nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(t + 'Tab')?.classList.add('active');
 
+    const allSections = ['quran-section', 'azkar-section', 'sebha-section', 'prayer-section', 'qibla-section'];
+    allSections.forEach(s => {
+        const el = document.getElementById(s);
+        if (el) el.style.display = s.startsWith(t) ? 'block' : 'none';
+    });
+    
+    if(t === 'qibla') getQibla();
+    if(t === 'prayer') fetchPrayers();
+}
 // دالة جلب آية اليوم بناءً على تاريخ اليوم
 async function loadDailyAyah() {
     try {
@@ -682,37 +690,22 @@ function selectQuranOption(option) {
     const fullView = document.getElementById('full-quran-view');
     const topicsView = document.getElementById('topics-view');
     const quranView = document.getElementById('quran-view');
-    const mushafView = document.getElementById('mushaf-view');
-    const searchBox = document.querySelector('.search-box');
+    const searchBox = document.querySelector('.search-box'); // تحديد مربع البحث
 
     if (option === 'quran') {
         fullView.style.display = 'block';
         topicsView.style.display = 'none';
         quranView.style.display = 'none';
-        if(mushafView) mushafView.style.display = 'none';
-        if (searchBox) searchBox.style.display = 'block';
+        if (searchBox) searchBox.style.display = 'block'; // إظهار البحث في المصحف الكامل
         displaySurahs(allSurahs); 
         document.getElementById('searchInput').value = '';
     } else if (option === 'topics') {
         fullView.style.display = 'none';
         topicsView.style.display = 'block';
         quranView.style.display = 'none';
-        if(mushafView) mushafView.style.display = 'none';
-        if (searchBox) searchBox.style.display = 'none';
-    } else if (option === 'mushaf') {
-        fullView.style.display = 'none';
-        topicsView.style.display = 'none';
-        quranView.style.display = 'none';
-        if(mushafView) mushafView.style.display = 'block';
-        if (searchBox) searchBox.style.display = 'none';
-        loadSavedBookmark();
-      
-    // تفعيل السحب بعد ثانية من فتح الصفحة
-    setTimeout(() => {
-        initSwipeForMushaf();
-    }, 500);
+        if (searchBox) searchBox.style.display = 'none'; // إخفاء البحث في الفهرس
+    }
 }
-
 
 
 // 2. إضافة دالة عرض سور القسم المختار
@@ -768,7 +761,65 @@ function showMain() {
     document.querySelectorAll('.ayah-active').forEach(el => el.classList.remove('ayah-active'));
 }
 
+function switchMainTab(t) {
+    // 1. تحديث شكل الأزرار في القائمة العلوية
+    document.querySelectorAll('.main-nav button').forEach(b => {
+        b.classList.remove('active');
+    });
+    
+    // تأكد أن الـ ID الخاص بالزر يطابق (اسم القسم + Tab)
+    const activeTab = document.getElementById(t + 'Tab');
+    if (activeTab) {
+        activeTab.classList.add('active');
+    }
 
+    // 2. مصفوفة بكل الأقسام الرئيسية لضمان إخفاء غير المطلوب
+    const allSections = [
+        'quran-section', 
+        'azkar-section', 
+        'sebha-section', 
+        'prayer-section', 
+        'qibla-section'
+    ];
+
+    allSections.forEach(s => {
+        const el = document.getElementById(s);
+        if (el) {
+            // إظهار القسم إذا كان يبدأ بنفس اسم التاب المختار، وإخفاء الباقي
+            el.style.display = s.startsWith(t) ? 'block' : 'none';
+        }
+    });
+
+    // 3. تشغيل الدوال الخاصة بالأقسام التي تحتاج تحديث لحظي عند الفتح
+    if (t === 'qibla') {
+        if (typeof getQibla === 'function') {
+            getQibla(); // جلب إحداثيات القبلة
+        }
+    }
+    
+    if (t === 'prayer') {
+        if (typeof fetchPrayers === 'function') {
+            fetchPrayers(); // تحديث مواقيت الصلاة والعداد التنازلي
+        }
+    }
+
+    // 4. ملاحظة هامة للفهرس: عند الانتقال لقسم القرآن من زر خارجي
+    // نضمن دائماً ظهور المصحف الكامل وإخفاء الفهرس والقارئ كحالة افتراضية
+    if (t === 'quran') {
+        const fullView = document.getElementById('full-quran-view');
+        const topicsView = document.getElementById('topics-view');
+        const quranView = document.getElementById('quran-view');
+
+        if (fullView) fullView.style.display = 'block';
+        if (topicsView) topicsView.style.display = 'none';
+        if (quranView) quranView.style.display = 'none';
+    }
+        // للسبحة: نعرض قائمة الاختيار
+    if(t === 'sebha') {
+        document.getElementById('sebha-categories').style.display = 'grid';
+        document.getElementById('sebha-main-view').style.display = 'none';
+    }
+}
 function switchMainTab(t) {
     // 1. تغيير حالة الأزرار العلوية
     document.querySelectorAll('.main-nav button').forEach(b => b.classList.remove('active'));
@@ -858,14 +909,13 @@ function saveCheckpoint(index) {
             m.style.background = "transparent";
             m.style.color = "var(--gold)";
         }
-    });
-    
-    // حفظ في السحابة
-    if (typeof window.saveToCloud === 'function') {
-        window.saveToCloud('khatma', khatmaData);
-    }
+        // حفظ في السحابة
+if (typeof window.saveToCloud === 'function') {
+    window.saveToCloud('khatma', khatmaData);
 }
 
+    });
+}
 
 // 4. إنهاء الجزء كاملاً
 function markFullJuzDone() {
@@ -981,207 +1031,3 @@ function updateAchievementsUI() {
         document.getElementById('days-count').innerText = '0';
     }
 }
-// ================= المصحف الورقي =================
-// ================= المصحف الورقي - الكود الكامل =================
-// ================= المصحف الورقي =================
-let currentPage = 1;
-const totalPages = 569;
-const imageOffset = 274;
-
-function updatePageDisplay() {
-    const pageImg = document.getElementById('mushaf-page-img');
-    const currentPageNum = document.getElementById('current-page-num');
-    const totalPagesNum = document.getElementById('total-pages');
-    
-    if (pageImg) {
-        const actualImageNumber = currentPage + imageOffset;
-        const pageNum = actualImageNumber.toString().padStart(4, '0');
-        pageImg.src = `mushaf-pages/IMG_${pageNum}.JPG`;
-    }
-    if (currentPageNum) currentPageNum.innerText = currentPage;
-    if (totalPagesNum) totalPagesNum.innerText = totalPages;
-    
-    const input = document.getElementById('page-jump-input');
-    if (input) input.value = currentPage;
-}
-
-function jumpToPage() {
-    const input = document.getElementById('page-jump-input');
-    const pageNum = parseInt(input.value);
-    
-    if (pageNum >= 1 && pageNum <= totalPages) {
-        currentPage = pageNum;
-        updatePageDisplay();
-    } else {
-        alert(`الرجاء إدخال رقم بين 1 و ${totalPages}`);
-    }
-}
-
-function saveCurrentProgress() {
-    const user = window.firebaseAuth?.currentUser;
-    
-    if (user && window.firebaseDb) {
-        import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js")
-            .then(({ setDoc, doc }) => {
-                setDoc(doc(window.firebaseDb, "users", user.uid), 
-                    { mushafBookmark: { page: currentPage } }, 
-                    { merge: true }
-                ).then(() => {
-                    showBookmarkIndicator();
-                    alert(`✅ تم حفظ صفحة ${currentPage} في حسابك`);
-                });
-            });
-    } else {
-        localStorage.setItem('mushafBookmark', currentPage);
-        showBookmarkIndicator();
-        alert(`✅ تم حفظ صفحة ${currentPage} محلياً`);
-    }
-}
-
-function goToBookmark() {
-    const user = window.firebaseAuth?.currentUser;
-    
-    if (user && window.firebaseDb) {
-        import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js")
-            .then(({ getDoc, doc }) => {
-                getDoc(doc(window.firebaseDb, "users", user.uid))
-                    .then(userDoc => {
-                        if (userDoc.exists() && userDoc.data().mushafBookmark) {
-                            const savedPage = userDoc.data().mushafBookmark.page;
-                            currentPage = savedPage;
-                            updatePageDisplay();
-                            alert(`✅ تم الانتقال للصفحة المحفوظة: ${savedPage}`);
-                        } else {
-                            alert('❌ لا توجد علامة محفوظة');
-                        }
-                    });
-            });
-    } else {
-        const saved = localStorage.getItem('mushafBookmark');
-        if (saved) {
-            const savedPage = parseInt(saved);
-            currentPage = savedPage;
-            updatePageDisplay();
-            alert(`✅ تم الانتقال للصفحة المحفوظة: ${savedPage}`);
-        } else {
-            alert('❌ لا توجد علامة محفوظة');
-        }
-    }
-}
-
-function showBookmarkIndicator() {
-    const indicator = document.getElementById('bookmark-indicator');
-    if (indicator) {
-        indicator.style.display = 'block';
-    }
-}
-
-async function loadSavedBookmark() {
-    const user = window.firebaseAuth?.currentUser;
-    let hasBookmark = false;
-    
-    if (user && window.firebaseDb) {
-        try {
-            const { getDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
-            const userDoc = await getDoc(doc(window.firebaseDb, "users", user.uid));
-            
-            if (userDoc.exists() && userDoc.data().mushafBookmark) {
-                hasBookmark = true;
-                showBookmarkIndicator();
-            }
-        } catch (e) {
-            console.log("فحص محلي");
-        }
-    }
-    
-    if (!hasBookmark) {
-        const saved = localStorage.getItem('mushafBookmark');
-        if (saved) {
-            showBookmarkIndicator();
-        }
-    }
-}
-
-function initSwipeForMushaf() {
-    let touchStartX = 0;
-    let touchEndX = 0;
-    let touchStartY = 0;
-    let touchEndY = 0;
-
-    const viewer = document.getElementById('mushaf-viewer');
-    
-    if (!viewer) {
-        console.log('⚠️ Viewer not found');
-        return;
-    }
-
-    viewer.replaceWith(viewer.cloneNode(true));
-    const newViewer = document.getElementById('mushaf-viewer');
-
-    newViewer.addEventListener('touchstart', (e) => {
-        touchStartX = e.changedTouches[0].screenX;
-        touchStartY = e.changedTouches[0].screenY;
-    }, { passive: true });
-
-    newViewer.addEventListener('touchend', (e) => {
-        touchEndX = e.changedTouches[0].screenX;
-        touchEndY = e.changedTouches[0].screenY;
-        handleSwipeGesture();
-    }, { passive: true });
-
-    function handleSwipeGesture() {
-        const swipeThreshold = 50;
-        const horizontalDistance = Math.abs(touchEndX - touchStartX);
-        const verticalDistance = Math.abs(touchEndY - touchStartY);
-        
-        if (horizontalDistance > verticalDistance && horizontalDistance > swipeThreshold) {
-            if (touchEndX < touchStartX) {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    updatePageDisplay();
-                    animatePageChange('next');
-                }
-            } else if (touchEndX > touchStartX) {
-                if (currentPage > 1) {
-                    currentPage--;
-                    updatePageDisplay();
-                    animatePageChange('prev');
-                }
-            }
-        }
-    }
-    
-    console.log('✅ Swipe initialized!');
-}
-
-function animatePageChange(direction) {
-    const img = document.getElementById('mushaf-page-img');
-    if (img) {
-        img.style.transition = 'all 0.2s ease';
-        img.style.opacity = '0.5';
-        img.style.transform = direction === 'next' ? 'translateX(-20px)' : 'translateX(20px)';
-        
-        setTimeout(() => {
-            img.style.opacity = '1';
-            img.style.transform = 'translateX(0)';
-        }, 200);
-    }
-}
-// === تهيئة عند تحميل الصفحة ===
-document.addEventListener('DOMContentLoaded', function() {
-    // تحميل آية اليوم
-    loadDailyAyah();
-    
-    // تهيئة الختمة
-    if (typeof updateKhatmaUI === 'function') {
-        updateKhatmaUI();
-    }
-    
-    // تحديث زر الصوت
-    const muteBtn = document.getElementById('muteBtn');
-    if (muteBtn) muteBtn.innerText = isMuted ? "🔇" : "🔊";
-    
-    // بدء العد التنازلي
-    updateCountdown();
-});
-
