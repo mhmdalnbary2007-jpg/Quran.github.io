@@ -1146,7 +1146,7 @@ function checkForNewBadges() {
     Object.values(BADGES).forEach(badge => {
         // تأكد إن الشارة ما حصل عليها قبل
         if (!achievements.badges.includes(badge.id)) {
-
+ 
             let earned = false;
             
             // فحص حسب النوع
@@ -1264,7 +1264,50 @@ function closeAchievements() {
 }
 
 // تحديث واجهة الإنجازات
+// تحديث واجهة الإنجازات
 function updateAchievementsUI() {
+    // ✨ جديد: عرض المستوى والـ XP
+    const currentLevelData = LEVELS.find(l => l.level === achievements.level) || LEVELS[0];
+    const nextLevelData = LEVELS.find(l => l.level === achievements.level + 1);
+    
+    document.getElementById('current-level-title').innerText = `${currentLevelData.title} - المستوى ${achievements.level}`;
+    document.getElementById('current-level-xp').innerText = `${achievements.xp.toLocaleString()} XP`;
+    
+    // حساب تقدم المستوى
+    if (nextLevelData) {
+        const currentXP = achievements.xp - currentLevelData.xpNeeded;
+        const neededXP = nextLevelData.xpNeeded - currentLevelData.xpNeeded;
+        const progress = (currentXP / neededXP) * 100;
+        
+        document.getElementById('level-progress-bar').style.width = Math.min(progress, 100) + '%';
+        document.getElementById('next-level-text').innerText = `${nextLevelData.xpNeeded - achievements.xp} XP للمستوى التالي`;
+    } else {
+        document.getElementById('level-progress-bar').style.width = '100%';
+        document.getElementById('next-level-text').innerText = 'وصلت للمستوى الأعلى! 👑';
+    }
+    
+    // ✨ جديد: عرض السلسلة اليومية
+    document.getElementById('current-streak-display').innerText = achievements.currentStreak;
+    document.getElementById('longest-streak-display').innerText = achievements.longestStreak;
+    
+    // ✨ جديد: عرض الشارات
+    const badgesContainer = document.getElementById('badges-display');
+    if (achievements.badges && achievements.badges.length > 0) {
+        badgesContainer.innerHTML = achievements.badges.map(badgeId => {
+            const badge = BADGES[badgeId];
+            if (!badge) return '';
+            return `
+                <div style="background: white; border: 2px solid var(--gold); border-radius: 12px; padding: 15px; text-align: center; min-width: 120px;">
+                    <div style="font-size: 2.5rem;">${badge.emoji}</div>
+                    <div style="font-size: 0.9rem; font-weight: bold; color: var(--dark-teal); margin-top: 5px;">${badge.name}</div>
+                    <div style="font-size: 0.75rem; color: #666; margin-top: 3px;">${badge.desc}</div>
+                </div>
+            `;
+        }).join('');
+    } else {
+        badgesContainer.innerHTML = '<p style="color: #999; width: 100%; text-align: center;">لم تحصل على أي شارة بعد</p>';
+    }
+    
     // عرض الإحصائيات
     document.getElementById('total-tasbih').innerText = achievements.tasbih.toLocaleString();
     document.getElementById('total-istighfar').innerText = achievements.istighfar.toLocaleString();
@@ -1290,6 +1333,7 @@ function updateAchievementsUI() {
         document.getElementById('days-count').innerText = '0';
     }
 }
+
 // ✨ تحديث السلسلة اليومية
 function updateDailyStreak() {
     const today = new Date().toDateString();
