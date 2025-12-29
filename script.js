@@ -1070,9 +1070,17 @@ function markFullJuzDone() {
         khatmaData.currentJuz++;
         khatmaData.lastAyahIndex = 0;
         
-        // إضافة للإنجازات (ورد واحد = جزء واحد)
+        // إضافة للإنجازات
         achievements.awrad++;
+        
+        // ✨ جديد: إضافة XP (جزء كامل = 50 XP)
+        addXP(50);
+        
+        // ✨ جديد: تحديث السلسلة اليومية
+        updateDailyStreak();
+        
         saveAchievements();
+
         
         localStorage.setItem('khatmaProgress', JSON.stringify(khatmaData));
 // أضف هذا السطر
