@@ -488,7 +488,7 @@ function incrementSebha() {
     updateDailyStreak();
     
     saveAchievements();
-
+}
 // تحديث البار
 function updateSebhaProgress() {
     const data = sebhaCounters[currentSebhaType];
