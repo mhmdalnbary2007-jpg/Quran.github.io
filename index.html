@@ -84,11 +84,9 @@
 <div class="quran-menu-wrapper">
     <button id="quranTab" class="active dropbtn" onclick="toggleQuranDropdown(event)">القرآن الكريم ▾</button>
     <div id="quranDropdown" class="dropdown-content">
-    <a href="javascript:void(0)" onclick="selectQuranOption('quran')">المصحف كاملاً</a>
-    <a href="javascript:void(0)" onclick="selectQuranOption('topics')">الفهرس الموضوعي</a>
-    <a href="javascript:void(0)" onclick="selectQuranOption('mushaf')">📖 المصحف الورقي</a>
-</div>
-
+        <a href="javascript:void(0)" onclick="selectQuranOption('quran')">المصحف كاملاً</a>
+        <a href="javascript:void(0)" onclick="selectQuranOption('topics')">الفهرس الموضوعي</a>
+    </div>
 </div>
 
         <button id="azkarTab" onclick="switchMainTab('azkar')">قسم الأذكار</button>
@@ -183,86 +181,8 @@
         </div>
         <button onclick="selectQuranOption('quran')" style="margin: 30px auto; display: block; background:var(--gold); color:var(--dark-teal); border:none; padding:12px 25px; border-radius:12px; cursor:pointer; font-family:'Amiri', serif; font-weight:bold;">العودة للمصحف الكامل</button>
     </div>
-    <!-- المصحف الورقي -->
-  <!-- المصحف الورقي -->
-<!-- المصحف الورقي -->
-<div id="mushaf-view" style="display:none; padding:10px;">
-    
-    <!-- البانر العلوي بالتدرج الجديد -->
-    <div style="background: linear-gradient(to left, #2F5F63, #7a9ca0, #C9B07A); padding: 25px 15px; border-radius: 0; margin: -10px -10px 20px -10px; position: relative; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
-        <div style="text-align: center;">
-            <h2 style="color: white; margin: 0; font-size: 1.8rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">📖 المصحف الورقي</h2>
-        </div>
-        
-        <button onclick="selectQuranOption('quran')" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.9); border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; color: var(--dark-teal); box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
-            🔄 رجوع
-        </button>
-        
-        <button id="bookmark-indicator" onclick="goToBookmark()" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: #FFD700; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; color: #000; box-shadow: 0 2px 8px rgba(0,0,0,0.2); display: none;">
-            ✏️ محفوظة
-        </button>
-    </div>
-
-    <!-- عداد الصفحات -->
-    <div style="text-align: center; margin-bottom: 15px;">
-        <h3 style="color: var(--dark-teal); font-size: 1.2rem; margin: 5px;">
-            صفحة <span id="current-page-num">1</span> من <span id="total-pages">569</span>
-        </h3>
-    </div>
-
-    <!-- عارض الصفحة بدون أزرار جانبية -->
-    <div style="margin-bottom: 20px;">
-        <div class="mushaf-page-viewer" id="mushaf-viewer" style="max-width: 500px; margin: 0 auto;">
-            <div style="background: white; border: 3px solid var(--gold); border-radius: 15px; padding: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.15);">
-                <p style="text-align: center; color: var(--dark-teal); font-size: 0.9rem; margin: 5px 0;">صفحة القرآن</p>
-                <img id="mushaf-page-img" src="mushaf-pages/IMG_0275.JPG" alt="صفحة المصحف" style="width: 100%; height: auto; display: block; border-radius: 8px; user-select: none; -webkit-user-select: none;" onerror="this.style.background='#f0f0f0'; this.alt='جاري التحميل...'">
-            </div>
-        </div>
-        
-        <!-- تلميح السحب -->
-        <p style="text-align: center; color: #888; font-size: 0.85rem; margin-top: 10px;">
-            👆 اسحب يميناً أو يساراً للتنقل بين الصفحات
-        </p>
-    </div>
-
-    <!-- أزرار التحكم السفلية -->
-    <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 20px;">
-        
-        <!-- زر الانتقال -->
-        <button onclick="document.getElementById('jump-modal').style.display='flex'" style="background: var(--dark-teal); color: var(--gold); border: 2px solid var(--gold); padding: 12px 25px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1rem;">
-            انتقال
-        </button>
-
-        <!-- زر رقم الصفحة -->
-        <button onclick="document.getElementById('jump-modal').style.display='flex'" style="background: white; color: var(--dark-teal); border: 2px solid var(--dark-teal); padding: 12px 25px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1rem;">
-            رقم الصفحة
-        </button>
-
-        <!-- زر حفظ التقدم (جديد) -->
-        <button onclick="saveCurrentProgress()" style="background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; border: none; padding: 12px 25px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1rem; box-shadow: 0 3px 10px rgba(231,76,60,0.3);">
-            🔖 حفظ التقدم
-        </button>
-    </div>
-
-    <!-- نافذة منبثقة للانتقال -->
-    <div id="jump-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center;">
-        <div style="background: white; padding: 30px; border-radius: 20px; max-width: 350px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-            <h3 style="color: var(--dark-teal); margin-bottom: 20px;">الانتقال إلى صفحة</h3>
-            <input type="number" id="page-jump-input" min="1" max="569" placeholder="أدخل رقم الصفحة" style="width: 100%; padding: 12px; border: 2px solid var(--gold); border-radius: 10px; text-align: center; font-size: 1.1rem; margin-bottom: 20px;">
-            <div style="display: flex; gap: 10px;">
-                <button onclick="jumpToPage(); document.getElementById('jump-modal').style.display='none'" style="flex: 1; background: var(--gold); color: var(--dark-teal); border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer;">
-                    انتقل
-                </button>
-                <button onclick="document.getElementById('jump-modal').style.display='none'" style="flex: 1; background: #95a5a6; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer;">
-                    إلغاء
-                </button>
-            </div>
-        </div>
-    </div>
 
 </div>
-
-
 
 <!-- ================= الأذكار ================= -->
 <div id="azkar-section" style="display:none;">
@@ -668,13 +588,10 @@
   };
 </script>
 
+<script src="script.js"></script>
 
 
-<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>
-  eruda.init();
-</script>
-<script src="script.js" defer></script>
+
 </body>
 </html>
 
