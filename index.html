@@ -319,7 +319,7 @@
         </div>
     </div>
 </div>
-<!-- ================= قسم الإنجازات ================= -->
+<!-- ================= قسم الإنجازات ================= --><!-- ================= قسم الإنجازات ================= -->
 <div id="achievements-section" style="display:none; padding:20px;">
     <div style="text-align:center; margin-bottom:20px;">
         <button class="modern-back-btn" onclick="closeAchievements()">↩ العودة</button>
@@ -328,6 +328,38 @@
     <div class="daily-card shadow-lg" style="max-width: 900px; margin: auto;">
         <h2 style="color:var(--gold); text-align:center;">🏆 إنجازاتي الإيمانية</h2>
         
+        <!-- ✨ جديد: المستوى والـ XP -->
+        <div style="background: linear-gradient(135deg, var(--dark-teal), #1a3f42); padding: 20px; border-radius: 15px; margin: 20px 0; color: white; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 10px;">⭐</div>
+            <h3 style="margin: 5px 0; color: var(--gold);" id="current-level-title">المستوى 1</h3>
+            <p style="margin: 5px 0; font-size: 1.1rem;" id="current-level-xp">0 XP</p>
+            
+            <!-- شريط تقدم المستوى -->
+            <div style="background: rgba(255,255,255,0.2); height: 15px; border-radius: 10px; margin: 15px auto; max-width: 400px; overflow: hidden;">
+                <div id="level-progress-bar" style="background: var(--gold); height: 100%; width: 0%; transition: 0.5s;"></div>
+            </div>
+            <small id="next-level-text" style="opacity: 0.9;">100 XP للمستوى التالي</small>
+        </div>
+
+        <!-- ✨ جديد: السلسلة اليومية -->
+        <div style="background: linear-gradient(135deg, #e74c3c, #c0392b); padding: 20px; border-radius: 15px; margin: 20px 0; color: white; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 10px;">🔥</div>
+            <h3 style="margin: 5px 0;">السلسلة اليومية</h3>
+            <p style="font-size: 2.5rem; font-weight: bold; margin: 10px 0;" id="current-streak-display">0</p>
+            <p style="margin: 5px 0; font-size: 0.95rem;">يوم متواصل</p>
+            <small style="opacity: 0.9;">أطول سلسلة: <span id="longest-streak-display">0</span> يوم</small>
+        </div>
+
+        <!-- ✨ جديد: الشارات المحصلة -->
+        <div style="background: white; padding: 20px; border-radius: 15px; margin: 20px 0; border: 2px solid var(--gold);">
+            <h3 style="color: var(--dark-teal); text-align: center; margin-bottom: 15px;">🏅 الشارات المحصلة</h3>
+            <div id="badges-display" style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; min-height: 80px;">
+                <p style="color: #999; width: 100%; text-align: center;">لم تحصل على أي شارة بعد</p>
+            </div>
+        </div>
+
+        <hr style="border: 1px solid rgba(201,176,122,0.3); margin: 30px 0;">
+
         <!-- معلومات العضوية -->
         <div style="background: rgba(47,95,99,0.05); padding: 15px; border-radius: 12px; margin: 20px 0; text-align:center;">
             <p style="font-size: 1.1rem; color: var(--dark-teal); margin: 5px;">
@@ -410,6 +442,7 @@
         </div>
     </div>
 </div>
+
 
 
 </div>
