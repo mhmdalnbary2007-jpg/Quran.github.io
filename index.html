@@ -645,12 +645,11 @@
   };
 </script>
 
-<!-- قسم المصحف الورقي -->
-<!-- قسم المصحف الورقي -->
+<!-- قسم المصحف الورقي --><!-- قسم المصحف الورقي -->
 <div id="paper-mushaf-section" style="display:none; padding: 20px;">
     
     <!-- كارد المصحف -->
-    <div style="background: linear-gradient(135deg, #8B7355, #6B5344); padding: 25px; border-radius: 20px; margin: 20px auto; max-width: 900px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+    <div style="background: linear-gradient(135deg, #8B7355 0%, #A0826D 50%, #8B7355 100%); padding: 25px; border-radius: 20px; margin: 20px auto; max-width: 900px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
         
         <!-- الهيدر -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -673,7 +672,7 @@
         </div>
         
         <!-- منطقة الصورة -->
-        <div style="background: white; border-radius: 15px; padding: 20px; box-shadow: inset 0 4px 8px rgba(0,0,0,0.1); position: relative; min-height: 500px; display: flex; align-items: center; justify-content: center;">
+        <div id="mushaf-normal-view" style="background: white; border-radius: 15px; padding: 20px; box-shadow: inset 0 4px 8px rgba(0,0,0,0.1); position: relative; min-height: 500px; display: flex; align-items: center; justify-content: center;">
             
             <!-- الأزرار الجانبية -->
             <button onclick="prevMushafPage()" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: #6B5344; color: white; border: none; padding: 20px 15px; border-radius: 12px; font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 10;">
@@ -685,25 +684,19 @@
             </button>
             
             <!-- الصورة -->
-            <img id="mushaf-page-img" src="" alt="صفحة القرآن" style="max-width: 100%; max-height: 500px; width: auto; height: auto; box-shadow: 0 8px 20px rgba(0,0,0,0.2); border-radius: 8px;">
+            <img id="mushaf-page-img" src="" alt="صفحة القرآن" onclick="openFullscreenMushaf()" style="max-width: 100%; max-height: 500px; width: auto; height: auto; box-shadow: 0 8px 20px rgba(0,0,0,0.2); border-radius: 8px; cursor: pointer;">
             
             <!-- Loader -->
             <div id="mushaf-loader" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
                 <div style="width: 50px; height: 50px; border: 5px solid rgba(244, 196, 48, 0.3); border-top-color: #F4C430; border-radius: 50%; animation: spin 1s linear infinite;"></div>
             </div>
-            
-            <p id="mushaf-error" style="display: none; color: #e74c3c; text-align: center; font-weight: bold;">تعذر تحميل الصفحة</p>
         </div>
         
         <!-- أزرار التحكم السفلية -->
         <div style="display: flex; gap: 10px; justify-content: center; align-items: center; margin-top: 20px; flex-wrap: wrap;">
             
-            <button onclick="zoomInMushaf()" style="background: #2F5F63; color: #F4C430; border: none; padding: 10px 15px; border-radius: 10px; cursor: pointer; font-family: 'Amiri', serif; font-weight: bold;">
-                🔍+
-            </button>
-            
-            <button onclick="zoomOutMushaf()" style="background: #2F5F63; color: #F4C430; border: none; padding: 10px 15px; border-radius: 10px; cursor: pointer; font-family: 'Amiri', serif; font-weight: bold;">
-                🔍-
+            <button onclick="openFullscreenMushaf()" style="background: #F4C430; color: #2F5F63; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; font-family: 'Amiri', serif; font-weight: bold; font-size: 1rem;">
+                ⛶ عرض بملء الشاشة
             </button>
             
             <div style="display: flex; gap: 5px; align-items: center;">
@@ -722,11 +715,27 @@
     
 </div>
 
+<!-- شاشة ملء الشاشة -->
+<div id="mushaf-fullscreen-view" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999;">
+    
+    <!-- زر الخروج -->
+    <button onclick="closeFullscreenMushaf()" style="position: fixed; top: 15px; right: 15px; background: rgba(255,255,255,0.9); color: #333; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 1.5rem; cursor: pointer; z-index: 100000; box-shadow: 0 4px 10px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;">
+        ×
+    </button>
+    
+    <!-- الصورة -->
+    <div id="mushaf-fullscreen-container" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; touch-action: pan-x;">
+        <img id="mushaf-fullscreen-img" src="" alt="صفحة القرآن" style="max-width: 100%; max-height: 100%; width: auto; height: auto; user-select: none;">
+    </div>
+    
+</div>
+
 <style>
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
 </style>
+
 
 <script src="script.js?v=5"></script>
 
