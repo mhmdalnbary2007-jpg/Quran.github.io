@@ -107,9 +107,10 @@
 <div class="quran-menu-wrapper">
     <button id="quranTab" class="active dropbtn" onclick="toggleQuranDropdown(event)">القرآن الكريم ▾</button>
     <div id="quranDropdown" class="dropdown-content">
-        <a href="javascript:void(0)" onclick="selectQuranOption('quran')">المصحف كاملاً</a>
-        <a href="javascript:void(0)" onclick="selectQuranOption('topics')">الفهرس الموضوعي</a>
-    </div>
+    <a href="javascript:void(0)" onclick="selectQuranOption('quran')">المصحف كاملاً</a>
+    <a href="javascript:void(0)" onclick="selectQuranOption('paper-mushaf')">📜 المصحف الورقي</a>
+    <a href="javascript:void(0)" onclick="selectQuranOption('topics')">الفهرس الموضوعي</a>
+</div>
 </div>
 
         <button id="azkarTab" onclick="switchMainTab('azkar')">قسم الأذكار</button>
@@ -643,6 +644,47 @@
     }
   };
 </script>
+
+<!-- قسم المصحف الورقي -->
+<div id="paper-mushaf-view" style="display: none;">
+    <div class="mushaf-header">
+        <button onclick="closePaperMushaf()" class="mushaf-back-btn">🏠 رجوع</button>
+        <h2>المصحف الورقي</h2>
+        <button onclick="toggleMushafFullscreen()" class="mushaf-fullscreen-btn">⛶</button>
+    </div>
+    
+    <div class="mushaf-main">
+        <button class="mushaf-nav-btn prev" onclick="prevMushafPage()">❮</button>
+        
+        <div class="mushaf-page-container">
+            <img id="mushaf-page-img" src="https://cdn.jsdelivr.net/gh/fawazahmed0/quran-images@1/page-001.png" alt="صفحة المصحف">
+            <div class="mushaf-page-loader" id="mushaf-loader" style="display: none;">
+                <div class="spinner"></div>
+            </div>
+        </div>
+        
+        <button class="mushaf-nav-btn next" onclick="nextMushafPage()">❯</button>
+    </div>
+    
+    <div class="mushaf-footer">
+        <div class="mushaf-page-info">
+            <span>صفحة <strong id="mushaf-current-page">1</strong> من 604</span>
+        </div>
+        
+        <div class="mushaf-controls">
+            <button onclick="zoomInMushaf()" title="تكبير">🔍+</button>
+            <button onclick="zoomOutMushaf()" title="تصغير">🔍-</button>
+            <button onclick="resetZoomMushaf()" title="إعادة ضبط">↺</button>
+            <button onclick="saveMushafBookmark()" title="حفظ علامة">🔖</button>
+            <button onclick="loadMushafBookmark()" title="العلامة المحفوظة">📌</button>
+            
+            <div class="mushaf-jump-container">
+                <input type="number" id="mushaf-page-input" min="1" max="604" placeholder="رقم">
+                <button onclick="jumpToMushafPage()">↗️</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="script.js?v=5"></script>
 
