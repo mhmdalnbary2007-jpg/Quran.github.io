@@ -204,46 +204,35 @@ function openSurah(id, name) {
     
     updateAudioSource();
     
-    // جلب الآيات
     fetch(`https://api.alquran.cloud/v1/surah/${id}`).then(res => res.json()).then(data => {
         const ayahs = data.data.ayahs;
         
-        // عرض الآيات بشكل // فصل البسملة عن الآيات
-let ayahsHTML = '';
-
-for (let i = 0; i < ayahs.length; i++) {
-    const a = ayahs[i];
-    
-    if (i === 0 && a.text.includes('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ')) {
-        // إضافة البسملة منفصلة
-        ayahsHTML += '<div class="basmala-separate">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>';
+        // إضافة البسملة منفصلة (إلا سورة التوبة)
+        let ayahsHTML = '';
         
-        // إزالة البسملة من النص
-        let cleanText = a.text.replace('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', '').trim();
-        
-        // إضافة باقي الآية لو فيه نص
-        if (cleanText.length > 0) {
-            ayahsHTML += `<span class="ayah-item" data-index="${i}">${cleanText}</span> <span style="color:var(--gold); font-size: 1.1rem;">(${a.numberInSurah})</span> `;
+        if (id !== 9 && id !== 1) {
+            ayahsHTML = '<div class="basmala-separate">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>';
         }
-    } else {
-        // باقي الآيات عادي
-        ayahsHTML += `<span class="ayah-item" data-index="${i}">${a.text}</span> <span style="color:var(--gold); font-size: 1.1rem;">(${a.numberInSurah})</span> `;
-    }
-}
-
+        
+        // إضافة الآيات
+        ayahsHTML += ayahs.map((a, index) => {
+            let text = a.text;
+            
+            // حذف البسملة من الآية لو موجودة
+            text = text.replace('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', '').trim();
+            
+            return `<span class="ayah-item" data-index="${index}">${text}</span> <span style="color:var(--gold); font-size: 1.1rem;">(${a.numberInSurah})</span> `;
+        }).join('');
         
         document.getElementById('ayahsContainer').innerHTML = ayahsHTML;
         
-        // جلب توقيت الآيات للقارئ الحالي
-        fetchAyahTimings(id);
+        setupAyahHighlighting(ayahs.length);
     });
 
     if (typeof checkKhatmaProgress === "function") {
         checkKhatmaProgress(id);
     }
 }
-
-
 
 // دالة تمييز الآيات أثناء القراءة// دالة تمييز الآيات أثناء القراءة - نسخة بسيطة
 function setupAyahHighlighting(totalAyahs) {
