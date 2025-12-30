@@ -547,6 +547,10 @@ body.dark-mode .achievement-label {
    المصحف الورقي - Paper Mushaf
    ========================================== */
 
+/* ==========================================
+   المصحف الورقي - Paper Mushaf
+   ========================================== */
+
 #paper-mushaf-view {
     display: none;
     position: fixed;
@@ -562,7 +566,7 @@ body.dark-mode .achievement-label {
 }
 
 .mushaf-header {
-    background: var(--primary);
+    background: var(--dark-teal);
     padding: 15px 20px;
     display: flex;
     justify-content: space-between;
@@ -579,13 +583,15 @@ body.dark-mode .achievement-label {
 
 .mushaf-back-btn,
 .mushaf-fullscreen-btn {
-    background: rgba(255,255,255,0.2);
-    color: white;
+    background: var(--gold);
+    color: var(--dark-teal);
     border: none;
     padding: 8px 15px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 0.9rem;
+    font-weight: bold;
+    font-family: 'Amiri', serif;
 }
 
 .mushaf-main {
@@ -640,8 +646,8 @@ body.dark-mode .achievement-label {
 }
 
 .mushaf-nav-btn {
-    background: var(--primary);
-    color: white;
+    background: var(--dark-teal);
+    color: var(--gold);
     border: none;
     padding: 15px 12px;
     font-size: 1.5rem;
@@ -664,7 +670,7 @@ body.dark-mode .achievement-label {
 }
 
 .mushaf-page-info strong {
-    color: var(--primary);
+    color: var(--dark-teal);
     font-size: 1.2rem;
 }
 
@@ -678,13 +684,15 @@ body.dark-mode .achievement-label {
 
 .mushaf-controls button {
     background: var(--gold);
-    color: var(--dark);
+    color: var(--dark-teal);
     border: none;
     padding: 8px 12px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.85rem;
     white-space: nowrap;
+    font-family: 'Amiri', serif;
+    font-weight: bold;
 }
 
 .mushaf-jump-container {
