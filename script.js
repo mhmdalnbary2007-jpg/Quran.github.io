@@ -901,20 +901,29 @@ function selectQuranOption(option) {
     const fullView = document.getElementById('full-quran-view');
     const topicsView = document.getElementById('topics-view');
     const quranView = document.getElementById('quran-view');
-    const searchBox = document.querySelector('.search-box'); // تحديد مربع البحث
+    const paperMushafView = document.getElementById('paper-mushaf-view');
+    const searchBox = document.querySelector('.search-box');
 
     if (option === 'quran') {
         fullView.style.display = 'block';
         topicsView.style.display = 'none';
         quranView.style.display = 'none';
-        if (searchBox) searchBox.style.display = 'block'; // إظهار البحث في المصحف الكامل
+        if (paperMushafView) paperMushafView.style.display = 'none';
+        if (searchBox) searchBox.style.display = 'block';
         displaySurahs(allSurahs); 
         document.getElementById('searchInput').value = '';
+    } else if (option === 'paper-mushaf') {
+        fullView.style.display = 'none';
+        topicsView.style.display = 'none';
+        quranView.style.display = 'none';
+        if (searchBox) searchBox.style.display = 'none';
+        openPaperMushaf();
     } else if (option === 'topics') {
         fullView.style.display = 'none';
         topicsView.style.display = 'block';
         quranView.style.display = 'none';
-        if (searchBox) searchBox.style.display = 'none'; // إخفاء البحث في الفهرس
+        if (paperMushafView) paperMushafView.style.display = 'none';
+        if (searchBox) searchBox.style.display = 'none';
     }
 }
 
@@ -1457,3 +1466,254 @@ function updateDailyStreak() {
         };
     }
 }
+// ==========================================
+// المصحف الورقي - Paper Mushaf
+// ==========================================
+
+let currentMushafPage = 1;
+let mushafZoomLevel = 1;
+let touchStartXMushaf = 0;
+let touchEndXMushaf = 0;
+
+// دليل السور وصفحاتها
+const surahToPage = {
+    1: 1, 2: 2, 3: 50, 4: 77, 5: 106, 6: 128, 7: 151, 8: 177, 9: 187,
+    10: 208, 11: 221, 12: 235, 13: 249, 14: 255, 15: 262, 16: 267,
+    17: 282, 18: 293, 19: 305, 20: 312, 21: 322, 22: 332, 23: 342,
+    24: 350, 25: 359, 26: 367, 27: 377, 28: 385, 29: 396, 30: 404,
+    31: 411, 32: 415, 33: 418, 34: 428, 35: 434, 36: 440, 37: 446,
+    38: 453, 39: 458, 40: 467, 41: 477, 42: 483, 43: 489, 44: 496,
+    45: 499, 46: 502, 47: 507, 48: 511, 49: 515, 50: 518, 51: 520,
+    52: 523, 53: 526, 54: 528, 55: 531, 56: 534, 57: 537, 58: 542,
+    59: 545, 60: 549, 61: 551, 62: 553, 63: 554, 64: 556, 65: 558,
+    66: 560, 67: 562, 68: 564, 69: 566, 70: 568, 71: 570, 72: 572,
+    73: 574, 74: 575, 75: 577, 76: 578, 77: 580, 78: 582, 79: 583,
+    80: 585, 81: 586, 82: 587, 83: 587, 84: 589, 85: 590, 86: 591,
+    87: 591, 88: 592, 89: 593, 90: 594, 91: 595, 92: 595, 93: 596,
+    94: 596, 95: 597, 96: 597, 97: 598, 98: 598, 99: 599, 100: 599,
+    101: 600, 102: 600, 103: 601, 104: 601, 105: 601, 106: 602,
+    107: 602, 108: 602, 109: 603, 110: 603, 111: 603, 112: 604,
+    113: 604, 114: 604
+};
+
+// فتح المصحف الورقي
+function openPaperMushaf() {
+    document.getElementById('sideMenu').classList.remove('open');
+    document.getElementById('full-quran-view').style.display = 'none';
+    document.getElementById('quran-view').style.display = 'none';
+    document.getElementById('topics-view').style.display = 'none';
+    document.getElementById('paper-mushaf-view').style.display = 'flex';
+    
+    // تحميل آخر صفحة محفوظة
+    const savedPage = localStorage.getItem('lastMushafPage');
+    if (savedPage && savedPage >= 1 && savedPage <= 604) {
+        currentMushafPage = parseInt(savedPage);
+    } else {
+        currentMushafPage = 1;
+    }
+    
+    loadMushafPage(currentMushafPage);
+    setupMushafSwipe();
+}
+
+// إغلاق المصحف الورقي
+function closePaperMushaf() {
+    document.getElementById('paper-mushaf-view').style.display = 'none';
+    document.getElementById('sideMenu').classList.add('open');
+}
+
+// تحميل صفحة معينة
+function loadMushafPage(pageNum) {
+    if (pageNum < 1 || pageNum > 604) return;
+    
+    currentMushafPage = pageNum;
+    const pageStr = pageNum.toString().padStart(3, '0');
+    const img = document.getElementById('mushaf-page-img');
+    const loader = document.getElementById('mushaf-loader');
+    
+    // إظهار اللودر
+    loader.style.display = 'flex';
+    img.style.opacity = '0.3';
+    
+    // تحميل الصورة
+    const newSrc = `https://cdn.jsdelivr.net/gh/fawazahmed0/quran-images@1/page-${pageStr}.png`;
+    
+    // إنشاء صورة مؤقتة للتحميل المسبق
+    const tempImg = new Image();
+    tempImg.onload = function() {
+        img.src = newSrc;
+        img.style.opacity = '1';
+        loader.style.display = 'none';
+    };
+    tempImg.onerror = function() {
+        // محاولة مصدر بديل
+        img.src = `https://quran-images.s3.amazonaws.com/page-${pageStr}.png`;
+        img.style.opacity = '1';
+        loader.style.display = 'none';
+    };
+    tempImg.src = newSrc;
+    
+    // تحديث رقم الصفحة
+    document.getElementById('mushaf-current-page').innerText = pageNum;
+    
+    // حفظ الصفحة الحالية
+    localStorage.setItem('lastMushafPage', pageNum);
+    
+    // إعادة ضبط الزوم
+    resetZoomMushaf();
+}
+
+// الصفحة التالية
+function nextMushafPage() {
+    if (currentMushafPage < 604) {
+        loadMushafPage(currentMushafPage + 1);
+    }
+}
+
+// الصفحة السابقة
+function prevMushafPage() {
+    if (currentMushafPage > 1) {
+        loadMushafPage(currentMushafPage - 1);
+    }
+}
+
+// القفز لصفحة معينة
+function jumpToMushafPage() {
+    const input = document.getElementById('mushaf-page-input');
+    const pageNum = parseInt(input.value);
+    
+    if (pageNum >= 1 && pageNum <= 604) {
+        loadMushafPage(pageNum);
+        input.value = '';
+    } else {
+        alert('⚠️ رقم الصفحة يجب أن يكون بين 1 و 604');
+    }
+}
+
+// تكبير
+function zoomInMushaf() {
+    if (mushafZoomLevel < 3) {
+        mushafZoomLevel += 0.25;
+        applyMushafZoom();
+    }
+}
+
+// تصغير
+function zoomOutMushaf() {
+    if (mushafZoomLevel > 0.5) {
+        mushafZoomLevel -= 0.25;
+        applyMushafZoom();
+    }
+}
+
+// إعادة ضبط الزوم
+function resetZoomMushaf() {
+    mushafZoomLevel = 1;
+    applyMushafZoom();
+}
+
+// تطبيق الزوم
+function applyMushafZoom() {
+    const img = document.getElementById('mushaf-page-img');
+    img.style.transform = `scale(${mushafZoomLevel})`;
+}
+
+// حفظ علامة مرجعية
+function saveMushafBookmark() {
+    localStorage.setItem('mushafBookmark', currentMushafPage);
+    
+    // إظهار رسالة تأكيد
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '✅ تم';
+    btn.style.background = '#4CAF50';
+    
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.style.background = '';
+    }, 1500);
+}
+
+// تحميل العلامة المحفوظة
+function loadMushafBookmark() {
+    const bookmark = localStorage.getItem('mushafBookmark');
+    
+    if (bookmark) {
+        loadMushafPage(parseInt(bookmark));
+    } else {
+        alert('📌 لا توجد علامة محفوظة');
+    }
+}
+
+// ملء الشاشة
+function toggleMushafFullscreen() {
+    const elem = document.getElementById('paper-mushaf-view');
+    
+    if (!document.fullscreenElement) {
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+            elem.msRequestFullscreen();
+        }
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+    }
+}
+
+// إعداد السحب (Swipe)
+function setupMushafSwipe() {
+    const container = document.querySelector('.mushaf-page-container');
+    
+    container.addEventListener('touchstart', (e) => {
+        touchStartXMushaf = e.changedTouches[0].screenX;
+    }, { passive: true });
+    
+    container.addEventListener('touchend', (e) => {
+        touchEndXMushaf = e.changedTouches[0].screenX;
+        handleMushafSwipe();
+    }, { passive: true });
+}
+
+// معالجة السحب
+function handleMushafSwipe() {
+    const swipeThreshold = 50;
+    
+    if (touchEndXMushaf < touchStartXMushaf - swipeThreshold) {
+        // سحب لليسار = صفحة تالية
+        nextMushafPage();
+    }
+    
+    if (touchEndXMushaf > touchStartXMushaf + swipeThreshold) {
+        // سحب لليمين = صفحة سابقة
+        prevMushafPage();
+    }
+}
+
+// التحكم بالكيبورد
+document.addEventListener('keydown', (e) => {
+    const mushafView = document.getElementById('paper-mushaf-view');
+    
+    if (mushafView && mushafView.style.display !== 'none') {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+            prevMushafPage();
+            e.preventDefault();
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+            nextMushafPage();
+            e.preventDefault();
+        } else if (e.key === 'Home') {
+            loadMushafPage(1);
+            e.preventDefault();
+        } else if (e.key === 'End') {
+            loadMushafPage(604);
+            e.preventDefault();
+        }
+    }
+});
