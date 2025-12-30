@@ -1651,21 +1651,23 @@ function closeFullscreenMushaf() {
     document.body.style.overflow = 'auto';
 }
 
-// إعداد السحب للتنقل// إعداد السحب للتنقل
+// إعداد السحب للتنقل// إعداد السحب للت// إعداد السحب للتنقل
 function setupSwipeGestures() {
     const container = document.getElementById('mushaf-fullscreen-container');
     const img = document.getElementById('mushaf-fullscreen-img');
     let touchStartX = 0;
     let touchEndX = 0;
     let isSwiping = false;
+    let hasNavigated = false; // 🔥 جديد: لمنع التنقل المتعدد
     
     container.addEventListener('touchstart', (e) => {
         touchStartX = e.changedTouches[0].screenX;
         isSwiping = true;
+        hasNavigated = false; // إعادة ضبط
     }, { passive: true });
     
     container.addEventListener('touchmove', (e) => {
-        if (!isSwiping) return;
+        if (!isSwiping || hasNavigated) return; // 🔥 إيقاف لو تم التنقل
         
         touchEndX = e.changedTouches[0].screenX;
         const diff = touchEndX - touchStartX;
@@ -1676,7 +1678,7 @@ function setupSwipeGestures() {
     }, { passive: true });
     
     container.addEventListener('touchend', (e) => {
-        if (!isSwiping) return;
+        if (!isSwiping || hasNavigated) return;
         
         touchEndX = e.changedTouches[0].screenX;
         isSwiping = false;
@@ -1689,25 +1691,28 @@ function setupSwipeGestures() {
     }, { passive: true });
     
     function handleSwipe() {
-        const swipeThreshold = 50;
+        if (hasNavigated) return; // 🔥 منع التنقل المتكرر
+        
+        const swipeThreshold = 80; // 🔥 زيادة الحد الأدنى للسحب
         const diff = touchEndX - touchStartX;
         
         if (diff > swipeThreshold) {
-            // سحب لليمين = الصفحة التالية ⬅️
+            // سحب لليمين = الصفحة التالية
+            hasNavigated = true; // 🔥 تسجيل أن التنقل تم
             nextMushafPageFullscreen();
         }
-        
-        if (diff < -swipeThreshold) {
-            // سحب لليسار = الصفحة السابقة ➡️
+        else if (diff < -swipeThreshold) {
+            // سحب لليسار = الصفحة السابقة
+            hasNavigated = true; // 🔥 تسجيل أن التنقل تم
             prevMushafPageFullscreen();
         }
     }
 }
 
-// التنقل في وضع ملء الشاشة - محسّن
+// التنقل في وضع ملء الشاشة - صفحة واحدة فقط
 function nextMushafPageFullscreen() {
     if (currentMushafPage < 569) {
-        currentMushafPage++;
+        currentMushafPage++; // 🔥 زيادة صفحة واحدة فقط
         updateFullscreenImage();
         showPageTransition('→');
     }
@@ -1715,11 +1720,12 @@ function nextMushafPageFullscreen() {
 
 function prevMushafPageFullscreen() {
     if (currentMushafPage > 1) {
-        currentMushafPage--;
+        currentMushafPage--; // 🔥 تقليل صفحة واحدة فقط
         updateFullscreenImage();
         showPageTransition('←');
     }
 }
+
 
 function updateFullscreenImage() {
     const imageNumber = currentMushafPage + 274;
