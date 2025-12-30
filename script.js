@@ -1652,40 +1652,65 @@ function closeFullscreenMushaf() {
 }
 
 // إعداد السحب للتنقل
+// إعداد السحب للتنقل
 function setupSwipeGestures() {
     const container = document.getElementById('mushaf-fullscreen-container');
+    const img = document.getElementById('mushaf-fullscreen-img');
     let touchStartX = 0;
     let touchEndX = 0;
+    let isSwiping = false;
     
     container.addEventListener('touchstart', (e) => {
         touchStartX = e.changedTouches[0].screenX;
-    });
+        isSwiping = true;
+    }, { passive: true });
+    
+    container.addEventListener('touchmove', (e) => {
+        if (!isSwiping) return;
+        
+        touchEndX = e.changedTouches[0].screenX;
+        const diff = touchEndX - touchStartX;
+        
+        // تأثير بصري للسحب
+        img.style.transform = `translateX(${diff * 0.3}px)`;
+        img.style.transition = 'none';
+    }, { passive: true });
     
     container.addEventListener('touchend', (e) => {
+        if (!isSwiping) return;
+        
         touchEndX = e.changedTouches[0].screenX;
+        isSwiping = false;
+        
+        // إعادة الصورة لمكانها
+        img.style.transform = 'translateX(0)';
+        img.style.transition = 'transform 0.3s ease';
+        
         handleSwipe();
-    });
+    }, { passive: true });
     
     function handleSwipe() {
         const swipeThreshold = 50;
+        const diff = touchEndX - touchStartX;
         
-        if (touchEndX < touchStartX - swipeThreshold) {
-            // سحب لليسار = الصفحة التالية
+        if (diff > swipeThreshold) {
+            // سحب لليمين = الصفحة التالية ⬅️
             nextMushafPageFullscreen();
         }
         
-        if (touchEndX > touchStartX + swipeThreshold) {
-            // سحب لليمين = الصفحة السابقة
+        if (diff < -swipeThreshold) {
+            // سحب لليسار = الصفحة السابقة ➡️
             prevMushafPageFullscreen();
         }
     }
 }
 
-// التنقل في وضع ملء الشاشة
+// التنقل في وضع ملء الشاشة - محسّن
 function nextMushafPageFullscreen() {
     if (currentMushafPage < 569) {
         currentMushafPage++;
         updateFullscreenImage();
+        showPageTransition('→');
     }
 }
 
@@ -1693,6 +1718,7 @@ function prevMushafPageFullscreen() {
     if (currentMushafPage > 1) {
         currentMushafPage--;
         updateFullscreenImage();
+        showPageTransition('←');
     }
 }
 
@@ -1701,9 +1727,56 @@ function updateFullscreenImage() {
     const imageName = 'IMG_' + imageNumber.toString().padStart(4, '0') + '.JPG';
     const newSrc = 'mushaf-pages/' + imageName;
     
-    document.getElementById('mushaf-fullscreen-img').src = newSrc;
-    document.getElementById('mushaf-page-img').src = newSrc;
-    document.getElementById('mushaf-current-page').innerText = currentMushafPage;
+    const fullscreenImg = document.getElementById('mushaf-fullscreen-img');
+    const normalImg = document.getElementById('mushaf-page-img');
     
+    // تأثير fade للتنقل السلس
+    fullscreenImg.style.opacity = '0.5';
+    
+    const tempImg = new Image();
+    tempImg.onload = function() {
+        fullscreenImg.src = newSrc;
+        normalImg.src = newSrc;
+        fullscreenImg.style.opacity = '1';
+    };
+    tempImg.src = newSrc;
+    
+    document.getElementById('mushaf-current-page').innerText = currentMushafPage;
     localStorage.setItem('lastMushafPage', currentMushafPage);
 }
+
+// إظهار رقم الصفحة عند التنقل
+function showPageTransition(arrow) {
+    const fullscreenView = document.getElementById('mushaf-fullscreen-view');
+    
+    // إزالة العنصر القديم لو موجود
+    const oldIndicator = document.getElementById('page-indicator');
+    if (oldIndicator) oldIndicator.remove();
+    
+    // إنشاء مؤشر الصفحة
+    const indicator = document.createElement('div');
+    indicator.id = 'page-indicator';
+    indicator.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 15px 30px;
+        border-radius: 50px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        font-family: 'Amiri', serif;
+        z-index: 100001;
+        pointer-events: none;
+        animation: fadeInOut 0.8s ease;
+    `;
+    indicator.innerText = `${arrow} ${currentMushafPage} / 569`;
+    
+    fullscreenView.appendChild(indicator);
+    
+    // إزالة بعد ثانية
+    setTimeout(() => indicator.remove(), 800);
+}
+
