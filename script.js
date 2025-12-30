@@ -214,15 +214,21 @@ function openSurah(id, name) {
             ayahsHTML = '<div class="basmala-separate">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>';
         }
         
-        // إضافة الآيات
-        ayahsHTML += ayahs.map((a, index) => {
-            let text = a.text;
-            
-            // حذف البسملة من الآية لو موجودة
-            text = text.replace('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', '').trim();
-            
-            return `<span class="ayah-item" data-index="${index}">${text}</span> <span style="color:var(--gold); font-size: 1.1rem;">(${a.numberInSurah})</span> `;
-        }).join('');
+        // إضافة // إضافة الآيات (مع حذف البسملة من النص)
+ayahsHTML += ayahs.map((a, index) => {
+    let text = a.text;
+    
+    // حذف البسملة بكل أشكالها
+    text = text.replace(/بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ/g, '');
+    text = text.replace(/بسم الله الرحمن الرحيم/g, '');
+    text = text.trim();
+    
+    // لو الآية صارت فاضية بعد حذف البسملة، ما نعرضها
+    if (text.length === 0) return '';
+    
+    return `<span class="ayah-item" data-index="${index}">${text}</span> <span style="color:var(--gold); font-size: 1.1rem;">(${a.numberInSurah})</span> `;
+}).join('');
+
         
         document.getElementById('ayahsContainer').innerHTML = ayahsHTML;
         
