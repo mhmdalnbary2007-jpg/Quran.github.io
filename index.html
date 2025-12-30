@@ -703,6 +703,13 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+<!-- اختبار الصور -->
+<div style="position: fixed; bottom: 20px; left: 20px; background: white; padding: 20px; border: 2px solid red; z-index: 99999;">
+    <h3>اختبار الصور:</h3>
+    <img src="mushaf-pages/IMG_0255.JPG" style="width: 200px; border: 2px solid green;" onerror="this.style.borderColor='red'; this.nextSibling.innerText='فشل!'">
+    <p style="color: green; font-weight: bold;">نجح!</p>
+</div>
+
 </body>
 </html>
 
