@@ -725,3 +725,14 @@ body.dark-mode .achievement-label {
         font-size: 0.8rem;
     }
 }
+/* أنيميشن مؤشر الصفحة */
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+}
+
+/* تحسين الصورة في ملء الشاشة */
+#mushaf-fullscreen-img {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
