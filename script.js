@@ -207,33 +207,24 @@ function openSurah(id, name) {
     fetch(`https://api.alquran.cloud/v1/surah/${id}`).then(res => res.json()).then(data => {
         const ayahs = data.data.ayahs;
         
-        // إضافة البسملة منفصلة (إلا سورة التوبة)
         let ayahsHTML = '';
         
         if (id !== 9 && id !== 1) {
             ayahsHTML = '<div class="basmala-separate">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>';
         }
         
-        // إضافة // إضافة الآيات (مع حذف البسملة من النص)
-// إضافة الآيات (مع حذف البسملة من النص)
-ayahs.forEach((a, index) => {
-    let text = a.text;
-    
-    // حذف البسملة بكل أشكالها
-    text = text.replace(/بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ/g, '');
-    text = text.replace(/بسم الله الرحمن الرحيم/g, '');
-    text = text.trim();
-    
-    // عرض الآية فقط إذا كان فيها نص
-    if (text && text.length > 0) {
-        ayahsHTML += `<span class="ayah-item" data-index="${index}">${text}</span> <span style="color:var(--gold); font-size: 1.1rem;">(${a.numberInSurah})</span> `;
-    }
-});
-
-
+        for (let i = 0; i < ayahs.length; i++) {
+            let text = ayahs[i].text;
+            text = text.replace(/بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ/g, '');
+            text = text.replace(/بسم الله الرحمن الرحيم/g, '');
+            text = text.trim();
+            
+            if (text.length > 0) {
+                ayahsHTML += '<span class="ayah-item" data-index="' + i + '">' + text + '</span> <span style="color:var(--gold); font-size: 1.1rem;">(' + ayahs[i].numberInSurah + ')</span> ';
+            }
+        }
         
         document.getElementById('ayahsContainer').innerHTML = ayahsHTML;
-        
         setupAyahHighlighting(ayahs.length);
     });
 
@@ -241,6 +232,7 @@ ayahs.forEach((a, index) => {
         checkKhatmaProgress(id);
     }
 }
+
 
 // دالة تمييز الآيات أثناء القراءة// دالة تمييز الآيات أثناء القراءة - نسخة بسيطة
 function setupAyahHighlighting(totalAyahs) {
