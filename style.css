@@ -509,5 +509,16 @@ body.dark-mode .achievement-label {
     }
 }
 /* فصل البسملة عن الآيات */
+/* تنسيق البسملة المنفصلة */
+.basmala-separate {
+    display: block;
+    text-align: center;
+    font-size: 2rem;
+    color: var(--gold);
+    font-weight: bold;
+    margin: 20px 0 30px 0;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(201, 176, 122, 0.2);
+}
 
 
