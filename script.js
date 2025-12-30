@@ -1509,7 +1509,7 @@ function loadMushafPage(pageNum) {
     if (img) img.style.opacity = '0.3';
     
     // حساب رقم الصورة
-    const imageNumber = pageNum + 254;
+   const imageNumber = pageNum + 274;  // 1 + 274 = 275
     const imageName = 'IMG_' + imageNumber.toString().padStart(4, '0') + '.JPG';
     
     // المسار الصحيح (بدون نقطة، بدون سلاش في البداية)
