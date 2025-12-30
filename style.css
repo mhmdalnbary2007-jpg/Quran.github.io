@@ -509,12 +509,5 @@ body.dark-mode .achievement-label {
     }
 }
 /* فصل البسملة عن الآيات */
-.ayah-text span:first-child {
-    display: block;
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 1.9rem;
-    color: var(--gold);
-    font-weight: bold;
-}
+
 
