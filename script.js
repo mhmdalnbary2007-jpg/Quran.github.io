@@ -1508,14 +1508,12 @@ function loadMushafPage(pageNum) {
     if (loader) loader.style.display = 'flex';
     if (img) img.style.opacity = '0.3';
     
-    // حساب رقم الصورة الصحيح
-    const imageNumber = pageNum + 254; // الصفحة 1 = IMG_0255.JPG
+    // حساب رقم الصورة
+    const imageNumber = pageNum + 254;
     const imageName = 'IMG_' + imageNumber.toString().padStart(4, '0') + '.JPG';
     
-    // المسار الصحيح للصور
+    // المسار الصحيح (بدون نقطة، بدون سلاش في البداية)
     const newSrc = 'mushaf-pages/' + imageName;
-    
-    console.log('محاولة تحميل:', newSrc); // للتأكد
     
     const tempImg = new Image();
     tempImg.onload = function() {
@@ -1524,17 +1522,14 @@ function loadMushafPage(pageNum) {
             img.style.opacity = '1';
         }
         if (loader) loader.style.display = 'none';
-        console.log('✅ تم تحميل الصورة بنجاح');
     };
     tempImg.onerror = function() {
-        console.error('❌ فشل تحميل:', newSrc);
-        
-        // محاولة بديلة مع مسار مختلف
-        const altSrc = '/Quran.github.io/mushaf-pages/' + imageName;
-        console.log('محاولة المسار البديل:', altSrc);
-        
-        img.src = altSrc;
-        img.style.opacity = '1';
+        // لو فشل، جرّب المسار الكامل
+        const fullPath = 'https://quranii8.github.io/Quran.github.io/mushaf-pages/' + imageName;
+        if (img) {
+            img.src = fullPath;
+            img.style.opacity = '1';
+        }
         if (loader) loader.style.display = 'none';
     };
     tempImg.src = newSrc;
@@ -1545,6 +1540,7 @@ function loadMushafPage(pageNum) {
     localStorage.setItem('lastMushafPage', pageNum);
     resetZoomMushaf();
 }
+
 
 
 function nextMushafPage() {
