@@ -1651,8 +1651,7 @@ function closeFullscreenMushaf() {
     document.body.style.overflow = 'auto';
 }
 
-// إعداد السحب للتنقل
-// إعداد السحب للتنقل
+// إعداد السحب للتنقل// إعداد السحب للتنقل
 function setupSwipeGestures() {
     const container = document.getElementById('mushaf-fullscreen-container');
     const img = document.getElementById('mushaf-fullscreen-img');
@@ -1779,4 +1778,3 @@ function showPageTransition(arrow) {
     // إزالة بعد ثانية
     setTimeout(() => indicator.remove(), 800);
 }
-
