@@ -208,19 +208,28 @@ function openSurah(id, name) {
     fetch(`https://api.alquran.cloud/v1/surah/${id}`).then(res => res.json()).then(data => {
         const ayahs = data.data.ayahs;
         
-        // عرض الآيات بشكل طبيعي
-        const ayahsHTML = ayahs.map((a, index) => {
-    let ayahText = a.text;
-    let basmala = '';
+        // عرض الآيات بشكل // فصل البسملة عن الآيات
+let ayahsHTML = '';
+
+for (let i = 0; i < ayahs.length; i++) {
+    const a = ayahs[i];
     
-    // فصل البسملة من الآية الأولى
-    if (index === 0 && ayahText.includes('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ')) {
-        basmala = '<div class="basmala-separate">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>';
-        ayahText = ayahText.replace('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', '').trim();
+    if (i === 0 && a.text.includes('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ')) {
+        // إضافة البسملة منفصلة
+        ayahsHTML += '<div class="basmala-separate">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>';
+        
+        // إزالة البسملة من النص
+        let cleanText = a.text.replace('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', '').trim();
+        
+        // إضافة باقي الآية لو فيه نص
+        if (cleanText.length > 0) {
+            ayahsHTML += `<span class="ayah-item" data-index="${i}">${cleanText}</span> <span style="color:var(--gold); font-size: 1.1rem;">(${a.numberInSurah})</span> `;
+        }
+    } else {
+        // باقي الآيات عادي
+        ayahsHTML += `<span class="ayah-item" data-index="${i}">${a.text}</span> <span style="color:var(--gold); font-size: 1.1rem;">(${a.numberInSurah})</span> `;
     }
-    
-    return `${basmala}<span class="ayah-item" data-index="${index}">${ayahText}</span> <span style="color:var(--gold); font-size: 1.1rem;">(${a.numberInSurah})</span> `;
-}).join('');
+}
 
         
         document.getElementById('ayahsContainer').innerHTML = ayahsHTML;
