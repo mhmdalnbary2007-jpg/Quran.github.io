@@ -1629,3 +1629,81 @@ function toggleMushafFullscreen() {
         }
     }
 }
+// فتح شاشة ملء الشاشة
+function openFullscreenMushaf() {
+    const fullscreenView = document.getElementById('mushaf-fullscreen-view');
+    const fullscreenImg = document.getElementById('mushaf-fullscreen-img');
+    const normalImg = document.getElementById('mushaf-page-img');
+    
+    fullscreenImg.src = normalImg.src;
+    fullscreenView.style.display = 'block';
+    
+    // منع التمرير في الخلفية
+    document.body.style.overflow = 'hidden';
+    
+    // تفعيل السحب
+    setupSwipeGestures();
+}
+
+// إغلاق شاشة ملء الشاشة
+function closeFullscreenMushaf() {
+    document.getElementById('mushaf-fullscreen-view').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// إعداد السحب للتنقل
+function setupSwipeGestures() {
+    const container = document.getElementById('mushaf-fullscreen-container');
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    container.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    });
+    
+    container.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    });
+    
+    function handleSwipe() {
+        const swipeThreshold = 50;
+        
+        if (touchEndX < touchStartX - swipeThreshold) {
+            // سحب لليسار = الصفحة التالية
+            nextMushafPageFullscreen();
+        }
+        
+        if (touchEndX > touchStartX + swipeThreshold) {
+            // سحب لليمين = الصفحة السابقة
+            prevMushafPageFullscreen();
+        }
+    }
+}
+
+// التنقل في وضع ملء الشاشة
+function nextMushafPageFullscreen() {
+    if (currentMushafPage < 569) {
+        currentMushafPage++;
+        updateFullscreenImage();
+    }
+}
+
+function prevMushafPageFullscreen() {
+    if (currentMushafPage > 1) {
+        currentMushafPage--;
+        updateFullscreenImage();
+    }
+}
+
+function updateFullscreenImage() {
+    const imageNumber = currentMushafPage + 274;
+    const imageName = 'IMG_' + imageNumber.toString().padStart(4, '0') + '.JPG';
+    const newSrc = 'mushaf-pages/' + imageName;
+    
+    document.getElementById('mushaf-fullscreen-img').src = newSrc;
+    document.getElementById('mushaf-page-img').src = newSrc;
+    document.getElementById('mushaf-current-page').innerText = currentMushafPage;
+    
+    localStorage.setItem('lastMushafPage', currentMushafPage);
+}
