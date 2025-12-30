@@ -1499,17 +1499,17 @@ function closePaperMushaf() {
 }
 
 function loadMushafPage(pageNum) {
-    if (pageNum < 1 || pageNum > 604) return;
+    if (pageNum < 1 || pageNum > 569) return;
     
     currentMushafPage = pageNum;
-    const pageStr = pageNum.toString().padStart(3, '0');
     const img = document.getElementById('mushaf-page-img');
     const loader = document.getElementById('mushaf-loader');
     
     if (loader) loader.style.display = 'flex';
     if (img) img.style.opacity = '0.3';
     
-    const newSrc = 'https://cdn.jsdelivr.net/gh/fawazahmed0/quran-images@1/page-' + pageStr + '.png';
+    // استخدام الصور من المجلد المحلي
+    const newSrc = 'mushaf-pages/IMG_' + (pageNum + 254).toString().padStart(4, '0') + '.JPG';
     
     const tempImg = new Image();
     tempImg.onload = function() {
@@ -1520,10 +1520,7 @@ function loadMushafPage(pageNum) {
         if (loader) loader.style.display = 'none';
     };
     tempImg.onerror = function() {
-        if (img) {
-            img.src = 'https://quran-images.s3.amazonaws.com/page-' + pageStr + '.png';
-            img.style.opacity = '1';
-        }
+        console.error('فشل تحميل الصورة: ' + newSrc);
         if (loader) loader.style.display = 'none';
     };
     tempImg.src = newSrc;
@@ -1536,7 +1533,7 @@ function loadMushafPage(pageNum) {
 }
 
 function nextMushafPage() {
-    if (currentMushafPage < 604) {
+    if (currentMushafPage < 569) {
         loadMushafPage(currentMushafPage + 1);
     }
 }
@@ -1551,11 +1548,11 @@ function jumpToMushafPage() {
     const input = document.getElementById('mushaf-page-input');
     if (input) {
         const pageNum = parseInt(input.value);
-        if (pageNum >= 1 && pageNum <= 604) {
+    if (pageNum >= 1 && pageNum <= 569) {
             loadMushafPage(pageNum);
             input.value = '';
         } else {
-            alert('⚠️ رقم الصفحة يجب أن يكون بين 1 و 604');
+            alert('⚠️ رقم الصفحة يجب أن يكون بين 1 و569');
         }
     }
 }
