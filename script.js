@@ -1509,7 +1509,8 @@ function loadMushafPage(pageNum) {
     if (img) img.style.opacity = '0.3';
     
     // استخدام الصور من المجلد المحلي
-    const newSrc = 'mushaf-pages/IMG_' + (pageNum + 254).toString().padStart(4, '0') + '.JPG';
+    const newSrc = './mushaf-pages/IMG_' + (pageNum + 254).toString().padStart(4, '0') + '.JPG';
+
     
     const tempImg = new Image();
     tempImg.onload = function() {
