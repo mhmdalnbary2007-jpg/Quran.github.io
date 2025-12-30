@@ -210,8 +210,18 @@ function openSurah(id, name) {
         
         // عرض الآيات بشكل طبيعي
         const ayahsHTML = ayahs.map((a, index) => {
-            return `<span class="ayah-item" data-index="${index}">${a.text}</span> <span style="color:var(--gold); font-size: 1.1rem;">(${a.numberInSurah})</span> `;
-        }).join('');
+    let ayahText = a.text;
+    let basmala = '';
+    
+    // فصل البسملة من الآية الأولى
+    if (index === 0 && ayahText.includes('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ')) {
+        basmala = '<div class="basmala-separate">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>';
+        ayahText = ayahText.replace('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', '').trim();
+    }
+    
+    return `${basmala}<span class="ayah-item" data-index="${index}">${ayahText}</span> <span style="color:var(--gold); font-size: 1.1rem;">(${a.numberInSurah})</span> `;
+}).join('');
+
         
         document.getElementById('ayahsContainer').innerHTML = ayahsHTML;
         
