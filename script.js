@@ -207,27 +207,28 @@ function openSurah(id, name) {
     fetch(`https://api.alquran.cloud/v1/surah/${id}`).then(res => res.json()).then(data => {
         const ayahs = data.data.ayahs;
         
-        // إضافة البسملة منفصلة (إلا سورة التوبة والفاتحة)
+        // إضافة البسملة منفصلة (إلا سورة التوبة)
         let ayahsHTML = '';
         
         if (id !== 9 && id !== 1) {
             ayahsHTML = '<div class="basmala-separate">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>';
         }
         
-        // إضافة الآيات مع حذف البسملة من النص
-        ayahs.forEach((a, index) => {
-            let text = a.text;
-            
-            // حذف البسملة بجميع الأشكال
-            text = text.replace('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', '');
-            text = text.replace('بسم الله الرحمن الرحيم', '');
-            text = text.trim();
-            
-            // عرض الآية فقط إذا كان فيها نص بعد حذف البسملة
-            if (text && text.length > 0) {
-                ayahsHTML += `<span class="ayah-item" data-index="${index}">${text}</span> <span style="color:var(--gold); font-size: 1.1rem;">(${a.numberInSurah})</span> `;
-            }
-        });
+        // إضافة // إضافة الآيات (مع حذف البسملة من النص)
+ayahsHTML += ayahs.map((a, index) => {
+    let text = a.text;
+    
+    // حذف البسملة بكل أشكالها
+    text = text.replace(/بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ/g, '');
+    text = text.replace(/بسم الله الرحمن الرحيم/g, '');
+    text = text.trim();
+    
+    // لو الآية صارت فاضية بعد حذف البسملة، ما نعرضها
+    if (text.length === 0) return '';
+    
+    return `<span class="ayah-item" data-index="${index}">${text}</span> <span style="color:var(--gold); font-size: 1.1rem;">(${a.numberInSurah})</span> `;
+}).join('');
+
         
         document.getElementById('ayahsContainer').innerHTML = ayahsHTML;
         
@@ -238,7 +239,6 @@ function openSurah(id, name) {
         checkKhatmaProgress(id);
     }
 }
-
 
 // دالة تمييز الآيات أثناء القراءة// دالة تمييز الآيات أثناء القراءة - نسخة بسيطة
 function setupAyahHighlighting(totalAyahs) {
