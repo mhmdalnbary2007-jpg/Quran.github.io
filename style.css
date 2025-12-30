@@ -524,6 +524,12 @@ body.dark-mode .achievement-label {
     display: inline !important;
 }
 
+/* إخفاء البسملة الزرقاء من النص */
+.ayah-text .ayah-item:first-child {
+    font-size: 0 !important;
+    display: inline !important;
+}
+
 .ayah-text .ayah-item:first-child::after {
     content: attr(data-clean-text);
     font-size: 1.7rem;
@@ -537,6 +543,5 @@ body.dark-mode .achievement-label {
     height: 0;
     overflow: hidden;
 }
-
 
 
