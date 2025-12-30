@@ -1475,13 +1475,20 @@ let mushafZoomLevel = 1;
 
 function openPaperMushaf() {
     document.getElementById('sideMenu').classList.remove('open');
-    const paperMushafView = document.getElementById('paper-mushaf-view');
-    if (paperMushafView) {
-        paperMushafView.style.display = 'flex';
-    }
+    
+    // إخفاء كل الأقسام
+    const allSections = ['quran-section', 'azkar-section', 'sebha-section', 'prayer-section', 'qibla-section', 'khatma-section', 'achievements-section'];
+    allSections.forEach(s => {
+        const el = document.getElementById(s);
+        if (el) el.style.display = 'none';
+    });
+    
+    // إظهار قسم المصحف الورقي
+    const paperSection = document.getElementById('paper-mushaf-section');
+    if (paperSection) paperSection.style.display = 'block';
     
     const savedPage = localStorage.getItem('lastMushafPage');
-    if (savedPage && savedPage >= 1 && savedPage <= 604) {
+    if (savedPage && savedPage >= 1 && savedPage <= 569) {
         currentMushafPage = parseInt(savedPage);
     } else {
         currentMushafPage = 1;
@@ -1491,12 +1498,10 @@ function openPaperMushaf() {
 }
 
 function closePaperMushaf() {
-    const paperMushafView = document.getElementById('paper-mushaf-view');
-    if (paperMushafView) {
-        paperMushafView.style.display = 'none';
-    }
-    document.getElementById('sideMenu').classList.add('open');
+    document.getElementById('paper-mushaf-section').style.display = 'none';
+    switchMainTab('quran');
 }
+
 
 function loadMushafPage(pageNum) {
     if (pageNum < 1 || pageNum > 569) return;
