@@ -18,7 +18,34 @@ body { font-family: 'Amiri', serif; background: var(--bg); color: var(--dark-tea
 
 /* الهيدر */
 header { background: var(--dark-teal); color: var(--gold); padding: 20px 10px; text-align: center; border-bottom: 5px solid var(--gold); }
-.main-nav { display: flex; justify-content: center; gap: 8px; margin-top: 15px; }
+..main-nav {
+    display: flex;
+    gap: 8px;
+    margin-top: 15px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px 5px;
+    -webkit-overflow-scrolling: touch; /* سلاسة السحب في iOS */
+    scroll-behavior: smooth;
+    white-space: nowrap;
+}
+
+/* إخفاء scrollbar لكن السحب يشتغل */
+.main-nav::-webkit-scrollbar {
+    display: none;
+}
+
+.main-nav {
+    -ms-overflow-style: none;  /* IE و Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+/* منع الأزرار من الانكماش */
+.main-nav button {
+    flex-shrink: 0;
+    min-width: fit-content;
+}
+
 .main-nav button { background: transparent; border: 1.5px solid var(--gold); color: var(--gold); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 0.9rem; }
 .main-nav button.active { background: var(--gold); color: var(--dark-teal); }
 
@@ -939,4 +966,10 @@ body.dark-mode .achievement-label {
         width: 130px !important;
         height: 130px !important;
     }
+    @media (max-width: 768px) {
+    .main-nav {
+        justify-content: flex-start !important;
+        padding: 10px 10px !important;
+    }
+}
 }
