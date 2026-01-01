@@ -1801,14 +1801,34 @@ let hifzData = JSON.parse(localStorage.getItem('hifzData')) || {
 };
 
 // جدول الصفحات والآيات (مبسط - أول 10 صفحات كمثال)
-const quranPages = {
-    1: { surah: 1, ayahStart: 1, ayahEnd: 7 },
-    2: { surah: 2, ayahStart: 1, ayahEnd: 5 },
-    3: { surah: 2, ayahStart: 6, ayahEnd: 16 },
-    4: { surah: 2, ayahStart: 17, ayahEnd: 24 },
-    5: { surah: 2, ayahStart: 25, ayahEnd: 29 },
-    // سنكمل باقي الصفحات لاحقاً
-};
+// جلب معلومات الصفحة من API
+async function getPageInfo(pageNumber) {
+    try {
+        const response = await fetch(`https://api.alquran.cloud/v1/page/${pageNumber}/quran-uthmani`);
+        const data = await response.json();
+        
+        if (data.code === 200 && data.data.ayahs.length > 0) {
+            const ayahs = data.data.ayahs;
+            const firstAyah = ayahs[0];
+            const lastAyah = ayahs[ayahs.length - 1];
+            
+            return {
+                surah: firstAyah.surah.number,
+                surahName: firstAyah.surah.name,
+                surahEnglishName: firstAyah.surah.englishName,
+                ayahStart: firstAyah.numberInSurah,
+                ayahEnd: lastAyah.numberInSurah,
+                totalAyahs: ayahs.length,
+                ayahs: ayahs
+            };
+        }
+        return null;
+    } catch (error) {
+        console.error('Error fetching page info:', error);
+        return null;
+    }
+}
+
 
 // اختيار خطة الحفظ
 function selectHifzPlan(plan) {
@@ -1834,6 +1854,7 @@ function selectHifzPlan(plan) {
 }
 
 // تحميل ورد اليوم
+// تحميل ورد اليوم
 async function loadTodayHifz() {
     if (!hifzData.plan) {
         document.getElementById('hifz-setup').style.display = 'block';
@@ -1842,25 +1863,63 @@ async function loadTodayHifz() {
     }
     
     // حساب الصفحة الحالية حسب الخطة
-    const currentPage = hifzData.currentPage;
-    const pageInfo = quranPages[currentPage];
+    const currentPage = Math.ceil(hifzData.currentPage);
     
-    if (!pageInfo) {
-        document.getElementById('hifz-today-range').innerText = 'انتهيت من المقرر المتاح حالياً 🎉';
-        document.getElementById('hifz-ayahs-display').innerHTML = '<p style="text-align:center; color:var(--gold); font-size:1.3rem;">مبروك! أتممت الحفظ المتاح 🌟</p>';
+    if (currentPage > 604) {
+        document.getElementById('hifz-today-range').innerText = 'مبروك! أتممت حفظ القرآن كاملاً 🎉';
+        document.getElementById('hifz-ayahs-display').innerHTML = `
+            <div style="text-align:center; padding: 40px;">
+                <div style="font-size: 5rem; margin-bottom: 20px;">🎊</div>
+                <h2 style="color:var(--gold); margin-bottom: 15px;">ما شاء الله!</h2>
+                <p style="color:var(--dark-teal); font-size: 1.3rem;">أتممت حفظ القرآن الكريم كاملاً</p>
+                <p style="color:#666; font-size: 1rem; margin-top: 20px;">بارك الله في حفظك وثبتك عليه 💚</p>
+            </div>
+        `;
         return;
     }
     
+    // عرض loader
+    const display = document.getElementById('hifz-ayahs-display');
+    display.innerHTML = '<p style="text-align:center; color:#999;">⏳ جاري تحميل ورد اليوم...</p>';
+    
+    // جلب معلومات الصفحة
+    const pageInfo = await getPageInfo(currentPage);
+    
+    if (!pageInfo) {
+        display.innerHTML = '<p style="text-align:center; color:#e74c3c;">تعذر تحميل الورد. تأكد من الاتصال بالإنترنت.</p>';
+        return;
+    }
+    
+    // حساب عدد الآيات حسب الخطة
+    let ayahsToShow = pageInfo.ayahs;
+    if (hifzData.plan === 'quarter') {
+        ayahsToShow = pageInfo.ayahs.slice(0, Math.ceil(pageInfo.totalAyahs / 4));
+    } else if (hifzData.plan === 'half') {
+        ayahsToShow = pageInfo.ayahs.slice(0, Math.ceil(pageInfo.totalAyahs / 2));
+    }
+    
     // عرض معلومات الورد
-    const surahName = await getSurahName(pageInfo.surah);
-    const ayahCount = pageInfo.ayahEnd - pageInfo.ayahStart + 1;
+    document.getElementById('hifz-today-range').innerText = `صفحة ${currentPage} - ${pageInfo.surahName}`;
+    document.getElementById('hifz-today-ayat-count').innerText = ayahsToShow.length;
     
-    document.getElementById('hifz-today-range').innerText = `${surahName} - الآيات من ${pageInfo.ayahStart} إلى ${pageInfo.ayahEnd}`;
-    document.getElementById('hifz-today-ayat-count').innerText = ayahCount;
+    // عرض الآيات
+    let html = '';
     
-    // جلب الآيات
-    loadHifzAyahs(pageInfo.surah, pageInfo.ayahStart, pageInfo.ayahEnd);
+    // إضافة البسملة إذا كانت بداية السورة (ما عدا التوبة)
+    if (pageInfo.ayahStart === 1 && pageInfo.surah !== 1 && pageInfo.surah !== 9) {
+        html += `<div style="text-align:center; color:var(--gold); font-size:2rem; margin:20px 0; font-weight:bold;">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
+    }
+    
+    ayahsToShow.forEach((ayah) => {
+        // إزالة البسملة من النص إذا كانت موجودة
+        let text = ayah.text.replace(/بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ/g, '').trim();
+        
+        html += `<span class="hifz-ayah">${text}</span> <span style="color:var(--gold); font-weight:bold; font-size:1.2rem; margin:0 8px;">﴿${ayah.numberInSurah}﴾</span> `;
+    });
+    
+    display.innerHTML = html;
 }
+
 
 // جلب اسم السورة
 async function getSurahName(surahNumber) {
@@ -1897,19 +1956,38 @@ async function loadHifzAyahs(surah, start, end) {
 }
 
 // إتمام ورد اليوم
-function markTodayComplete() {
+// إتمام ورد اليوم
+async function markTodayComplete() {
     const today = new Date().toDateString();
-    const currentPage = hifzData.currentPage;
+    const currentPage = Math.ceil(hifzData.currentPage);
     
     // التحقق من عدم التكرار
     if (hifzData.lastCompletedDate === today) {
-        alert('✅ لقد أتممت ورد اليوم بالفعل! بارك الله فيك 🌟');
+        alert('✅ لقد أتممت ورد اليوم بالفعل!\nبارك الله فيك 🌟');
         return;
     }
     
+    // جلب معلومات الصفحة الحالية
+    const pageInfo = await getPageInfo(currentPage);
+    if (!pageInfo) {
+        alert('❌ حدث خطأ، حاول مرة أخرى');
+        return;
+    }
+    
+    // حساب عدد الآيات حسب الخطة
+    let ayahsCompleted = pageInfo.totalAyahs;
+    if (hifzData.plan === 'quarter') {
+        ayahsCompleted = Math.ceil(pageInfo.totalAyahs / 4);
+    } else if (hifzData.plan === 'half') {
+        ayahsCompleted = Math.ceil(pageInfo.totalAyahs / 2);
+    }
+    
     // تحديث البيانات
-    hifzData.completedPages.push(currentPage);
+    if (!hifzData.completedPages.includes(currentPage)) {
+        hifzData.completedPages.push(currentPage);
+    }
     hifzData.lastCompletedDate = today;
+    hifzData.totalAyat += ayahsCompleted;
     
     // حساب السلسلة
     updateStreak();
@@ -1923,15 +2001,6 @@ function markTodayComplete() {
         hifzData.currentPage += 1;
     }
     
-    hifzData.currentPage = Math.ceil(hifzData.currentPage); // تقريب للرقم الصحيح
-    
-    // حساب الآيات
-    const pageInfo = quranPages[currentPage];
-    if (pageInfo) {
-        const ayatCount = pageInfo.ayahEnd - pageInfo.ayahStart + 1;
-        hifzData.totalAyat += ayatCount;
-    }
-    
     saveHifzData();
     
     // إظهار تهنئة
@@ -1943,7 +2012,8 @@ function markTodayComplete() {
     // تحميل الورد الجديد
     setTimeout(() => {
         loadTodayHifz();
-    }, 2000);
+    }, 2500);
+}
 }
 
 // تحديث السلسلة اليومية
@@ -1970,17 +2040,28 @@ function updateStreak() {
 }
 
 // تحديث الإحصائيات
+// تحديث الإحصائيات
 function updateHifzStats() {
     const completedPages = hifzData.completedPages.length;
     const totalPages = 604;
-    const progress = (completedPages / totalPages) * 100;
+    const progress = Math.min((completedPages / totalPages) * 100, 100);
     
-    document.getElementById('hifz-total-progress').style.width = progress + '%';
-    document.getElementById('hifz-total-progress').innerText = Math.round(progress) + '%';
+    const progressBar = document.getElementById('hifz-total-progress');
+    if (progressBar) {
+        progressBar.style.width = progress.toFixed(1) + '%';
+        if (progress > 5) {
+            progressBar.innerText = progress.toFixed(1) + '%';
+        }
+    }
     
-    document.getElementById('hifz-pages-count').innerText = completedPages;
-    document.getElementById('hifz-days-count').innerText = hifzData.currentStreak;
-    document.getElementById('hifz-ayat-count').innerText = hifzData.totalAyat;
+    const pagesCount = document.getElementById('hifz-pages-count');
+    if (pagesCount) pagesCount.innerText = completedPages;
+    
+    const daysCount = document.getElementById('hifz-days-count');
+    if (daysCount) daysCount.innerText = hifzData.currentStreak;
+    
+    const ayatCount = document.getElementById('hifz-ayat-count');
+    if (ayatCount) ayatCount.innerText = hifzData.totalAyat;
 }
 
 // إظهار احتفالية
