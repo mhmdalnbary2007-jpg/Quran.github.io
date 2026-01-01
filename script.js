@@ -1041,12 +1041,23 @@ function switchMainTab(t) {
     }
 }
 function switchMainTab(t) {
-    // 1. تغيير حالة الأزرار العلوية
+    // 1. تحديث الأزرار
     document.querySelectorAll('.main-nav button').forEach(b => b.classList.remove('active'));
-    document.getElementById(t + 'Tab')?.classList.add('active');
+    const activeTab = document.getElementById(t + 'Tab');
+    if (activeTab) activeTab.classList.add('active');
 
-    // 2. قائمة الأقسام مع إضافة قسم الختمة الجديد
-    const allSections = ['quran-section', 'azkar-section', 'sebha-section', 'prayer-section', 'qibla-section', 'khatma-section'];
+    // 2. قائمة كل الأقسام
+    const allSections = [
+        'quran-section', 
+        'azkar-section', 
+        'sebha-section', 
+        'prayer-section', 
+        'qibla-section', 
+        'khatma-section',
+        'achievements-section',
+        'paper-mushaf-section',
+        'hifz-section'  // 🔥 جديد
+    ];
 
     // 3. التبديل بين الأقسام
     allSections.forEach(s => {
@@ -1054,59 +1065,26 @@ function switchMainTab(t) {
         if (el) el.style.display = s.startsWith(t) ? 'block' : 'none';
     });
 
-    // 4. تشغيل وظائف الأقسام الخاصة
-    if (t === 'qibla') getQibla();
-    if (t === 'prayer') fetchPrayers();
+    // 4. دوال خاصة
+    if (t === 'qibla' && typeof getQibla === 'function') getQibla();
+    if (t === 'prayer' && typeof fetchPrayers === 'function') fetchPrayers();
     if (t === 'khatma' && typeof updateKhatmaUI === 'function') updateKhatmaUI();
+    if (t === 'hifz' && typeof initHifzSection === 'function') initHifzSection(); // 🔥 جديد
     
-    // 5. تصفير واجهة القرآن عند العودة لها
+    // 5. إعدادات القرآن
     if (t === 'quran') {
         document.getElementById('full-quran-view').style.display = 'block';
         document.getElementById('topics-view').style.display = 'none';
         document.getElementById('quran-view').style.display = 'none';
     }
-}
-// بيانات الختمة
-// 1. إدارة بيانات الختمة في الذاكرة
-let khatmaData = JSON.parse(localStorage.getItem('khatmaProgress')) || {
-    currentJuz: 1,
-    lastAyahIndex: 0,
-    lastUpdate: new Date().toDateString()
-};
-
-let currentJuzAyahs = [];
-
-// 2. دالة بدء القراءة وجلب الجزء
-async function startKhatmaReading() {
-    document.getElementById('khatma-intro').style.display = 'none';
-    document.getElementById('khatma-reading-area').style.display = 'block';
     
-    const juzId = khatmaData.currentJuz;
-    const displayArea = document.getElementById('khatma-ayahs-display');
-    displayArea.innerHTML = "<p style='text-align:center;'>جاري جلب وردك اليومي...</p>";
-
-    try {
-        const res = await fetch(`https://api.alquran.cloud/v1/juz/${juzId}/quran-simple`);
-        const data = await res.json();
-        currentJuzAyahs = data.data.ayahs;
-        
-        displayArea.innerHTML = currentJuzAyahs.map((a, index) => {
-            return `${a.text} <span class="ayah-mark" id="mark-${index}" onclick="saveCheckpoint(${index})" style="color:var(--gold); cursor:pointer; font-weight:bold; border:1px solid #ddd; padding:2px 5px; border-radius:5px; margin:0 5px; display:inline-block;">(${a.numberInSurah})</span>`;
-        }).join(' ');
-
-        // استعادة آخر نقطة توقف
-        if(khatmaData.lastAyahIndex > 0) {
-            saveCheckpoint(khatmaData.lastAyahIndex);
-            // تمرير التصفح تلقائياً لآخر آية
-            setTimeout(() => {
-                const lastMark = document.getElementById(`mark-${khatmaData.lastAyahIndex}`);
-                if(lastMark) lastMark.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 500);
-        }
-    } catch (e) {
-        displayArea.innerText = "تعذر تحميل الورد، تأكد من الإنترنت.";
+    // 6. إعدادات السبحة
+    if (t === 'sebha') {
+        document.getElementById('sebha-categories').style.display = 'grid';
+        document.getElementById('sebha-main-view').style.display = 'none';
     }
 }
+
 
 // 3. حفظ "علامة الوصول" وتحديث البار الداخلي
 function saveCheckpoint(index) {
@@ -1784,3 +1762,157 @@ function showPageTransition(arrow) {
     // إزالة بعد ثانية
     setTimeout(() => indicator.remove(), 800);
 }
+// ==========================================
+// قسم حفظ القرآن - Hifz System
+// ==========================================
+
+// بيانات الحفظ
+let hifzData = JSON.parse(localStorage.getItem('hifzData')) || {
+    plan: null, // 'quarter', 'half', 'full'
+    startDate: null,
+    currentPage: 1,
+    completedPages: [],
+    currentStreak: 0,
+    longestStreak: 0,
+    lastCompletedDate: null,
+    totalAyat: 0
+};
+
+// جدول الصفحات والآيات (مبسط - أول 10 صفحات كمثال)
+const quranPages = {
+    1: { surah: 1, ayahStart: 1, ayahEnd: 7 },
+    2: { surah: 2, ayahStart: 1, ayahEnd: 5 },
+    3: { surah: 2, ayahStart: 6, ayahEnd: 16 },
+    4: { surah: 2, ayahStart: 17, ayahEnd: 24 },
+    5: { surah: 2, ayahStart: 25, ayahEnd: 29 },
+    // سنكمل باقي الصفحات لاحقاً
+};
+
+// اختيار خطة الحفظ
+function selectHifzPlan(plan) {
+    // تمييز الخطة المختارة
+    document.querySelectorAll('.hifz-plan-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    event.currentTarget.classList.add('selected');
+    
+    // حفظ الخطة
+    hifzData.plan = plan;
+    hifzData.startDate = new Date().toISOString();
+    hifzData.currentPage = 1;
+    saveHifzData();
+    
+    // الانتقال للواجهة الرئيسية بعد ثانية
+    setTimeout(() => {
+        document.getElementById('hifz-setup').style.display = 'none';
+        document.getElementById('hifz-main').style.display = 'block';
+        loadTodayHifz();
+        updateHifzStats();
+    }, 500);
+}
+
+// تحميل ورد اليوم
+async function loadTodayHifz() {
+    if (!hifzData.plan) {
+        document.getElementById('hifz-setup').style.display = 'block';
+        document.getElementById('hifz-main').style.display = 'none';
+        return;
+    }
+    
+    // حساب الصفحة الحالية حسب الخطة
+    const currentPage = hifzData.currentPage;
+    const pageInfo = quranPages[currentPage];
+    
+    if (!pageInfo) {
+        document.getElementById('hifz-today-range').innerText = 'انتهيت من المقرر المتاح حالياً 🎉';
+        document.getElementById('hifz-ayahs-display').innerHTML = '<p style="text-align:center; color:var(--gold); font-size:1.3rem;">مبروك! أتممت الحفظ المتاح 🌟</p>';
+        return;
+    }
+    
+    // عرض معلومات الورد
+    const surahName = await getSurahName(pageInfo.surah);
+    const ayahCount = pageInfo.ayahEnd - pageInfo.ayahStart + 1;
+    
+    document.getElementById('hifz-today-range').innerText = `${surahName} - الآيات من ${pageInfo.ayahStart} إلى ${pageInfo.ayahEnd}`;
+    document.getElementById('hifz-today-ayat-count').innerText = ayahCount;
+    
+    // جلب الآيات
+    loadHifzAyahs(pageInfo.surah, pageInfo.ayahStart, pageInfo.ayahEnd);
+}
+
+// جلب اسم السورة
+async function getSurahName(surahNumber) {
+    const surahNames = {
+        1: 'سورة الفاتحة',
+        2: 'سورة البقرة',
+        3: 'سورة آل عمران',
+        // سنضيف الباقي لاحقاً
+    };
+    return surahNames[surahNumber] || `سورة ${surahNumber}`;
+}
+
+// جلب الآيات من API
+async function loadHifzAyahs(surah, start, end) {
+    const display = document.getElementById('hifz-ayahs-display');
+    display.innerHTML = '<p style="text-align:center; color:#999;">جاري التحميل...</p>';
+    
+    try {
+        const response = await fetch(`https://api.alquran.cloud/v1/surah/${surah}`);
+        const data = await response.json();
+        const ayahs = data.data.ayahs.slice(start - 1, end);
+        
+        let html = '';
+        ayahs.forEach((ayah, index) => {
+            const ayahNumber = start + index;
+            html += `<span class="hifz-ayah">${ayah.text}</span> <span style="color:var(--gold); font-size:1.1rem; margin:0 10px;">(${ayahNumber})</span> `;
+        });
+        
+        display.innerHTML = html;
+        
+    } catch (error) {
+        display.innerHTML = '<p style="text-align:center; color:#e74c3c;">تعذر تحميل الآيات. تأكد من الاتصال بالإنترنت.</p>';
+    }
+}
+
+// إتمام ورد اليوم
+function markTodayComplete() {
+    const today = new Date().toDateString();
+    const currentPage = hifzData.currentPage;
+    
+    // التحقق من عدم التكرار
+    if (hifzData.lastCompletedDate === today) {
+        alert('✅ لقد أتممت ورد اليوم بالفعل! بارك الله فيك 🌟');
+        return;
+    }
+    
+    // تحديث البيانات
+    hifzData.completedPages.push(currentPage);
+    hifzData.lastCompletedDate = today;
+    
+    // حساب السلسلة
+    updateStreak();
+    
+    // الانتقال للصفحة التالية حسب الخطة
+    if (hifzData.plan === 'quarter') {
+        hifzData.currentPage += 0.25;
+    } else if (hifzData.plan === 'half') {
+        hifzData.currentPage += 0.5;
+    } else {
+        hifzData.currentPage += 1;
+    }
+    
+    hifzData.currentPage = Math.ceil(hifzData.currentPage); // تقريب للرقم الصحيح
+    
+    // حساب الآيات
+    const pageInfo = quranPages[currentPage];
+    if (pageInfo) {
+        const ayatCount = pageInfo.ayahEnd - pageInfo.ayahStart + 1;
+        hifzData.totalAyat += ayatCount;
+    }
+    
+    saveHifzData();
+    
+    // إظهار تهنئة
+    showHifzCelebration();
+    
+    // تحديث الإ​​​​​​​​​​​​​​​​
