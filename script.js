@@ -1790,15 +1790,18 @@ function showPageTransition(arrow) {
 
 // بيانات الحفظ
 let hifzData = JSON.parse(localStorage.getItem('hifzData')) || {
-    plan: null, // 'quarter', 'half', 'full'
+    plan: null,
     startDate: null,
     currentPage: 1,
     completedPages: [],
+    reviewedPages: {}, // 🔥 جديد: {pageNumber: lastReviewDate}
     currentStreak: 0,
     longestStreak: 0,
     lastCompletedDate: null,
-    totalAyat: 0
+    totalAyat: 0,
+    totalReviews: 0 // 🔥 جديد
 };
+
 
 // جدول الصفحات والآيات (مبسط - أول 10 صفحات كمثال)
 // جلب معلومات الصفحة من API
@@ -2062,6 +2065,9 @@ function updateHifzStats() {
     
     const ayatCount = document.getElementById('hifz-ayat-count');
     if (ayatCount) ayatCount.innerText = hifzData.totalAyat;
+    
+    const reviewsCount = document.getElementById('hifz-reviews-count');
+if (reviewsCount) reviewsCount.innerText = hifzData.totalReviews;
 }
 
 // إظهار احتفالية
@@ -2146,4 +2152,212 @@ function switchToHifzSection() {
 
     // 4. تهيئة قسم الحفظ
     initHifzSection();
+}
+// ==========================================
+// نظام المراجعة الذكية
+// ==========================================
+
+// حساب الصفحات التي تحتاج مراجعة
+function getPagesNeedingReview() {
+    const today = new Date();
+    const needReview = [];
+    
+    hifzData.completedPages.forEach(pageNum => {
+        const lastReview = hifzData.reviewedPages[pageNum];
+        
+        if (!lastReview) {
+            // لم تتم مراجعتها أبداً
+            needReview.push({ page: pageNum, priority: 10 });
+        } else {
+            const reviewDate = new Date(lastReview);
+            const daysSinceReview = Math.floor((today - reviewDate) / (1000 * 60 * 60 * 24));
+            
+            // نظام Spaced Repetition
+            if (daysSinceReview >= 7) {
+                needReview.push({ page: pageNum, priority: 5 });
+            } else if (daysSinceReview >= 3) {
+                needReview.push({ page: pageNum, priority: 3 });
+            } else if (daysSinceReview >= 1) {
+                needReview.push({ page: pageNum, priority: 1 });
+            }
+        }
+    });
+    
+    // ترتيب حسب الأولوية
+    needReview.sort((a, b) => b.priority - a.priority);
+    
+    return needReview;
+}
+
+// اختيار صفحات للمراجعة اليومية
+function selectReviewPages(count = 3) {
+    const needReview = getPagesNeedingReview();
+    return needReview.slice(0, count);
+}
+
+// فتح وضع المراجعة
+async function startReviewMode() {
+    const reviewPages = selectReviewPages(3);
+    
+    if (reviewPages.length === 0) {
+        alert('🎉 ممتاز!\nلا توجد صفحات تحتاج مراجعة حالياً');
+        return;
+    }
+    
+    // إخفاء الواجهة الرئيسية وإظهار واجهة المراجعة
+    document.getElementById('hifz-main').style.display = 'none';
+    
+    let reviewSection = document.getElementById('hifz-review');
+    if (!reviewSection) {
+        // إنشاء قسم المراجعة إذا لم يكن موجوداً
+        reviewSection = createReviewSection();
+        document.getElementById('hifz-section').appendChild(reviewSection);
+    }
+    
+    reviewSection.style.display = 'block';
+    
+    // عرض الصفحات للمراجعة
+    displayReviewPages(reviewPages);
+}
+
+// إنشاء واجهة المراجعة
+function createReviewSection() {
+    const section = document.createElement('div');
+    section.id = 'hifz-review';
+    section.style.display = 'none';
+    section.innerHTML = `
+        <div class="daily-card" style="max-width: 800px; margin: 20px auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="color: var(--gold); margin: 0;">🔁 المراجعة اليومية</h3>
+                <button onclick="closeReviewMode()" class="modern-back-btn">↩ رجوع</button>
+            </div>
+            
+            <div id="review-info" style="background: rgba(201, 176, 122, 0.1); padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
+                <p style="color: var(--dark-teal); font-weight: bold; margin: 5px 0;">مراجعة <span id="review-count">0</span> صفحات</p>
+                <small style="color: #666;">راجع الآيات وتأكد من حفظها</small>
+            </div>
+            
+            <div id="review-pages-container">
+                <!-- الصفحات تظهر هنا -->
+            </div>
+        </div>
+    `;
+    return section;
+}
+
+// عرض الصفحات للمراجعة
+async function displayReviewPages(reviewPages) {
+    const container = document.getElementById('review-pages-container');
+    document.getElementById('review-count').innerText = reviewPages.length;
+    
+    container.innerHTML = '<p style="text-align:center; color:#999;">⏳ جاري التحميل...</p>';
+    
+    let html = '';
+    
+    for (let i = 0; i < reviewPages.length; i++) {
+        const item = reviewPages[i];
+        const pageInfo = await getPageInfo(item.page);
+        
+        if (pageInfo) {
+            const lastReview = hifzData.reviewedPages[item.page];
+            const daysSince = lastReview ? 
+                Math.floor((new Date() - new Date(lastReview)) / (1000 * 60 * 60 * 24)) : 
+                'لم تتم المراجعة';
+            
+            html += `
+                <div class="review-page-card" style="background: white; border: 2px solid var(--gold); border-radius: 15px; padding: 20px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <div>
+                            <h4 style="color: var(--dark-teal); margin: 0 0 5px 0;">صفحة ${item.page}</h4>
+                            <small style="color: #666;">${pageInfo.surahName} - ${pageInfo.totalAyahs} آيات</small>
+                        </div>
+                        <div style="text-align: left;">
+                            <div style="font-size: 0.85rem; color: #999;">آخر مراجعة:</div>
+                            <div style="font-size: 0.9rem; color: var(--gold); font-weight: bold;">${daysSince === 'لم تتم المراجعة' ? daysSince : daysSince + ' يوم'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="review-ayahs" style="background: #f9f9f9; padding: 20px; border-radius: 12px; font-size: 1.5rem; line-height: 2.3; text-align: justify; max-height: 300px; overflow-y: auto; font-family: 'Amiri', serif; margin-bottom: 15px;">
+                        ${generateAyahsHTML(pageInfo.ayahs, pageInfo)}
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <button onclick="markPageReviewed(${item.page})" style="background: var(--dark-teal); color: var(--gold); border: none; padding: 10px 25px; border-radius: 20px; cursor: pointer; font-family: 'Amiri', serif; font-weight: bold;">
+                            ✅ راجعت هذه الصفحة
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    container.innerHTML = html;
+}
+
+// توليد HTML للآيات
+function generateAyahsHTML(ayahs, pageInfo) {
+    let html = '';
+    
+    // البسملة
+    if (pageInfo.ayahStart === 1 && pageInfo.surah !== 1 && pageInfo.surah !== 9) {
+        html += `<div style="text-align:center; color:var(--gold); font-size:1.8rem; margin:15px 0; font-weight:bold;">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
+    }
+    
+    ayahs.forEach((ayah) => {
+        let text = ayah.text.replace(/بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ/g, '').trim();
+        html += `<span>${text}</span> <span style="color:var(--gold); font-weight:bold; font-size:1.1rem; margin:0 8px;">﴿${ayah.numberInSurah}﴾</span> `;
+    });
+    
+    return html;
+}
+
+// تسجيل مراجعة الصفحة
+function markPageReviewed(pageNumber) {
+    hifzData.reviewedPages[pageNumber] = new Date().toISOString();
+    hifzData.totalReviews++;
+    saveHifzData();
+    
+    // إزالة الكارد من القائمة
+    event.target.closest('.review-page-card').style.opacity = '0.3';
+    event.target.disabled = true;
+    event.target.innerText = '✅ تمت المراجعة';
+    
+    playNotify();
+    
+    // التحقق من إتمام كل المراجعات
+    setTimeout(() => {
+        const remaining = document.querySelectorAll('.review-page-card button:not(:disabled)').length;
+        if (remaining === 0) {
+            showReviewCompleteCelebration();
+        }
+    }, 500);
+}
+
+// احتفالية إتمام المراجعة
+function showReviewCompleteCelebration() {
+    const celebration = document.createElement('div');
+    celebration.className = 'badge-notification';
+    celebration.innerHTML = `
+        <div class="badge-popup" style="background: linear-gradient(135deg, #3498db, #2980b9); color: white;">
+            <div class="badge-emoji">🎊</div>
+            <div class="badge-title">ممتاز!</div>
+            <div class="badge-name">أتممت المراجعة اليومية</div>
+            <div class="badge-desc">ثبّت الله حفظك 💙</div>
+        </div>
+    `;
+    document.body.appendChild(celebration);
+    
+    playNotify();
+    
+    setTimeout(() => {
+        celebration.remove();
+        closeReviewMode();
+    }, 3000);
+}
+
+// إغلاق وضع المراجعة
+function closeReviewMode() {
+    document.getElementById('hifz-review').style.display = 'none';
+    document.getElementById('hifz-main').style.display = 'block';
+    updateHifzStats();
 }
