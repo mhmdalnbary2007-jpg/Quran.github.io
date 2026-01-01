@@ -796,17 +796,26 @@
                     <div style="font-size: 2rem; font-weight: bold;" id="hifz-ayat-count">0</div>
                     <div style="font-size: 0.85rem; opacity: 0.9;">آية متقنة</div>
                 </div>
-            </div>
+            <div>
+    <div style="font-size: 2rem; font-weight: bold;" id="hifz-reviews-count">0</div>
+    <div style="font-size: 0.85rem; opacity: 0.9;">مراجعة</div>
+</div>
         </div>
+
         
         <!-- ورد اليوم -->
         <div class="daily-card" style="max-width: 800px; margin: 20px auto;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="color: var(--gold); margin: 0;">📖 ورد اليوم</h3>
-                <button onclick="openHifzSettings()" style="background: transparent; border: 2px solid var(--gold); color: var(--gold); padding: 8px 15px; border-radius: 8px; cursor: pointer; font-family: 'Amiri', serif;">
-                    ⚙️ إعدادات
-                </button>
-            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+    <h3 style="color: var(--gold); margin: 0;">📖 ورد اليوم</h3>
+    <div style="display: flex; gap: 10px;">
+        <button onclick="startReviewMode()" style="background: #3498db; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-family: 'Amiri', serif; font-weight: bold;">
+            🔁 المراجعة
+        </button>
+        <button onclick="openHifzSettings()" style="background: transparent; border: 2px solid var(--gold); color: var(--gold); padding: 8px 15px; border-radius: 8px; cursor: pointer; font-family: 'Amiri', serif;">
+            ⚙️ إعدادات
+        </button>
+    </div>
+</div>
             
             <div id="hifz-today-info" style="background: rgba(201, 176, 122, 0.1); padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
                 <p style="color: var(--dark-teal); font-weight: bold; font-size: 1.1rem; margin: 5px 0;" id="hifz-today-range">جاري التحميل...</p>
