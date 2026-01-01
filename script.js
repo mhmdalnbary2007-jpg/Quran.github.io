@@ -1800,6 +1800,9 @@ let hifzData = JSON.parse(localStorage.getItem('hifzData')) || {
     lastCompletedDate: null,
     totalAyat: 0,
     totalReviews: 0 // 🔥 جديد
+    testScores: [], // 🔥 جديد: [{date, page, score, totalWords}]
+    totalTests: 0,  // 🔥 جديد
+    averageScore: 0 // 🔥 جديد
 };
 
 
@@ -2359,5 +2362,333 @@ function showReviewCompleteCelebration() {
 function closeReviewMode() {
     document.getElementById('hifz-review').style.display = 'none';
     document.getElementById('hifz-main').style.display = 'block';
+    updateHifzStats();
+}
+// ==========================================
+// نظام التسميع الذكي - Test Mode
+// ==========================================
+
+let currentTest = null; // بيانات الاختبار الحالي
+
+// بدء وضع التسميع
+async function startTestMode() {
+    if (hifzData.completedPages.length === 0) {
+        alert('⚠️ لا توجد صفحات محفوظة للتسميع!\nاحفظ صفحات أولاً ثم جرّب التسميع');
+        return;
+    }
+    
+    // اختيار صفحة عشوائية من المحفوظ
+    const randomPage = hifzData.completedPages[Math.floor(Math.random() * hifzData.completedPages.length)];
+    
+    // عرض نافذة اختيار المستوى
+    showDifficultySelection(randomPage);
+}
+
+// عرض نافذة اختيار الصعوبة
+function showDifficultySelection(pageNumber) {
+    const modal = document.createElement('div');
+    modal.id = 'difficulty-modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background: white; padding: 30px; border-radius: 20px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+            <h3 style="color: var(--dark-teal); text-align: center; margin-bottom: 25px;">🎯 اختر مستوى الصعوبة</h3>
+            
+            <div style="display: grid; gap: 15px;">
+                <div onclick="startTestWithDifficulty(${pageNumber}, 'easy')" style="background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; padding: 20px; border-radius: 15px; cursor: pointer; text-align: center; transition: 0.3s;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">🌱</div>
+                    <h4 style="margin: 5px 0;">سهل</h4>
+                    <p style="margin: 5px 0; font-size: 0.9rem; opacity: 0.9;">إخفاء 20% من الكلمات</p>
+                </div>
+                
+                <div onclick="startTestWithDifficulty(${pageNumber}, 'medium')" style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white; padding: 20px; border-radius: 15px; cursor: pointer; text-align: center; transition: 0.3s;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">⚡</div>
+                    <h4 style="margin: 5px 0;">متوسط</h4>
+                    <p style="margin: 5px 0; font-size: 0.9rem; opacity: 0.9;">إخفاء 50% من الكلمات</p>
+                </div>
+                
+                <div onclick="startTestWithDifficulty(${pageNumber}, 'hard')" style="background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; padding: 20px; border-radius: 15px; cursor: pointer; text-align: center; transition: 0.3s;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">🔥</div>
+                    <h4 style="margin: 5px 0;">صعب</h4>
+                    <p style="margin: 5px 0; font-size: 0.9rem; opacity: 0.9;">إخفاء 80% من الكلمات</p>
+                </div>
+            </div>
+            
+            <button onclick="document.getElementById('difficulty-modal').remove()" style="background: #95a5a6; color: white; border: none; padding: 12px; border-radius: 10px; width: 100%; margin-top: 20px; cursor: pointer; font-family: 'Amiri', serif; font-weight: bold;">
+                إلغاء
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// بدء الاختبار بمستوى معين
+async function startTestWithDifficulty(pageNumber, difficulty) {
+    // إغلاق النافذة
+    const modal = document.getElementById('difficulty-modal');
+    if (modal) modal.remove();
+    
+    // جلب بيانات الصفحة
+    const pageInfo = await getPageInfo(pageNumber);
+    if (!pageInfo) {
+        alert('❌ حدث خطأ في تحميل الصفحة');
+        return;
+    }
+    
+    // إخفاء الواجهة الرئيسية
+    document.getElementById('hifz-main').style.display = 'none';
+    
+    // إنشاء واجهة الاختبار
+    let testSection = document.getElementById('hifz-test');
+    if (!testSection) {
+        testSection = createTestSection();
+        document.getElementById('hifz-section').appendChild(testSection);
+    }
+    
+    testSection.style.display = 'block';
+    
+    // إعداد الاختبار
+    setupTest(pageInfo, difficulty);
+}
+
+// إنشاء واجهة الاختبار
+function createTestSection() {
+    const section = document.createElement('div');
+    section.id = 'hifz-test';
+    section.style.display = 'none';
+    section.innerHTML = `
+        <div class="daily-card" style="max-width: 900px; margin: 20px auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                <h3 style="color: var(--gold); margin: 0;">✍️ وضع التسميع</h3>
+                <button onclick="cancelTest()" class="modern-back-btn">↩ إلغاء</button>
+            </div>
+            
+            <div id="test-info" style="background: rgba(201, 176, 122, 0.1); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-around; text-align: center; flex-wrap: wrap; gap: 15px;">
+                    <div>
+                        <div style="color: #666; font-size: 0.85rem;">الصفحة</div>
+                        <div id="test-page-num" style="color: var(--dark-teal); font-weight: bold; font-size: 1.2rem;">-</div>
+                    </div>
+                    <div>
+                        <div style="color: #666; font-size: 0.85rem;">المستوى</div>
+                        <div id="test-difficulty" style="color: var(--gold); font-weight: bold; font-size: 1.2rem;">-</div>
+                    </div>
+                    <div>
+                        <div style="color: #666; font-size: 0.85rem;">الكلمات المخفية</div>
+                        <div id="test-hidden-count" style="color: var(--dark-teal); font-weight: bold; font-size: 1.2rem;">-</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="test-ayahs-display" style="background: white; padding: 25px; border-radius: 15px; border: 2px solid var(--gold); font-size: 1.6rem; line-height: 2.8; text-align: justify; max-height: 500px; overflow-y: auto; font-family: 'Amiri', serif;">
+                <!-- الآيات تظهر هنا -->
+            </div>
+            
+            <div style="text-align: center; margin-top: 25px;">
+                <button onclick="checkTestAnswers()" style="background: var(--dark-teal); color: var(--gold); border: none; padding: 15px 40px; border-radius: 30px; font-size: 1.1rem; font-weight: bold; cursor: pointer; font-family: 'Amiri', serif; box-shadow: 0 4px 15px rgba(47, 95, 99, 0.3);">
+                    ✅ تحقق من الإجابات
+                </button>
+            </div>
+        </div>
+    `;
+    return section;
+}
+
+// إعداد الاختبار
+function setupTest(pageInfo, difficulty) {
+    // نسبة الإخفاء
+    const hidePercentage = difficulty === 'easy' ? 0.2 : difficulty === 'medium' ? 0.5 : 0.8;
+    
+    // عرض معلومات الاختبار
+    document.getElementById('test-page-num').innerText = `صفحة ${Math.ceil(hifzData.currentPage)}`;
+    
+    const difficultyText = difficulty === 'easy' ? '🌱 سهل' : difficulty === 'medium' ? '⚡ متوسط' : '🔥 صعب';
+    document.getElementById('test-difficulty').innerText = difficultyText;
+    
+    // معالجة الآيات وإخفاء الكلمات
+    const { html, hiddenWords } = processAyahsForTest(pageInfo, hidePercentage);
+    
+    document.getElementById('test-hidden-count').innerText = hiddenWords.length;
+    document.getElementById('test-ayahs-display').innerHTML = html;
+    
+    // حفظ بيانات الاختبار
+    currentTest = {
+        page: Math.ceil(hifzData.currentPage),
+        difficulty: difficulty,
+        hiddenWords: hiddenWords,
+        pageInfo: pageInfo
+    };
+}
+
+// معالجة الآيات وإخفاء كلمات
+function processAyahsForTest(pageInfo, hidePercentage) {
+    let html = '';
+    const hiddenWords = [];
+    let wordIndex = 0;
+    
+    // البسملة
+    if (pageInfo.ayahStart === 1 && pageInfo.surah !== 1 && pageInfo.surah !== 9) {
+        html += `<div style="text-align:center; color:var(--gold); font-size:1.8rem; margin:15px 0; font-weight:bold;">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
+    }
+    
+    pageInfo.ayahs.forEach((ayah) => {
+        let text = ayah.text.replace(/بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ/g, '').trim();
+        const words = text.split(' ');
+        
+        words.forEach(word => {
+            if (word.trim().length > 0) {
+                // تحديد هل نخفي الكلمة أم لا
+                if (Math.random() < hidePercentage && word.length > 2) {
+                    const id = `word-${wordIndex}`;
+                    hiddenWords.push({ id: id, word: word.trim() });
+                    html += `<input type="text" id="${id}" class="test-input" style="width: ${word.length * 20}px; min-width: 80px; max-width: 200px; border: none; border-bottom: 2px dashed var(--gold); background: rgba(201, 176, 122, 0.1); padding: 2px 8px; margin: 0 3px; text-align: center; font-family: 'Amiri', serif; font-size: 1.6rem;" placeholder="..." /> `;
+                } else {
+                    html += `<span>${word}</span> `;
+                }
+                wordIndex++;
+            }
+        });
+        
+        html += `<span style="color:var(--gold); font-weight:bold; font-size:1.2rem; margin:0 8px;">﴿${ayah.numberInSurah}﴾</span> `;
+    });
+    
+    return { html, hiddenWords };
+}
+
+// التحقق من الإجابات
+function checkTestAnswers() {
+    if (!currentTest) return;
+    
+    let correct = 0;
+    let wrong = 0;
+    
+    currentTest.hiddenWords.forEach(item => {
+        const input = document.getElementById(item.id);
+        const userAnswer = input.value.trim();
+        const correctAnswer = item.word.trim();
+        
+        // مقارنة بسيطة (يمكن تحسينها)
+        if (userAnswer === correctAnswer || removeArabicDiacritics(userAnswer) === removeArabicDiacritics(correctAnswer)) {
+            input.style.background = 'rgba(46, 204, 113, 0.2)';
+            input.style.borderBottom = '2px solid #27ae60';
+            correct++;
+        } else {
+            input.style.background = 'rgba(231, 76, 60, 0.2)';
+            input.style.borderBottom = '2px solid #e74c3c';
+            input.value = correctAnswer; // عرض الإجابة الصحيحة
+            wrong++;
+        }
+        input.disabled = true;
+    });
+    
+    // حساب النتيجة
+    const total = currentTest.hiddenWords.length;
+    const score = Math.round((correct / total) * 100);
+    
+    // حفظ النتيجة
+    hifzData.testScores.push({
+        date: new Date().toISOString(),
+        page: currentTest.page,
+        score: score,
+        correct: correct,
+        wrong: wrong,
+        total: total,
+        difficulty: currentTest.difficulty
+    });
+    hifzData.totalTests++;
+    
+    // حساب المتوسط
+    const totalScore = hifzData.testScores.reduce((sum, test) => sum + test.score, 0);
+    hifzData.averageScore = Math.round(totalScore / hifzData.testScores.length);
+    
+    saveHifzData();
+    
+    // عرض النتيجة
+    showTestResult(score, correct, wrong, total);
+}
+
+// إزالة التشكيل للمقارنة
+function removeArabicDiacritics(text) {
+    return text.replace(/[\u064B-\u0652\u0670]/g, '');
+}
+
+// عرض نتيجة الاختبار
+function showTestResult(score, correct, wrong, total) {
+    const resultModal = document.createElement('div');
+    resultModal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10001;
+    `;
+    
+    const emoji = score >= 90 ? '🌟' : score >= 70 ? '👍' : score >= 50 ? '💪' : '📖';
+    const message = score >= 90 ? 'ممتاز!' : score >= 70 ? 'جيد جداً!' : score >= 50 ? 'جيد!' : 'راجع أكثر';
+    const color = score >= 70 ? '#27ae60' : score >= 50 ? '#f39c12' : '#e74c3c';
+    
+    resultModal.innerHTML = `
+        <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);">
+            <div style="font-size: 5rem; margin-bottom: 20px;">${emoji}</div>
+            <h2 style="color: ${color}; margin-bottom: 15px;">${message}</h2>
+            <div style="font-size: 3rem; font-weight: bold; color: var(--dark-teal); margin: 20px 0;">${score}%</div>
+            
+            <div style="display: flex; justify-content: space-around; margin: 25px 0; padding: 20px; background: #f9f9f9; border-radius: 12px;">
+                <div>
+                    <div style="color: #27ae60; font-size: 2rem; font-weight: bold;">${correct}</div>
+                    <div style="color: #666; font-size: 0.9rem;">صحيح</div>
+                </div>
+                <div>
+                    <div style="color: #e74c3c; font-size: 2rem; font-weight: bold;">${wrong}</div>
+                    <div style="color: #666; font-size: 0.9rem;">خطأ</div>
+                </div>
+                <div>
+                    <div style="color: var(--gold); font-size: 2rem; font-weight: bold;">${total}</div>
+                    <div style="color: #666; font-size: 0.9rem;">المجموع</div>
+                </div>
+            </div>
+            
+            <button onclick="closeTestResult()" style="background: var(--dark-teal); color: white; border: none; padding: 15px 30px; border-radius: 25px; cursor: pointer; font-family: 'Amiri', serif; font-weight: bold; font-size: 1.1rem; width: 100%;">
+                حسناً
+            </button>
+        </div>
+    `;
+    
+    resultModal.id = 'test-result-modal';
+    document.body.appendChild(resultModal);
+    
+    playNotify();
+}
+
+// إغلاق نتيجة الاختبار
+function closeTestResult() {
+    const modal = document.getElementById('test-result-modal');
+    if (modal) modal.remove();
+    
+    cancelTest();
+}
+
+// إلغاء الاختبار
+function cancelTest() {
+    document.getElementById('hifz-test').style.display = 'none';
+    document.getElementById('hifz-main').style.display = 'block';
+    currentTest = null;
     updateHifzStats();
 }
