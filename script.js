@@ -2019,6 +2019,8 @@ async function markTodayComplete() {
     setTimeout(() => {
         loadTodayHifz();
     }, 2500);
+    // فحص الشارات الجديدة
+    checkHifzBadges();
 }
 }
 
@@ -2360,6 +2362,8 @@ function showReviewCompleteCelebration() {
         celebration.remove();
         closeReviewMode();
     }, 3000);
+        // فحص الشارات
+    checkHifzBadges();
 }
 
 // إغلاق وضع المراجعة
@@ -2621,6 +2625,8 @@ function checkTestAnswers() {
     
     // عرض النتيجة
     showTestResult(score, correct, wrong, total);
+        // فحص الشارات
+    checkHifzBadges();
 }
 
 // إزالة التشكيل للمقارنة
@@ -2695,4 +2701,186 @@ function cancelTest() {
     document.getElementById('hifz-main').style.display = 'block';
     currentTest = null;
     updateHifzStats();
+}
+// ==========================================
+// شارات وإنجازات الحفظ
+// ==========================================
+
+const hifzBadges = {
+    first_page: {
+        id: 'first_page',
+        name: 'البداية المباركة',
+        emoji: '🌱',
+        description: 'حفظ أول صفحة من القرآن',
+        condition: (data) => data.completedPages.length >= 1
+    },
+    juz_30: {
+        id: 'juz_30',
+        name: 'حافظ جزء عم',
+        emoji: '📖',
+        description: 'إتمام حفظ الجزء الثلاثين',
+        condition: (data) => data.completedPages.filter(p => p >= 582).length >= 22
+    },
+    streak_7: {
+        id: 'streak_7',
+        name: 'النار المشتعلة',
+        emoji: '🔥',
+        description: '7 أيام متواصلة في الحفظ',
+        condition: (data) => data.currentStreak >= 7
+    },
+    streak_30: {
+        id: 'streak_30',
+        name: 'المثابر',
+        emoji: '⚡',
+        description: '30 يوم متواصل في الحفظ',
+        condition: (data) => data.currentStreak >= 30
+    },
+    streak_100: {
+        id: 'streak_100',
+        name: 'الصامد',
+        emoji: '💪',
+        description: '100 يوم متواصل - إنجاز نادر!',
+        condition: (data) => data.currentStreak >= 100
+    },
+    pages_50: {
+        id: 'pages_50',
+        name: 'الطالب المجتهد',
+        emoji: '📚',
+        description: 'حفظ 50 صفحة من القرآن',
+        condition: (data) => data.completedPages.length >= 50
+    },
+    pages_100: {
+        id: 'pages_100',
+        name: 'النجم الساطع',
+        emoji: '🌟',
+        description: 'حفظ 100 صفحة من القرآن',
+        condition: (data) => data.completedPages.length >= 100
+    },
+    pages_300: {
+        id: 'pages_300',
+        name: 'الماسة النفيسة',
+        emoji: '💎',
+        description: 'حفظ 300 صفحة - نصف القرآن!',
+        condition: (data) => data.completedPages.length >= 300
+    },
+    full_quran: {
+        id: 'full_quran',
+        name: 'حافظ القرآن',
+        emoji: '👑',
+        description: 'إتمام حفظ القرآن الكريم كاملاً',
+        condition: (data) => data.completedPages.length >= 604
+    },
+    perfect_test: {
+        id: 'perfect_test',
+        name: 'الدقة المثالية',
+        emoji: '🎯',
+        description: 'الحصول على 100% في التسميع',
+        condition: (data) => data.testScores.some(t => t.score === 100)
+    },
+    reviews_50: {
+        id: 'reviews_50',
+        name: 'المراجع النشط',
+        emoji: '🔁',
+        description: 'إتمام 50 مراجعة',
+        condition: (data) => data.totalReviews >= 50
+    },
+    hard_test: {
+        id: 'hard_test',
+        name: 'المتحدي الشجاع',
+        emoji: '🦁',
+        description: 'اجتياز اختبار صعب بنجاح (70%+)',
+        condition: (data) => data.testScores.some(t => t.difficulty === 'hard' && t.score >= 70)
+    }
+};
+
+// التحقق من الشارات الجديدة
+function checkHifzBadges() {
+    if (!hifzData.earnedBadges) {
+        hifzData.earnedBadges = [];
+    }
+    
+    const newBadges = [];
+    
+    Object.values(hifzBadges).forEach(badge => {
+        // التحقق من عدم الحصول عليها مسبقاً
+        if (!hifzData.earnedBadges.includes(badge.id)) {
+            // التحقق من الشرط
+            if (badge.condition(hifzData)) {
+                hifzData.earnedBadges.push(badge.id);
+                newBadges.push(badge);
+            }
+        }
+    });
+    
+    // عرض الشارات الجديدة
+    newBadges.forEach((badge, index) => {
+        setTimeout(() => {
+            showBadgeNotification(badge);
+        }, index * 2000);
+    });
+    
+    if (newBadges.length > 0) {
+        saveHifzData();
+    }
+}
+
+// عرض إشعار الشارة
+function showBadgeNotification(badge) {
+    const notification = document.createElement('div');
+    notification.className = 'badge-notification';
+    notification.innerHTML = `
+        <div class="badge-popup" style="background: linear-gradient(135deg, var(--dark-teal), #1a3f42); color: white; animation: slideInBounce 0.6s ease;">
+            <div class="badge-emoji" style="font-size: 4rem; margin-bottom: 15px;">${badge.emoji}</div>
+            <div class="badge-title" style="font-size: 1.3rem; color: var(--gold); font-weight: bold; margin-bottom: 10px;">شارة جديدة!</div>
+            <div class="badge-name" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 10px;">${badge.name}</div>
+            <div class="badge-desc" style="font-size: 0.95rem; opacity: 0.9;">${badge.description}</div>
+        </div>
+    `;
+    document.body.appendChild(notification);
+    
+    playNotify();
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 500);
+    }, 4000);
+}
+
+// عرض كل الشارات المكتسبة
+function showMyHifzBadges() {
+    if (!hifzData.earnedBadges || hifzData.earnedBadges.length === 0) {
+        alert('🎯 لم تكتسب أي شارات بعد!\nاستمر في الحفظ والمراجعة لكسب الشارات');
+        return;
+    }
+    
+    let badgesHTML = `
+        <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000; overflow-y: auto; padding: 20px;" onclick="this.remove()">
+            <div onclick="event.stopPropagation()" style="background: white; padding: 30px; border-radius: 20px; max-width: 700px; width: 95%; max-height: 90vh; overflow-y: auto;">
+                <h2 style="color: var(--dark-teal); text-align: center; margin-bottom: 25px;">🏆 شاراتي في الحفظ</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px;">
+    `;
+    
+    hifzData.earnedBadges.forEach(badgeId => {
+        const badge = hifzBadges[badgeId];
+        if (badge) {
+            badgesHTML += `
+                <div style="background: linear-gradient(135deg, var(--dark-teal), #1a3f42); color: white; padding: 20px; border-radius: 15px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">${badge.emoji}</div>
+                    <div style="font-weight: bold; margin-bottom: 5px; color: var(--gold);">${badge.name}</div>
+                    <small style="font-size: 0.8rem; opacity: 0.9;">${badge.description}</small>
+                </div>
+            `;
+        }
+    });
+    
+    badgesHTML += `
+                </div>
+                <button onclick="this.closest('div').parentElement.remove()" style="background: var(--dark-teal); color: white; border: none; padding: 12px; border-radius: 10px; width: 100%; margin-top: 25px; cursor: pointer; font-family: 'Amiri', serif; font-weight: bold;">
+                    إغلاق
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', badgesHTML);
 }
