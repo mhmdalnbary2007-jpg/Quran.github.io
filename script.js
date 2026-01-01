@@ -2114,11 +2114,250 @@ function saveHifzData() {
 }
 
 // فتح الإعدادات
+// فتح صفحة الإعدادات الكاملة
 function openHifzSettings() {
-    if (confirm('هل تريد تغيير خطة الحفظ؟\n\n⚠️ سيتم الاحتفاظ بتقدمك الحالي')) {
-        document.getElementById('hifz-main').style.display = 'none';
-        document.getElementById('hifz-setup').style.display = 'block';
+    // إخفاء الواجهة الرئيسية
+    document.getElementById('hifz-main').style.display = 'none';
+    
+    // إنشاء صفحة الإعدادات
+    let settingsSection = document.getElementById('hifz-settings');
+    if (!settingsSection) {
+        settingsSection = createSettingsSection();
+        document.getElementById('hifz-section').appendChild(settingsSection);
     }
+    
+    settingsSection.style.display = 'block';
+    loadSettingsData();
+}
+
+// إنشاء صفحة الإعدادات
+function createSettingsSection() {
+    const section = document.createElement('div');
+    section.id = 'hifz-settings';
+    section.style.display = 'none';
+    section.innerHTML = `
+        <div class="daily-card" style="max-width: 700px; margin: 20px auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                <h3 style="color: var(--gold); margin: 0;">⚙️ إعدادات الحفظ</h3>
+                <button onclick="closeHifzSettings()" class="modern-back-btn">↩ رجوع</button>
+            </div>
+            
+            <!-- تغيير الخطة -->
+            <div style="background: rgba(201, 176, 122, 0.1); padding: 20px; border-radius: 15px; margin-bottom: 20px;">
+                <h4 style="color: var(--dark-teal); margin-bottom: 15px;">📖 خطة الحفظ</h4>
+                <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">الخطة الحالية: <strong id="current-plan-text">-</strong></p>
+                
+                <select id="plan-select" style="width: 100%; padding: 12px; border: 2px solid var(--gold); border-radius: 10px; font-family: 'Amiri', serif; font-size: 1rem; margin-bottom: 15px;">
+                    <option value="quarter">🌱 ربع صفحة يومياً (≈ 3 آيات)</option>
+                    <option value="half">🌿 نصف صفحة يومياً (≈ 6 آيات)</option>
+                    <option value="full">🌳 صفحة كاملة يومياً (≈ 12 آية)</option>
+                </select>
+                
+                <button onclick="changePlan()" style="background: var(--dark-teal); color: var(--gold); border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-family: 'Amiri', serif; font-weight: bold; width: 100%;">
+                    تحديث الخطة
+                </button>
+            </div>
+            
+            <!-- إحصائيات تفصيلية -->
+            <div style="background: rgba(201, 176, 122, 0.1); padding: 20px; border-radius: 15px; margin-bottom: 20px;">
+                <h4 style="color: var(--dark-teal); margin-bottom: 15px;">📊 الإحصائيات التفصيلية</h4>
+                
+                <div style="display: grid; gap: 12px;">
+                    <div style="display: flex; justify-content: space-between; padding: 10px; background: white; border-radius: 8px;">
+                        <span style="color: #666;">تاريخ البداية:</span>
+                        <strong id="stats-start-date" style="color: var(--dark-teal);">-</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 10px; background: white; border-radius: 8px;">
+                        <span style="color: #666;">مدة الحفظ:</span>
+                        <strong id="stats-duration" style="color: var(--dark-teal);">-</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 10px; background: white; border-radius: 8px;">
+                        <span style="color: #666;">أطول سلسلة:</span>
+                        <strong id="stats-longest-streak" style="color: var(--dark-teal);">-</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 10px; background: white; border-radius: 8px;">
+                        <span style="color: #666;">إجمالي الاختبارات:</span>
+                        <strong id="stats-total-tests" style="color: var(--dark-teal);">-</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 10px; background: white; border-radius: 8px;">
+                        <span style="color: #666;">أعلى درجة:</span>
+                        <strong id="stats-best-score" style="color: var(--gold);">-</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 10px; background: white; border-radius: 8px;">
+                        <span style="color: #666;">الشارات المكتسبة:</span>
+                        <strong id="stats-badges" style="color: var(--gold);">-</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- تصدير البيانات -->
+            <div style="background: rgba(201, 176, 122, 0.1); padding: 20px; border-radius: 15px; margin-bottom: 20px;">
+                <h4 style="color: var(--dark-teal); margin-bottom: 15px;">💾 النسخ الاحتياطي</h4>
+                <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">احفظ تقدمك أو استعد بيانات سابقة</p>
+                
+                <div style="display: grid; gap: 10px;">
+                    <button onclick="exportHifzData()" style="background: #27ae60; color: white; border: none; padding: 10px; border-radius: 10px; cursor: pointer; font-family: 'Amiri', serif; font-weight: bold;">
+                        📥 تصدير البيانات
+                    </button>
+                    <button onclick="importHifzData()" style="background: #3498db; color: white; border: none; padding: 10px; border-radius: 10px; cursor: pointer; font-family: 'Amiri', serif; font-weight: bold;">
+                        📤 استيراد البيانات
+                    </button>
+                </div>
+            </div>
+            
+            <!-- إعادة تعيين -->
+            <div style="background: rgba(231, 76, 60, 0.1); padding: 20px; border-radius: 15px; border: 2px solid #e74c3c;">
+                <h4 style="color: #e74c3c; margin-bottom: 15px;">⚠️ منطقة الخطر</h4>
+                <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">إعادة تعيين كل البيانات (لا يمكن التراجع)</p>
+                
+                <button onclick="resetHifzData()" style="background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-family: 'Amiri', serif; font-weight: bold; width: 100%;">
+                    🗑️ مسح كل البيانات
+                </button>
+            </div>
+            
+        </div>
+    `;
+    return section;
+}
+
+// تحميل بيانات الإعدادات
+function loadSettingsData() {
+    // الخطة الحالية
+    const planText = {
+        'quarter': '🌱 ربع صفحة يومياً',
+        'half': '🌿 نصف صفحة يومياً',
+        'full': '🌳 صفحة كاملة يومياً'
+    };
+    document.getElementById('current-plan-text').innerText = planText[hifzData.plan] || '-';
+    document.getElementById('plan-select').value = hifzData.plan;
+    
+    // تاريخ البداية
+    if (hifzData.startDate) {
+        const startDate = new Date(hifzData.startDate);
+        document.getElementById('stats-start-date').innerText = startDate.toLocaleDateString('ar-SA');
+        
+        // مدة الحفظ
+        const days = Math.floor((new Date() - startDate) / (1000 * 60 * 60 * 24));
+        document.getElementById('stats-duration').innerText = days + ' يوم';
+    }
+    
+    // أطول سلسلة
+    document.getElementById('stats-longest-streak').innerText = (hifzData.longestStreak || 0) + ' يوم 🔥';
+    
+    // الاختبارات
+    document.getElementById('stats-total-tests').innerText = (hifzData.totalTests || 0);
+    
+    // أعلى درجة
+    const bestScore = hifzData.testScores && hifzData.testScores.length > 0 
+        ? Math.max(...hifzData.testScores.map(t => t.score))
+        : 0;
+    document.getElementById('stats-best-score').innerText = bestScore + '%';
+    
+    // الشارات
+    const badgesCount = hifzData.earnedBadges ? hifzData.earnedBadges.length : 0;
+    document.getElementById('stats-badges').innerText = badgesCount + ' 🏆';
+}
+
+// تغيير الخطة
+function changePlan() {
+    const newPlan = document.getElementById('plan-select').value;
+    
+    if (confirm('هل أنت متأكد من تغيير الخطة؟\n\n⚠️ سيتم الاحتفاظ بتقدمك الحالي')) {
+        hifzData.plan = newPlan;
+        saveHifzData();
+        
+        alert('✅ تم تحديث الخطة بنجاح!');
+        loadSettingsData();
+    }
+}
+
+// تصدير البيانات
+function exportHifzData() {
+    const dataStr = JSON.stringify(hifzData, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `hifz-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    
+    URL.revokeObjectURL(url);
+    
+    alert('✅ تم تصدير البيانات بنجاح!\nاحفظ الملف في مكان آمن');
+}
+
+// استيراد البيانات
+function importHifzData() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        
+        reader.onload = (event) => {
+            try {
+                const importedData = JSON.parse(event.target.result);
+                
+                if (confirm('⚠️ سيتم استبدال بياناتك الحالية\nهل أنت متأكد؟')) {
+                    hifzData = importedData;
+                    saveHifzData();
+                    
+                    alert('✅ تم استيراد البيانات بنجاح!');
+                    closeHifzSettings();
+                    initHifzSection();
+                }
+            } catch (error) {
+                alert('❌ خطأ في قراءة الملف!\nتأكد من أن الملف صحيح');
+            }
+        };
+        
+        reader.readAsText(file);
+    };
+    
+    input.click();
+}
+
+// إعادة تعيين كل البيانات
+function resetHifzData() {
+    if (confirm('⚠️ تحذير!\n\nسيتم مسح كل بيانات الحفظ:\n- الصفحات المحفوظة\n- السلسلة اليومية\n- الاختبارات والمراجعات\n- الشارات المكتسبة\n\nهل أنت متأكد تماماً؟')) {
+        if (confirm('⚠️ تأكيد نهائي!\n\nلا يمكن التراجع عن هذا الإجراء\nهل تريد المتابعة؟')) {
+            // إعادة تعيين البيانات
+            hifzData = {
+                plan: null,
+                startDate: null,
+                currentPage: 1,
+                completedPages: [],
+                reviewedPages: {},
+                currentStreak: 0,
+                longestStreak: 0,
+                lastCompletedDate: null,
+                totalAyat: 0,
+                totalReviews: 0,
+                testScores: [],
+                totalTests: 0,
+                averageScore: 0,
+                earnedBadges: []
+            };
+            
+            saveHifzData();
+            
+            alert('✅ تم مسح كل البيانات\nيمكنك البدء من جديد');
+            
+            closeHifzSettings();
+            document.getElementById('hifz-main').style.display = 'none';
+            document.getElementById('hifz-setup').style.display = 'block';
+        }
+    }
+}
+
+// إغلاق الإعدادات
+function closeHifzSettings() {
+    document.getElementById('hifz-settings').style.display = 'none';
+    document.getElementById('hifz-main').style.display = 'block';
+    updateHifzStats();
 }
 
 // تحميل البيانات عند فتح القسم
