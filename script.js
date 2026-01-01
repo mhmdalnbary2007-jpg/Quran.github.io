@@ -2076,7 +2076,12 @@ function updateHifzStats() {
     
     const avgScore = document.getElementById('hifz-average-score');
     if (avgScore) avgScore.innerText = hifzData.averageScore + '%';
-}
+    
+        const badgesCount = document.getElementById('hifz-badges-count');
+    if (badgesCount && hifzData.earnedBadges) {
+        badgesCount.innerText = hifzData.earnedBadges.length;
+    }
+
 
 
 // إظهار احتفالية
