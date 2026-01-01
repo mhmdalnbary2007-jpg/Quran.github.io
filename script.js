@@ -13,7 +13,6 @@ let sebhaCounters = JSON.parse(localStorage.getItem('sebhaCounters')) || {
     takbir: { count: 0, goal: 100 },
     salah: { count: 0, goal: 100 }
 };
-
 const sebhaTexts = {
     tasbih: { title: 'التسبيح', text: 'سُبْحَانَ اللَّهِ', emoji: '📿' },
     istighfar: { title: 'الاستغفار', text: 'أَسْتَغْفِرُ اللَّهَ', emoji: '🤲' },
