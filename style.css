@@ -1004,3 +1004,20 @@ body.dark-mode .achievement-label {
     box-shadow: 0 15px 50px rgba(0,0,0,0.4);
     font-family: 'Amiri', serif;
 }
+/* زر الرجوع الحديث */
+.modern-back-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--dark-teal);
+    border: 2px solid var(--dark-teal);
+    padding: 8px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Amiri', serif;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.modern-back-btn:hover {
+    background: var(--dark-teal);
+    color: white;
+}
