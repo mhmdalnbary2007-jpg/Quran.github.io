@@ -2070,8 +2070,12 @@ function updateHifzStats() {
     if (ayatCount) ayatCount.innerText = hifzData.totalAyat;
     
     const reviewsCount = document.getElementById('hifz-reviews-count');
-if (reviewsCount) reviewsCount.innerText = hifzData.totalReviews;
+    if (reviewsCount) reviewsCount.innerText = hifzData.totalReviews;
+    
+    const avgScore = document.getElementById('hifz-average-score');
+    if (avgScore) avgScore.innerText = hifzData.averageScore + '%';
 }
+
 
 // إظهار احتفالية
 function showHifzCelebration() {
