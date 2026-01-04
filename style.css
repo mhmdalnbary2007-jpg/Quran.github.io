@@ -471,6 +471,26 @@ body.dark-mode .achievement-label {
     color: var(--gold) !important;
     transition: color 0.3s ease;
 }
+/* البسملة المنفصلة */
+.basmala-header {
+    display: block;
+    text-align: center;
+    font-size: 2.2rem;
+    color: var(--gold);
+    font-weight: bold;
+    margin: 20px 0 30px 0;
+    padding: 20px;
+    font-family: 'Scheherazade New', 'Amiri', serif;
+    background: linear-gradient(135deg, rgba(201,176,122,0.1), rgba(201,176,122,0.05));
+    border-radius: 15px;
+    border: 2px solid rgba(201,176,122,0.3);
+}
+
+/* إخفاء البسملة من الآيات */
+.ayah-item[data-ayah="1"] .basmala-part {
+    display: none !important;
+}
+
 /* ================= إشعارات الشارات والترقيات ================= */
 
 .badge-notification {
