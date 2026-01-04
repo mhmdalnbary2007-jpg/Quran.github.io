@@ -66,7 +66,18 @@ header { background: var(--dark-teal); color: var(--gold); padding: 20px 10px; t
 #seekSlider { width: 100%; accent-color: var(--dark-teal); height: 4px; }
 
 /* الآيات */
-.ayah-text { background: white; padding: 25px; border-radius: 12px; font-size: 1.7rem; line-height: 2.3; text-align: center; margin: 10px; border: 1px solid rgba(201, 176, 122, 0.1); }
+..ayah-text { 
+    background: white; 
+    padding: 25px; 
+    border-radius: 12px; 
+    font-size: 1.7rem; 
+    line-height: 2.3; 
+    text-align: center; 
+    margin: 10px; 
+    border: 1px solid rgba(201, 176, 122, 0.1);
+    font-family: 'Scheherazade New', 'Amiri', serif; /* 👈 الخط العثماني */
+}
+
 
 /* الأذكار */
 .zekr-card { background: white; padding: 15px; border-right: 6px solid var(--gold); border-radius: 10px; margin: 10px; cursor: pointer; transition: 0.5s; }
@@ -812,14 +823,14 @@ body.dark-mode .achievement-label {
         min-height: 50px !important;
     }
     
-    /* الآيات */
-    .ayah-text {
-        font-size: 1.4rem !important;
-        line-height: 2 !important;
-        padding: 15px !important;
-        margin: 5px !important;
-    }
-    
+  .ayah-text {
+    font-size: 1.4rem !important;
+    line-height: 2 !important;
+    padding: 15px !important;
+    margin: 5px !important;
+    font-family: 'Scheherazade New', 'Amiri', serif !important; /* 👈 ثبّت الخط */
+}
+
     /* الأذكار */
     .zekr-text {
         font-size: 1.2rem !important;
