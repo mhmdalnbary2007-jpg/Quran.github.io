@@ -472,19 +472,29 @@ body.dark-mode .achievement-label {
     transition: color 0.3s ease;
 }
 /* البسملة المنفصلة */
+./* البسملة المنفصلة الذهبية */
 .basmala-header {
     display: block;
     text-align: center;
-    font-size: 2.2rem;
+    font-size: 2.5rem;
     color: var(--gold);
     font-weight: bold;
-    margin: 20px 0 30px 0;
+    margin: 25px 0 35px 0;
     padding: 20px;
     font-family: 'Scheherazade New', 'Amiri', serif;
-    background: linear-gradient(135deg, rgba(201,176,122,0.1), rgba(201,176,122,0.05));
+    background: linear-gradient(135deg, rgba(201,176,122,0.15), rgba(201,176,122,0.05));
     border-radius: 15px;
-    border: 2px solid rgba(201,176,122,0.3);
+    border: 2px solid rgba(201,176,122,0.4);
+    box-shadow: 0 4px 15px rgba(201,176,122,0.2);
 }
+
+/* للوضع الداكن */
+body.dark-mode .basmala-header {
+    background: linear-gradient(135deg, rgba(201,176,122,0.2), rgba(201,176,122,0.1));
+    color: var(--gold);
+    border-color: var(--gold);
+}
+
 
 /* إخفاء البسملة من الآيات */
 .ayah-item[data-ayah="1"] .basmala-part {
@@ -567,41 +577,7 @@ body.dark-mode .achievement-label {
     }
 }
 /* فصل البسملة عن الآيات */
-/* تنسيق البسملة المنفصلة */
-.basmala-separate {
-    display: block;
-    text-align: center;
-    font-size: 2rem;
-    color: var(--gold);
-    font-weight: bold;
-    margin: 20px 0 30px 0;
-    padding-bottom: 15px;
-    border-bottom: 2px solid rgba(201, 176, 122, /* إخفاء البسملة الزرقاء من النص */
-.ayah-text .ayah-item:first-child {
-    font-size: 0 !important;
-    display: inline !important;
-}
-
-/* إخفاء البسملة الزرقاء من النص */
-.ayah-text .ayah-item:first-child {
-    font-size: 0 !important;
-    display: inline !important;
-}
-
-.ayah-text .ayah-item:first-child::after {
-    content: attr(data-clean-text);
-    font-size: 1.7rem;
-}
-
-/* أو الحل الأبسط: */
-.ayah-text span:first-of-type {
-    text-indent: -9999px;
-    display: inline-block;
-    width: 0;
-    height: 0;
-    overflow: hidden;
-}
-/* ==========================================
+/*=======================================
    المصحف الورقي - Paper Mushaf
    ========================================== */
 
