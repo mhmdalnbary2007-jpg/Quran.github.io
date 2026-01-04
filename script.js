@@ -206,21 +206,25 @@ function openSurah(id, name) {
     
     fetch(`https://api.alquran.cloud/v1/surah/${id}`).then(res => res.json()).then(data => {
         const ayahs = data.data.ayahs;
-        
         let ayahsHTML = '';
         
+        // عرض البسملة منفصلة (ما عدا التوبة والفاتحة)
         if (id !== 9 && id !== 1) {
-            ayahsHTML = '<div class="basmala-separate">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>';
+            ayahsHTML = '<div class="basmala-header">بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</div>';
         }
         
+        // عرض الآيات بدون البسملة
         for (let i = 0; i < ayahs.length; i++) {
             let text = ayahs[i].text;
+            
+            // حذف البسملة من النص
             text = text.replace(/بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ/g, '');
             text = text.replace(/بسم الله الرحمن الرحيم/g, '');
+            text = text.replace(/بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ/g, '');
             text = text.trim();
             
             if (text.length > 0) {
-                ayahsHTML += '<span class="ayah-item" data-index="' + i + '">' + text + '</span> <span style="color:var(--gold); font-size: 1.1rem;">(' + ayahs[i].numberInSurah + ')</span> ';
+                ayahsHTML += '<span class="ayah-item" data-index="' + i + '">' + text + '</span> <span style="color:var(--gold); font-size: 1.1rem;">﴿' + ayahs[i].numberInSurah + '﴾</span> ';
             }
         }
         
