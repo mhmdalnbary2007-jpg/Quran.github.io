@@ -204,29 +204,88 @@ function openSurah(id, name) {
     
     updateAudioSource();
     
-    // ✨ استخدام API الرسم العثماني
-    fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(res => res.json()).then(data => {
-        const ayahs = data.data.ayahs;
-        let ayahsHTML = '';
-        
-        // عرض البسملة الذهبية (ما عدا التوبة والفاتحة)
-        if (id !== 9 && id !== 1) {
-            ayahsHTML = '<div class="basmala-separate">بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</div>';
-        }
-        
-        // عرض الآيات (نبدأ من الآية 1، نتخطى الآية 0 اللي هي البسملة)
-        for (let i = 0; i < ayahs.length; i++) {
-            const ayah = ayahs[i];
+    const container = document.getElementById('ayahsContainer');
+    
+    // 🧪 رسالة التحميل
+    container.innerHTML = '<div style="text-align:center; padding:30px; background:yellow; color:black; font-weight:bold; font-size:1.2rem;">🧪 جاري الاختبار...</div>';
+    
+    fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`)
+        .then(res => res.json())
+        .then(data => {
+            const ayahs = data.data.ayahs;
+            let ayahsHTML = '';
             
-            // ✅ تخطي البسملة (رقم الآية 0 في معظم السور)
-            if (ayah.numberInSurah === 0) continue;
+            // 🧪 رسالة معلومات الاختبار
+            ayahsHTML += `
+                <div style="background: #e8f5e9; padding: 20px; margin: 10px; border-radius: 10px; border: 2px solid #4caf50;">
+                    <h3 style="color: #2e7d32; margin: 0 0 10px 0;">📊 معلومات الاختبار:</h3>
+                    <p style="margin: 5px 0;"><strong>🔹 API المستخدم:</strong> quran-uthmani</p>
+                    <p style="margin: 5px 0;"><strong>🔹 السورة:</strong> ${name} (رقم ${id})</p>
+                    <p style="margin: 5px 0;"><strong>🔹 عدد الآيات الكلي:</strong> ${ayahs.length}</p>
+                    <p style="margin: 5px 0;"><strong>🔹 أول آية رقم:</strong> ${ayahs[0].numberInSurah}</p>
+                    <p style="margin: 5px 0;"><strong>🔹 أول آية نص:</strong> ${ayahs[0].text.substring(0, 50)}...</p>
+                </div>
+            `;
             
-            ayahsHTML += '<span class="ayah-item" data-index="' + i + '">' + ayah.text + '</span> <span style="color:var(--gold); font-size: 1.1rem;">﴿' + ayah.numberInSurah + '﴾</span> ';
-        }
-        
-        document.getElementById('ayahsContainer').innerHTML = ayahsHTML;
-        setupAyahHighlighting(ayahs.length);
-    });
+            // البسملة الذهبية
+            if (id !== 9 && id !== 1) {
+                ayahsHTML += '<div class="basmala-separate">بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</div>';
+                ayahsHTML += '<div style="background: #fff3cd; padding: 10px; margin: 10px; border-radius: 8px; color: #856404; font-weight: bold;">✅ تم عرض البسملة الذهبية في الأعلى</div>';
+            }
+            
+            // فحص وعرض الآيات
+            let skippedBasmala = false;
+            let firstAyahNumber = null;
+            
+            ayahs.forEach((ayah, index) => {
+                // تخطي البسملة
+                if (ayah.numberInSurah === 0) {
+                    skippedBasmala = true;
+                    return;
+                }
+                
+                if (firstAyahNumber === null) {
+                    firstAyahNumber = ayah.numberInSurah;
+                }
+                
+                ayahsHTML += `<span class="ayah-item" data-index="${index}">${ayah.text}</span> <span style="color:var(--gold); font-size: 1.1rem;">﴿${ayah.numberInSurah}﴾</span> `;
+            });
+            
+            // رسالة النتيجة
+            if (skippedBasmala) {
+                ayahsHTML = `
+                    <div style="background: #d4edda; padding: 15px; margin: 10px; border-radius: 10px; border: 2px solid #28a745; color: #155724; font-weight: bold; text-align: center;">
+                        ✅ نجح الاختبار! تم تخطي البسملة (الآية رقم 0)
+                    </div>
+                ` + ayahsHTML;
+            } else {
+                ayahsHTML = `
+                    <div style="background: #f8d7da; padding: 15px; margin: 10px; border-radius: 10px; border: 2px solid #dc3545; color: #721c24; font-weight: bold; text-align: center;">
+                        ⚠️ لم يتم العثور على بسملة منفصلة (الآية رقم 0)
+                    </div>
+                ` + ayahsHTML;
+            }
+            
+            ayahsHTML += `
+                <div style="background: #d1ecf1; padding: 15px; margin: 10px; border-radius: 10px; border: 2px solid #17a2b8;">
+                    <h3 style="color: #0c5460; margin: 0 0 10px 0;">📋 النتيجة:</h3>
+                    <p style="margin: 5px 0;"><strong>🔹 البسملة المنفصلة تم تخطيها:</strong> ${skippedBasmala ? '✅ نعم' : '❌ لا'}</p>
+                    <p style="margin: 5px 0;"><strong>🔹 أول آية معروضة رقم:</strong> ${firstAyahNumber || 'لا يوجد'}</p>
+                    <p style="margin: 5px 0;"><strong>🔹 عدد الآيات المعروضة:</strong> ${ayahs.filter(a => a.numberInSurah !== 0).length}</p>
+                </div>
+            `;
+            
+            container.innerHTML = ayahsHTML;
+            setupAyahHighlighting(ayahs.length);
+        })
+        .catch(error => {
+            container.innerHTML = `
+                <div style="background: #f8d7da; padding: 30px; margin: 10px; border-radius: 10px; border: 2px solid #dc3545; color: #721c24; text-align: center;">
+                    <h3 style="margin: 0 0 10px 0;">❌ فشل الاختبار!</h3>
+                    <p><strong>الخطأ:</strong> ${error.message}</p>
+                </div>
+            `;
+        });
 
     if (typeof checkKhatmaProgress === "function") {
         checkKhatmaProgress(id);
