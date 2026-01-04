@@ -987,3 +987,15 @@ body.dark-mode .basmala-separate {
     }
 }
 }
+/* اختبار البسملة - لون أحمر واضح */
+.basmala-separate {
+    display: block !important;
+    text-align: center !important;
+    font-size: 3rem !important;
+    color: red !important;
+    font-weight: bold !important;
+    margin: 30px auto !important;
+    padding: 20px !important;
+    background: yellow !important;
+    font-family: 'Scheherazade New', 'Amiri', serif !important;
+}
