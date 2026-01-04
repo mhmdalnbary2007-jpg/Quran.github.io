@@ -213,16 +213,20 @@ function openSurah(id, name) {
             ayahsHTML = '<div class="basmala-header">بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</div>';
         }
         
-        // عرض الآيات بدون البسملة
+        // عرض الآيات
         for (let i = 0; i < ayahs.length; i++) {
             let text = ayahs[i].text;
             
-            // حذف البسملة من النص
-            text = text.replace(/بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ/g, '');
-            text = text.replace(/بسم الله الرحمن الرحيم/g, '');
-            text = text.replace(/بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ/g, '');
+            // ✨ حذف البسملة من الآية الأولى فقط (إذا كانت في بداية النص)
+            if (i === 0) {
+                text = text.replace(/^بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\s*/g, '');
+                text = text.replace(/^بسم الله الرحمن الرحيم\s*/g, '');
+                text = text.replace(/^بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ\s*/g, '');
+            }
+            
             text = text.trim();
             
+            // ✨ عرض الآية فقط إذا كان فيها نص (مو فاضية)
             if (text.length > 0) {
                 ayahsHTML += '<span class="ayah-item" data-index="' + i + '">' + text + '</span> <span style="color:var(--gold); font-size: 1.1rem;">﴿' + ayahs[i].numberInSurah + '﴾</span> ';
             }
