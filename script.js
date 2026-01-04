@@ -208,7 +208,8 @@ function openSurah(id, name) {
         const ayahs = data.data.ayahs;
         let ayahsHTML = '';
         
-        // عرض البسملة منفصلة (ما عدا التوبة والفاتحة)
+        // ✅ عرض البسملة منفصلة (ما عدا التوبة فقط - رقم 9)
+        // الفاتحة (رقم 1) تعرض البسملة لأنها آية منها
         if (id !== 9 && id !== 1) {
             ayahsHTML = '<div class="basmala-header">بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</div>';
         }
@@ -217,16 +218,18 @@ function openSurah(id, name) {
         for (let i = 0; i < ayahs.length; i++) {
             let text = ayahs[i].text;
             
-            // ✨ حذف البسملة من الآية الأولى فقط (إذا كانت في بداية النص)
-            if (i === 0) {
-                text = text.replace(/^بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\s*/g, '');
-                text = text.replace(/^بسم الله الرحمن الرحيم\s*/g, '');
-                text = text.replace(/^بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ\s*/g, '');
+            // ✅ حذف البسملة من الآية الأولى (ما عدا الفاتحة)
+            if (i === 0 && id !== 1) {
+                // حذف كل أشكال البسملة من بداية النص
+                text = text.replace(/^بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\s*/i, '');
+                text = text.replace(/^بسم الله الرحمن الرحيم\s*/i, '');
+                text = text.replace(/^بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ\s*/i, '');
+                text = text.replace(/^﻿بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\s*/i, ''); // مع الـ BOM
             }
             
             text = text.trim();
             
-            // ✨ عرض الآية فقط إذا كان فيها نص (مو فاضية)
+            // عرض الآية فقط إذا كان فيها نص
             if (text.length > 0) {
                 ayahsHTML += '<span class="ayah-item" data-index="' + i + '">' + text + '</span> <span style="color:var(--gold); font-size: 1.1rem;">﴿' + ayahs[i].numberInSurah + '﴾</span> ';
             }
@@ -240,7 +243,6 @@ function openSurah(id, name) {
         checkKhatmaProgress(id);
     }
 }
-
 
 // دالة تمييز الآيات أثناء القراءة// دالة تمييز الآيات أثناء القراءة - نسخة بسيطة
 function setupAyahHighlighting(totalAyahs) {
