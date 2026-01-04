@@ -1,3 +1,4 @@
+let currentSurahInfo = { id: 1, name: 'الفاتحة' };
 let allSurahs = [], currentSurahId = 1;
 let isMuted = localStorage.getItem('isMuted') === 'true';
 const audio = document.getElementById('audioPlayer');
@@ -195,6 +196,8 @@ let ayahTimings = []; // متغير عام لحفظ توقيت الآيات
 
 function openSurah(id, name) {
     currentSurahId = id;
+    currentSurahInfo = { id: id, name: name }; // حفظ المعلومات
+    
     document.getElementById('sideMenu').classList.remove('open');
     
     document.getElementById('full-quran-view').style.display = 'none';
@@ -1782,47 +1785,7 @@ function showPageTransition(arrow) {
 let currentSurahInfo = { id: 1, name: 'الفاتحة' };
 
 // تعديل دالة openSurah لحفظ معلومات السورة
-function openSurah(id, name) {
-    currentSurahId = id;
-    currentSurahInfo = { id: id, name: name }; // حفظ المعلومات
-    
-    document.getElementById('sideMenu').classList.remove('open');
-    
-    document.getElementById('full-quran-view').style.display = 'none';
-    document.getElementById('topics-view').style.display = 'none';
-    document.getElementById('quran-view').style.display = 'block';
-    document.getElementById('current-surah-title').innerText = name;
-    
-    updateAudioSource();
-    
-    fetch(`https://api.alquran.cloud/v1/surah/${id}`).then(res => res.json()).then(data => {
-        const ayahs = data.data.ayahs;
-        
-        let ayahsHTML = '';
-        
-        if (id !== 9 && id !== 1) {
-            ayahsHTML = '<div class="basmala-separate">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>';
-        }
-        
-        for (let i = 0; i < ayahs.length; i++) {
-            let text = ayahs[i].text;
-            text = text.replace(/بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ/g, '');
-            text = text.replace(/بسم الله الرحمن الرحيم/g, '');
-            text = text.trim();
-            
-            if (text.length > 0) {
-                ayahsHTML += '<span class="ayah-item" data-index="' + i + '">' + text + '</span> <span style="color:var(--gold); font-size: 1.1rem;">(' + ayahs[i].numberInSurah + ')</span> ';
-            }
-        }
-        
-        document.getElementById('ayahsContainer').innerHTML = ayahsHTML;
-        setupAyahHighlighting(ayahs.length);
-    });
 
-    if (typeof checkKhatmaProgress === "function") {
-        checkKhatmaProgress(id);
-    }
-}
 
 // دالة مشاركة السورة الحالية
 function shareCurrentSurah() {
