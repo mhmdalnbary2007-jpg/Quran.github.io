@@ -988,14 +988,31 @@ body.dark-mode .basmala-separate {
 }
 }
 /* اختبار البسملة - لون أحمر واضح */
+./* البسملة الذهبية */
 .basmala-separate {
     display: block !important;
     text-align: center !important;
     font-size: 3rem !important;
-    color: red !important;
+    color: #C9B07A !important;
     font-weight: bold !important;
     margin: 30px auto !important;
     padding: 20px !important;
-    background: yellow !important;
+    background: transparent !important;
     font-family: 'Scheherazade New', 'Amiri', serif !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* الوضع الداكن */
+body.dark-mode .basmala-separate {
+    color: #C9B07A !important;
+}
+
+/* الموبايل */
+@media (max-width: 768px) {
+    .basmala-separate {
+        font-size: 2.5rem !important;
+        margin: 25px auto !important;
+        padding: 15px !important;
+    }
 }
