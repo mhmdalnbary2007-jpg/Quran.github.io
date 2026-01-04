@@ -204,35 +204,24 @@ function openSurah(id, name) {
     
     updateAudioSource();
     
-    fetch(`https://api.alquran.cloud/v1/surah/${id}`).then(res => res.json()).then(data => {
+    // ✨ استخدام API الرسم العثماني
+    fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(res => res.json()).then(data => {
         const ayahs = data.data.ayahs;
         let ayahsHTML = '';
         
-        // ✅ عرض البسملة منفصلة (ما عدا التوبة فقط - رقم 9)
-        // الفاتحة (رقم 1) تعرض البسملة لأنها آية منها
+        // عرض البسملة الذهبية (ما عدا التوبة والفاتحة)
         if (id !== 9 && id !== 1) {
-            ayahsHTML = '<div class="basmala-header">بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</div>';
+            ayahsHTML = '<div class="basmala-separate">بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</div>';
         }
         
-        // عرض الآيات
+        // عرض الآيات (نبدأ من الآية 1، نتخطى الآية 0 اللي هي البسملة)
         for (let i = 0; i < ayahs.length; i++) {
-            let text = ayahs[i].text;
+            const ayah = ayahs[i];
             
-            // ✅ حذف البسملة من الآية الأولى (ما عدا الفاتحة)
-            if (i === 0 && id !== 1) {
-                // حذف كل أشكال البسملة من بداية النص
-                text = text.replace(/^بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\s*/i, '');
-                text = text.replace(/^بسم الله الرحمن الرحيم\s*/i, '');
-                text = text.replace(/^بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ\s*/i, '');
-                text = text.replace(/^﻿بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\s*/i, ''); // مع الـ BOM
-            }
+            // ✅ تخطي البسملة (رقم الآية 0 في معظم السور)
+            if (ayah.numberInSurah === 0) continue;
             
-            text = text.trim();
-            
-            // عرض الآية فقط إذا كان فيها نص
-            if (text.length > 0) {
-                ayahsHTML += '<span class="ayah-item" data-index="' + i + '">' + text + '</span> <span style="color:var(--gold); font-size: 1.1rem;">﴿' + ayahs[i].numberInSurah + '﴾</span> ';
-            }
+            ayahsHTML += '<span class="ayah-item" data-index="' + i + '">' + ayah.text + '</span> <span style="color:var(--gold); font-size: 1.1rem;">﴿' + ayah.numberInSurah + '﴾</span> ';
         }
         
         document.getElementById('ayahsContainer').innerHTML = ayahsHTML;
@@ -243,6 +232,7 @@ function openSurah(id, name) {
         checkKhatmaProgress(id);
     }
 }
+
 
 // دالة تمييز الآيات أثناء القراءة// دالة تمييز الآيات أثناء القراءة - نسخة بسيطة
 function setupAyahHighlighting(totalAyahs) {
