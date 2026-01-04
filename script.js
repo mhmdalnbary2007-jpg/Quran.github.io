@@ -1,4 +1,3 @@
-let currentSurahInfo = { id: 1, name: 'الفاتحة' };
 let allSurahs = [], currentSurahId = 1;
 let isMuted = localStorage.getItem('isMuted') === 'true';
 const audio = document.getElementById('audioPlayer');
@@ -196,8 +195,6 @@ let ayahTimings = []; // متغير عام لحفظ توقيت الآيات
 
 function openSurah(id, name) {
     currentSurahId = id;
-    currentSurahInfo = { id: id, name: name }; // حفظ المعلومات
-    
     document.getElementById('sideMenu').classList.remove('open');
     
     document.getElementById('full-quran-view').style.display = 'none';
@@ -1781,91 +1778,3 @@ function showPageTransition(arrow) {
     // إزالة بعد ثانية
     setTimeout(() => indicator.remove(), 800);
 }
-// متغير عام لحفظ معلومات السورة الحالية
-let currentSurahInfo = { id: 1, name: 'الفاتحة' };
-
-// تعديل دالة openSurah لحفظ معلومات السورة
-
-
-// دالة مشاركة السورة الحالية
-function shareCurrentSurah() {
-    const surahId = currentSurahInfo.id;
-    const surahName = currentSurahInfo.name;
-    
-    // إنشاء رابط مباشر
-    const shareUrl = window.location.origin + window.location.pathname + `?surah=${surahId}`;
-    
-    if (navigator.share) {
-        // للأجهزة المحمولة - Share API
-        navigator.share({
-            title: `سورة ${surahName} - حقيبة المؤمن`,
-            text: `اقرأ سورة ${surahName} مباشرة من حقيبة المؤمن`,
-            url: shareUrl
-        }).then(() => {
-            showShareSuccess();
-        }).catch(err => {
-            if (err.name !== 'AbortError') {
-                copyToClipboard(shareUrl, surahName);
-            }
-        });
-    } else {
-        // للكمبيوتر - نسخ للحافظة
-        copyToClipboard(shareUrl, surahName);
-    }
-}
-
-// دالة نسخ الرابط
-function copyToClipboard(url, surahName) {
-    navigator.clipboard.writeText(url).then(() => {
-        showShareSuccess();
-    }).catch(() => {
-        // Fallback للمتصفحات القديمة
-        const textarea = document.createElement('textarea');
-        textarea.value = url;
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-        showShareSuccess();
-    });
-}
-
-// رسالة نجاح المشاركة
-function showShareSuccess() {
-    const notification = document.createElement('div');
-    notification.className = 'share-success-notification';
-    notification.innerHTML = `
-        <div class="share-success-content">
-            ✅ تم نسخ الرابط بنجاح!
-        </div>
-    `;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        setTimeout(() => notification.remove(), 300);
-    }, 2000);
-}
-
-// فتح السورة تلقائياً من الرابط المشارك
-window.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const surahId = urlParams.get('surah');
-    
-    if (surahId) {
-        const id = parseInt(surahId);
-        if (id >= 1 && id <= 114) {
-            // جلب اسم السورة
-            fetch('https://api.alquran.cloud/v1/surah').then(res => res.json()).then(data => {
-                const surah = data.data.find(s => s.number === id);
-                if (surah) {
-                    setTimeout(() => {
-                        openSurah(id, surah.name);
-                    }, 500);
-                }
-            });
-        }
-    }
-});
